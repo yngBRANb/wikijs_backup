@@ -1,0 +1,63 @@
+<!--
+title: Криптоанализ методов перестановки
+description: Практическая работа №5 
+published: true
+date: 2025-01-19T09:51:35.980Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-19T09:51:28.769Z
+-->
+
+<h1 style="text-align:justify;">Цель работы: изучить методы криптоанализа шифров перестановки.</h1>
+<p style="text-align:justify;">&nbsp;</p>
+<p style="text-align:justify;">Краткие теоретические и учебно-методические материалы по теме практической работы&nbsp;</p>
+<p style="text-align:justify;">&nbsp;</p>
+<p style="text-align:justify;">Шифры перестановки,&nbsp;или транспозиции,&nbsp;изменяют только порядок следования символов или других элементов исходного текста. Классическим примером такого шифра является система, использующая карточку с отверстиями –&nbsp;решетку Кардано,&nbsp;которая при наложении на лист бумаги оставляет открытыми лишь некоторые его части. При зашифровке буквы сообщения вписываются в эти отверстия. При расшифровке сообщение вписывается в диаграмму нужных размеров, затем накладывается решетка, после чего на виду оказываются только буквы открытого текста.</p>
+<p style="text-align:justify;">Решетки можно использовать двумя различными способами. В первом случае зашифрованный текст состоит только из букв исходного сообщения. Решетка изготавливается таким образом, чтобы при ее последовательном использовании в различных положениях каждая клетка лежащего под ней листа бумаги оказалась занятой. Примером такой решетки является&nbsp;поворотная решетка,&nbsp;показанная на рис.1. Если такую решетку последовательно поворачивать на 90° после заполнения всех открытых при данном положении клеток, то при возврате решетки в исходное положение все клетки окажутся заполненными. Числа, стоящие в клетках, облегчают изготовление решетки. В каждом из концентрических окаймлений должна быть вырезана только одна клетка из тех, которые имеют одинаковый номер. асть листа бумаги, лежащего под решеткой, после чего буквы или слова</p>
+<p style="text-align:justify;">исходного текста окружаются ложным текстом.</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1&nbsp; &nbsp; &nbsp; &nbsp;2&nbsp; &nbsp; &nbsp; &nbsp;3&nbsp; &nbsp; &nbsp; &nbsp;4&nbsp; &nbsp; &nbsp; &nbsp;5&nbsp; 1</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;5&nbsp; &nbsp; &nbsp; &nbsp;1&nbsp; &nbsp; &nbsp; &nbsp;2&nbsp; &nbsp; &nbsp; &nbsp;3&nbsp; &nbsp; &nbsp; &nbsp;1&nbsp; 2</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;4&nbsp; &nbsp; &nbsp; &nbsp;3&nbsp; &nbsp; &nbsp; &nbsp;1&nbsp; &nbsp; &nbsp; &nbsp;1&nbsp; &nbsp; &nbsp; &nbsp;2&nbsp; 3</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;3&nbsp; &nbsp; &nbsp; &nbsp;2&nbsp; &nbsp; &nbsp; &nbsp;1&nbsp; &nbsp; &nbsp; &nbsp;1&nbsp; &nbsp; &nbsp; &nbsp;3&nbsp; 4</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;2&nbsp; &nbsp; &nbsp; &nbsp;1&nbsp; &nbsp; &nbsp; &nbsp;3&nbsp; &nbsp; &nbsp; &nbsp;2&nbsp; &nbsp; &nbsp; 1&nbsp; &nbsp;5</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;1&nbsp; &nbsp; &nbsp; &nbsp;5&nbsp; &nbsp; &nbsp; &nbsp;4&nbsp; &nbsp; &nbsp; &nbsp;3&nbsp; &nbsp; &nbsp; &nbsp;2&nbsp; 1</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Рис.4. Пример поворотной решетки</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; Рассмотрим усложненную перестановку по таблице. Пример таблицы</p>
+<p style="text-align:justify;">для реализации этого метода шифрования показан на рис.4. Таблица пред-</p>
+<p style="text-align:justify;">ставляет собой матрицу размерностью 6 х 6, в которую построчно</p>
+<p style="text-align:justify;">вписывается искомое сообщение. При считывании информации по столбцам</p>
+<p style="text-align:justify;">в соответствии с последовательностью чисел ключа получается шифротекст.</p>
+<p style="text-align:justify;">Усложнение заключается в том, что некоторые ячейки таблицы не</p>
+<p style="text-align:justify;">используются. При зашифровании сообщения</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; КОМАНДОВАТЬ ПАРАДОМ БУДУ Я</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; получим:</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; ОЬБНАОДКДМУМВ АУ ОТР ААПДЯ,</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Ключ</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;2&nbsp; &nbsp; 4&nbsp; &nbsp;0&nbsp; &nbsp; &nbsp;3&nbsp; &nbsp; 5&nbsp; &nbsp; 1</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;К&nbsp; &nbsp; &nbsp; О&nbsp; &nbsp; М&nbsp; &nbsp; &nbsp; &nbsp;А&nbsp; Н</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Д&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; О&nbsp; &nbsp; &nbsp; &nbsp;В&nbsp; &nbsp; &nbsp; А</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Т&nbsp; &nbsp; &nbsp; &nbsp; Ь&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;П&nbsp; &nbsp;А</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Р&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; А&nbsp; &nbsp; &nbsp; &nbsp;Д&nbsp; О</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;М&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Б&nbsp; &nbsp; &nbsp; &nbsp;У&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Д</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;У&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Я</p>
+<p style="text-align:justify;">&nbsp;</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; &nbsp; Рис.5. Пример шифрования методом усложненной перестановки по таблице</p>
+<p style="text-align:justify;">&nbsp; &nbsp; &nbsp; При расшифровании буквы шифротекста записываются по столбцам в</p>
+<p style="text-align:justify;">соответствии с последовательностью чисел ключа, после чего исходный</p>
+<p style="text-align:justify;">текст считывается по строкам. Для удобства запоминания ключа применяют</p>
+<p style="text-align:justify;">перестановку столбцов таблицы по ключевому слову или фразе, всем</p>
+<p style="text-align:justify;">символам которых ставятся в соответствие номера, определяемые порядком</p>
+<p style="text-align:justify;">соответствующих букв в алфавите. Например, при выборе в качестве ключа</p>
+<p style="text-align:justify;">слова ИНГОДА последовательность использования столбцов будет иметь</p>
+<p style="text-align:justify;">вид 462531.Также возможны и другие варианты шифра перестановки, например, шифры столбцовой и двойной перестановки.</p>
+<p style="text-align:justify;">&nbsp;</p>
+<p style="text-align:justify;">Задание</p>
+<p style="text-align:justify;">1.Дешифровать сообщение: (таблица 5*5)</p>
+<p style="text-align:justify;">опюшьхьэетчяя</p>
+<p style="text-align:justify;">2. Дешифровать сообщение:</p>
+<p style="text-align:justify;">икинорткелэоидаржделлок</p>
+<p style="text-align:justify;">&nbsp;</p>
+<p style="text-align:justify;">Контрольные вопросы.</p>
+<p style="text-align:justify;">1.Оценить надежность шифрования перестановкой</p>
+<p style="text-align:justify;">2.От чего зависит возможность успешного проведения криптоанализа шифров перестановки.</p>
+<p style="text-align:justify;">3. Насколько увеличивается сложность криптоанализа двойной перестановки.</p>

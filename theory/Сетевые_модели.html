@@ -1,0 +1,146 @@
+<!--
+title: Сетевые модели OSI и TCP/IP
+description: 
+published: true
+date: 2025-03-11T09:36:26.363Z
+tags: 
+editor: code
+dateCreated: 2025-01-15T11:51:31.045Z
+-->
+
+<h1><span class="text-small"><strong>Модель OSI</strong></span></h1>
+<p><a href="https://www.youtube.com/watch?v=je0QFU7p5Oo">Видео по модели OSI</a></p>
+<p>Модель OSI (Open Systems Interconnection) — это эталонная модель, разработанная для описания функций телекоммуникационных или вычислительных систем, необходимых для сетевого взаимодействия. Она разделяет процесс сетевого взаимодействия на семь взаимосвязанных уровней. Каждый уровень выполняет специфические функции и взаимодействует с уровнями непосредственно выше и ниже.</p>
+<p><strong>Звучит сложно?</strong></p>
+<p>Если проще, то информация, передающаяся по сети, делится на семь разных по смыслу уровней. На каждом уровне кабели, оборудование, приложения и т.д. работают с одними и теми же данными по-разному. Например, кабели передают информацию в виде нулей и единиц, а сетевое оборудование использует эти данные для передачи информации в другую точку страны, чтобы пользователь мог прочитать эту статью на Хабре. Кабелю не нужно знать, что за буквы в данной информации, а пользователю незачем знать последовательность нулей и единиц. Надеюсь, это объяснение понятно.</p>
+<p>Модель OSI — это эталонная модель, которая, к сожалению, не нашла широкого применения в реальном мире. Поэтому появилась модель TCP/IP, по которой работает вся наша текущая сеть. Однако, когда два сетевика общаются между собой, они используют более распространенную модель OSI для лучшего понимания.&nbsp;</p>
+<h2><span class="text-small"><strong>Теперь рассмотрим модель OSI и каждый из ее уровней.</strong></span></h2>
+<br>
+<figure class="table" style="width:1027.45px;">
+  <table style="background-color:rgb(0, 0, 0);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);">
+    <tbody>
+      <tr>
+        <th style="background-color:rgb(68, 68, 68);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);width:10em;" colspan="2">Уровень (layer)</th>
+        <th style="background-color:rgb(68, 68, 68);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);width:5em;">Тип данных (PDU)</th>
+        <th style="background-color:rgb(68, 68, 68);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);width:10em;">Функции</th>
+        <th style="background-color:rgb(68, 68, 68);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);width:5em;">Примеры</th>
+        <th style="background-color:rgb(68, 68, 68);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Оборудование</th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(85, 85, 85);border-bottom:0px solid #FFF;border-left:0px solid #FFF;border-right:0px solid #FFF;border-top:0px solid #FFF;padding:var(--space-xs) var(--space-sm);" rowspan="4">
+          <p style="text-align:center;">Host<br>layers</p>
+        </th>
+        <th style="background-color:hsl(210, 75%, 60%);border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:var(--space-xs) var(--space-sm);color: black;">7. Прикладной (application)</th>
+        <th style="background-color:hsl(210, 75%, 60%);border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:var(--space-xs) var(--space-sm);color: black;" rowspan="3">
+          <p style="text-align:center;">Данные</p>
+        </th>
+        <th style="background-color:hsl(210, 75%, 60%);border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:var(--space-xs) var(--space-sm);color: black;">Доступ к сетевым службам</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">HTTP, FTP, POP3, SMTP, WebSocket</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);" rowspan="4">
+          <p>Хосты (клиенты сети),</p>
+          <p>Межсетевой экран</p>
+        </th>
+      </tr>
+      <tr>
+        <th style="background-color:hsl(210, 75%, 60%);border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:var(--space-xs) var(--space-sm);color: black;">6. Представления (presentation)</th>
+        <th style="background-color:hsl(210, 75%, 60%);border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:var(--space-xs) var(--space-sm);color: black;">Представление и шифрование данных</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">ASCII, EBCDIC, SSL, gzip</th>
+      </tr>
+      <tr>
+        <th style="background-color:hsl(210, 75%, 60%);border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:var(--space-xs) var(--space-sm);color: black;">5. Сеансовый (session)</th>
+        <th style="background-color:hsl(210, 75%, 60%);border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:var(--space-xs) var(--space-sm);color: black;">Управление сеансом связи</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">RPC, PAP, L2TP, gRPC</th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(213, 196, 161);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);color: black;">4. Транспортный (transport)</th>
+        <th style="background-color:rgb(213, 196, 161);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);color: black;">
+          <p style="text-align:center;">Сегменты (segment) / Датаграммы (datagram)</p>
+        </th>
+        <th style="background-color:rgb(213, 196, 161);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);color: black;">Прямая связь между конечными пунктами и надёжность</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">TCP, UDP, SCTP, Порты</th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(85, 85, 85);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);" rowspan="3">
+          <p style="text-align:center;">Media<br>layers</p>
+        </th>
+        <th style="background-color:rgb(235, 203, 138);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);color: black;">3. Сетевой (network)</th>
+        <th style="background-color:rgb(235, 203, 138);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);color: black;">
+          <p style="text-align:center;">Пакеты (packet)</p>
+        </th>
+        <th style="background-color:rgb(235, 203, 138);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);color: black;">Определение маршрута и логическая адресация</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">IPv4, IPv6, IPsec, AppleTalk, ICMP</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">
+          <p>Маршрутизатор, Сетевой шлюз,</p>
+          <p>Межсетевой экран</p>
+        </th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(216, 222, 233);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);color: black;">2. Канальный (data link)</th>
+        <th style="background-color:rgb(216, 222, 233);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">
+          <p style="text-align:center;color: black;">Кадры (frame)</p>
+        </th>
+        <th style="background-color:rgb(216, 222, 233);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);color: black;">Физическая адресация</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">PPP, IEEE 802.22, Ethernet, DSL, ARP, сетевая карта</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">
+          <p>Сетевой мост, Коммутатор,</p>
+          <p>точка доступа</p>
+        </th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(76, 86, 106);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">1. Физический (physical)</th>
+        <th style="background-color:rgb(76, 86, 106);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">
+          <p style="text-align:center;">Биты (bit)</p>
+        </th>
+        <th style="background-color:rgb(76, 86, 106);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Работа со средой передачи, сигналами и двоичными данными</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">USB, RJ («витая пара», коаксиальный, оптоволоконный), радиоканал</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Концентратор, Повторитель</th>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<h2><span class="text-small"><strong>L7. Прикладной уровень (Application Layer)</strong></span></h2>
+<p>Это самый высокий уровень. На нём работают пользовательские приложения, установленные на компьютере, сервере или телефоне. Здесь работают, например: клиент электронной почты и почтовый сервер, программный телефон и сервер ip-телефонии, браузер и web-сервер.</p>
+<p>Протоколы этого уровня: DNS, HTTP, POP3, IMAP, SMTP, SIP, FTP, CIFS, NFS, DHCP и подобные.</p>
+<p>Передающиеся данные на этом уровне называются сообщениями.</p>
+<h2><span class="text-small"><strong>L6. Уровень представления (Presentation Layer)</strong></span></h2>
+<p>На этом уровне происходит преобразование данных. Например шифрование или сжатие. Данные должны быть представлены в определённом виде, чтобы принимающее их приложение смогло эти данные обработать.</p>
+<p>Здесь, теоретически, данные могут преобразовываться в разные форматы, например GIF или MP4. Или данные могут быть зашифрованы и расшифрованы.</p>
+<p>На этом уровне работают протоколы: SSL и TLS.</p>
+<h2><span class="text-small"><strong>L5. Сеансовый уровень (Session Layer)</strong></span></h2>
+<p>Этот уровень отвечает за создание и уничтожение сеансов связи. Чтобы сеанс установился и поддерживался, на этом же уровне работает согласование кодеков.</p>
+<h2><span class="text-small"><strong>L4. Транспортный уровень (Transport Layer)</strong></span></h2>
+<p>Этот уровень обеспечивает передачу данных по сети. То есть данные ещё не передаются физически, но уже происходит договорённость, как данные будут передаваться.</p>
+<p>Здесь работают два протокола TCP и UDP. Эти протоколы применяются для разного типа трафика. Если трафик чувствителен к потерям, то используют TCP, который гарантирует доставку данных. А если трафику нужна более быстрая передача данных и можно пожертвовать потерями данных, то используют UDP.</p>
+<p>На этом уровне сообщение делится на сегменты (если выбран протокол TCP) или на дейтаграммы (если выбран протокол UDP). В качестве служебной информации к каждому сегменту или дейтаграмме добавляется сетевой порт источника и назначения. Такие порты прослушивают процессы на хостах (компьютерах, серверах или телефонах).</p>
+<h2><span class="text-small"><strong>L3. Сетевой уровень (Network Layer)</strong></span></h2>
+<p>Этот уровень тоже отвечает за передачу данных. Но в отличии от транспортного уровня, где происходит выбор надёжности или скорости отправки данных. Задача этого уровня — IP-адресация и маршрутизация.</p>
+<p>На этом уровне пришедший сверху сегмент или дейтаграмма делится на пакеты. А в качестве служебной информации к каждому пакету добавляется ip-адреса отправителя и получателя.</p>
+<p>IP-адрес — это сетевой адрес устройства в Интернете. Именно на этом уровне происходит маршрутизация пакетов, поэтому здесь расположились протоколы маршрутизации: BGP, OSPF, RIP, EIGRP. Также на этом уровне работает протокол: ICMP, именно с его помощью работает утилита PING. Ну и конечно же здесь работает протокол IP, который вводит ip-адреса.</p>
+<p>А главное устройство, работающее на этом уровне — <strong>Маршрутизатор (Router)</strong>.</p>
+<h2><span class="text-small"><strong>L2. Канальный уровень (Data Link Layer)</strong></span></h2>
+<p>Этот уровень разбивает пакеты, пришедшие с сетевого уровня на кадры (Frame). В качестве дополнительной информации каждому кадру назначаются физические адреса (mac-адреса) отправителя и получателя.</p>
+<p>MAC-адрес — это физический адрес устройства в одном широковещательном домене.</p>
+<p>Помимо физической адресации, этот уровень отвечает за обнаружение и исправление ошибок. То есть каждый кадр проверяется на ошибки и происходит попытка исправления ошибок разными способами (а иногда и не происходит).</p>
+<p>На этом уровне работают <strong>коммутаторы (Switch)</strong> и мосты (Bridge). Эти устройства передают кадры определённому получателю, а не всем.</p>
+<p>На этом уровне работают протоколы: CDP, PPP, MPLS. Также здесь обитает технология Ethernet, которая занимает этот уровень и более низкий уровень.</p>
+<h2><span class="text-small"><strong>L1. Физический уровень (Physical Layer)</strong></span></h2>
+<p>Это самый нижний уровень модели OSI. На этом уровне происходит разбивка кадров на биты. Затем биты кодируются в сигналы, а сигналы передаются по среде передачи. По проводам можно передавать сигналы с помощью электрического тока или света. Или можно передавать сигналы с помощью радио-волн.</p>
+<p>Среди технологий, работающих на этом уровне, можно выделить Ethernet. Он описывает, как сигналы должны кодироваться, передаваться по проводам и так далее. Ещё на этом уровне работают: Bluetooth и Wi-Fi.</p>
+<p>Сетевые устройства, которые здесь работают, это: концентраторы (Hub) и повторители (Repeater). Эти устройства работают с сигналами не вникая в логику передачи. Так как здесь нет никаких адресов, то сигнал просто передаётся с одного порта на другой.</p>
+<h1><span class="text-small"><strong>Модель TCP/IP</strong></span></h1>
+<p>Эталонная модель сетевых взаимодействий OSI — это теоретическая модель, которая хорошо описывает, как сетевые устройства должны общаться друг с другом. Но на практике, разрабатывая сетевые протоколы, вместо OSI используют другую модель сетевых взаимодействий — TCP/IP.</p>
+<p>Помимо модели сетевых взаимодействий TCP/IP есть стек протоколов TCP/IP. В этот стек входит множество сетевых протоколов, которые хорошо встраиваются в одноименную модель.</p>
+<p>Модель TCP/IP делит процесс передачи данных на 4 уровня вместо 7 уровней OSI:</p>
+<figure class="image"><img src="/ssa/windows/theoretical/osi.png"></figure>
+<h2><span class="text-small"><strong>L4. Прикладной уровень (Application Layer)</strong></span></h2>
+<p>Прикладной уровень в модели TCP/IP является самым верхним. Здесь работают приложения, установленные на компьютере, телефоне или сервере. Но в отличии от модели OSI здесь же происходит согласование данных (шифрование, сжатие, выбор формата данных и выбор кодеков) и установка сеансов связи.</p>
+<p>Например, здесь работают протоколы SIP, DHCP, HTTP и подобные.</p>
+<h2><span class="text-small"><strong>L3. Транспортный уровень (Transport Layer)</strong></span></h2>
+<p>Этот уровень не отличается от транспортного уровня в модели OSI. Здесь также работают 2 протокола: TCP и UDP. А в качестве служебной информации выступают сетевые порты.</p>
+<h2><span class="text-small"><strong>L2. Межсетевой уровень (Internet Layer)</strong></span></h2>
+<p>Интернет состоит из множества локальных сетей, объединённых между собой маршрутизаторами.</p>
+<p>Этот уровень не отличается от сетевого уровня модели OSI. Здесь реализуется ip-адресация и маршрутизация, за счет введения ip-адресов.</p>
+<h2><span class="text-small"><strong>L1. Канальный уровень (Network Access Layer)</strong></span></h2>
+<p>Этот уровень вобрал в себя физический и канальный уровни модели OSI. Это аппаратный уровень, на котором работают сетевые карты, коммутаторы, повторители, концентраторы.</p>
+<p>Также на этом уровне находятся среды передачи информации, провода, радиоволны. Но не просто среды, а технологии, которые эти среды используют: Ethernet, Wi-Fi, DSL, Bluetooth.</p>
+<p>Также на этом уроне можно обнаруживать или исправлять ошибки, возникшие при передаче данных.</p>

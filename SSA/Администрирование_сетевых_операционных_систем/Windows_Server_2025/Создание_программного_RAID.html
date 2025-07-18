@@ -1,0 +1,71 @@
+<!--
+title: Создание программного RAID
+description: 
+published: true
+date: 2025-03-11T04:17:24.987Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-15T11:58:59.341Z
+-->
+
+<p><strong>Цель работы:</strong> изучить процесс создания программных RAID-массивов в Windows Server 2025.</p>
+<figure class="image"><img src="/ssa/windows/pract/storage_img.png"></figure>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p><strong>RAID (Redundant Array of Independent Disk)</strong> — технология виртуализации данных для объединения нескольких физических дисковых устройств в логический модуль для повышения отказоустойчивости и (или) производительности.</p>
+<p>Средствами ОС Windows Server можно создать RAID 0 (чередующийся том), RAID 1 (зеркальный том), RAID 5 и <a href="https://ru.wikipedia.org/wiki/JBOD">JBOD</a>(составной том).</p>
+<p>Также есть специальные утилиты, которые помогают создавать и обслуживать RAID. Например, утилита — Технология хранения Intel Rapid. С помощью нее можно создать RAID 0, 1, 5, 10.</p>
+<p>Программные массивы могут быть созданы только на динамических дисках. Установка или загрузка Windows с динамического тома возможна только в том случае, если этот диск был преобразован из системного или загрузочного тома. То есть если установлено несколько экземпляров ОС, то после преобразования диска в динамический можно загрузить лишь тот экземпляр, который находится на загрузочном разделе. Для загрузочного и системного томов возможно создание только зеркального массива (RAID1), создание иных видов массива невозможно, так как они подразумевают установку системы на заранее созданный раздел.</p>
+<h1><span class="text-small"><strong>Задания для практической работы:</strong></span></h1>
+<h2><span class="text-small">1. Откройте уже знакомую вам утилиту — Управление дисками:</span></h2>
+<figure class="image"><img src="/1_wsdisk.png"></figure>
+<p>Вы увидите что у вас есть 1 диск (на нем уже рассмотренные ранее три раздела — системный, основной и восстановления) и 1 DVD диск (с него вы и устанавливали систему)</p>
+<figure class="image"><img src="/2_wsdisk.png"></figure>
+<h2><span class="text-small">2. Подключение дисков для RAID</span></h2>
+<p>Откройте настройки ВМ и добавьте 2 диска по 5Gb:</p>
+<figure class="image"><img src="/3_wsdisk.png"></figure>
+<figure class="image"><img src="/ssa/windows/pract/wsraid_4.png"></figure>
+<figure class="image"><img src="/5_wsdisk.png"></figure>
+<p>Инициализируйте диски</p>
+<figure class="image"><img src="/6_wsdisk.png"></figure>
+<figure class="image"><img src="/7_wsdisk.png"></figure>
+<h2><span class="text-small">3. Создание RAID 0</span></h2>
+<figure class="image"><img src="/8_wsdisk.png"></figure>
+<p>Выберите новые диски</p>
+<figure class="image"><img src="/9_wsdisk.png"></figure>
+<figure class="image"><img src="/10_wsdisk.png"></figure>
+<p>Выберите файловую систему <strong>ReFS</strong></p>
+<figure class="image"><img src="/11_wsdisk.png"></figure>
+<p><strong>Resilient File System (ReFS)</strong> — это новейшая файловая система Microsoft, созданная для обеспечения целостности данных, устойчивости к повреждениям и максимальной доступности данных. Она решает несколько проблем NTFS и закладывает основу для более современных технологических усовершенствований.</p>
+<p>После этого диски преобразуются в динамические:</p>
+<figure class="image"><img src="/12_wsdisk.png"></figure>
+<p>Обратите внимание на размер логического диска, так как мы создавали RAID 0 объем двух дисков сложился и получился диск размером 10Гб (часть диска уже занята под метаданные массива)</p>
+<figure class="image"><img src="/13_wsdisk.png"></figure>
+<h2><span class="text-small">4. Создание RAID 1</span></h2>
+<p>Подключите еще 2 новых диска и проинициализируйте их:</p>
+<figure class="image"><img src="/14_wsdisk.png"></figure>
+<p>Создайте на них RAID 1 (зеркальный том)</p>
+<figure class="image"><img src="/15_wsdisk.png"></figure>
+<p>Обратите внимание на размер логического диска. Он получился в 2 раза меньше суммарного объема наших дисков.</p>
+<figure class="image"><img src="/16_wsdisk.png"></figure>
+<h2><span class="text-small">5. Создание RAID 5</span></h2>
+<p>Добавьте в систему 3 диска и создайте RAID 5:</p>
+<figure class="image"><img src="/17_wsdisk.png"></figure>
+<figure class="image"><img src="/18_wsdisk.png"></figure>
+<figure class="image"><img src="/19_wsdisk.png"></figure>
+<p>Проанализируйте получившиеся объемы логических дисков</p>
+<figure class="image"><img src="/20_wsdisk.png"></figure>
+<h2><span class="text-small">6. Завершение работы</span></h2>
+<p>После того как вы выполнили практическую работу удалите все диски из системы:</p>
+<figure class="image"><img src="/2_wsdisk.png"></figure>
+<h1><span class="text-small"><strong>Контрольные вопросы:</strong></span></h1>
+<ol>
+  <li>Что из себя представляет RAID 0? Для чего его можно применить?</li>
+  <li>Что из себя представляет RAID 1? Для чего его можно применить?</li>
+  <li>Что из себя представляет RAID 5? Минимальное количество дисков для этого RAID? Сколько дисков может выйти из строя без потери информации?</li>
+  <li>Что из себя представляет RAID 6? Минимальное количество дисков для этого RAID? Сколько дисков может выйти из строя без потери информации?</li>
+  <li>Что из себя представляет RAID 10? Минимальное количество дисков для этого RAID?</li>
+  <li>На каком типе дисков Windows возможно создать массив?</li>
+  <li>В каком случае возможна загрузка Windows с динамического тома?</li>
+  <li>Почему размер логического диска RAID 1 состоящего из двух дисков вдвое меньше их суммарного объема?</li>
+  <li>Почему размер логического диска RAID 0 состоящего из двух дисков равен их суммарному объему?</li>
+</ol>

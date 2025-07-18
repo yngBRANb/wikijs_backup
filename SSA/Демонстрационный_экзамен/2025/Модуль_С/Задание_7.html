@@ -1,0 +1,119 @@
+<!--
+title: На сервере HQ-SRV реализуйте мониторинг устройств с помощью открытого программного обеспечения
+description: Настройка Zabbix с помощью Docker Compose
+published: true
+date: 2025-03-12T03:59:40.076Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-26T22:54:44.088Z
+-->
+
+<h1><span class="text-small"><strong>На сервере HQ-SRV реализуйте мониторинг устройств с помощью открытого программного обеспечения</strong></span></h1>
+<ul>
+  <li>Обеспечьте доступность по URL - <a href="https://mon.au-team.irpo/">https://mon.au-team.irpo</a></li>
+  <li>Мониторить нужно устройства HQ-RTR, HQ-SRV, BR-RTR и BR-SRV</li>
+  <li>В мониторинге должны визуально отображаться нагрузка на ЦП, объем занятой ОП и основного накопителя</li>
+  <li>Логин и пароль для службы мониторинга admin P@ssw0rd</li>
+  <li>Выбор программного обеспечения, основание выбора и основные параметры с указанием порта, на котором работает мониторинг, отметьте в отчёте</li>
+</ul>
+<p>В качестве системы мониторинга мы будем использовать zabbix, но так как на HQ-SRV у нас размещен еще и moodle, который так же написан на php и использует Apache, то возможны конфликты зависимостей. Поэтому мы будет развертывать Zabbix с помощью Docker Compose.</p>
+<h2><span class="text-small">Установка контейнерной инфраструктуры</span></h2>
+<pre><code class="language-plaintext">apt-get install docker-engine docker-compose-v2 -y
+systemctl enable --now docker</code></pre>
+<p>Проверьте имеющиеся образы:</p>
+<pre><code class="language-plaintext">docker images</code></pre>
+<p>Должны быть образы для реализации Zabbix c базами данных mariadb и postgres.&nbsp;</p>
+<h2><span class="text-small">Создание Docker Compose</span></h2>
+<p>В домашней директории создайте файлик zabbix.yml и заполните его:</p>
+<pre><code class="language-plaintext">services:
+  zabbix-postgres:
+    container_name: zabbix-postgres
+    image: postgres
+    volumes:
+      - postgres-zabbix:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: zabbix
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbix
+    restart: unless-stopped
+ 
+  zabbix-server:
+    container_name: zabbix-server
+    image: zabbix/zabbix-server-pgsql
+    environment:
+      DB_SERVER_HOST: zabbix-postgres
+      DB_SERVER_PORT: 5432
+      POSTGRES_DB: zabbix
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbix
+    ports:
+      - 10051:10051
+    restart: unless-stopped
+    depends_on:
+      - zabbix-postgres
+ 
+  zabbix-web:
+    container_name: zabbix-web
+    image: zabbix/zabbix-web-nginx-pgsql
+    environment:
+      DB_SERVER_HOST: zabbix-postgres
+      DB_SERVER_PORT: 5432
+      POSTGRES_DB: zabbix
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbix
+      ZBX_SERVER_HOST: zabbix-server
+      ZBX_SERVER_PORT: 10051
+      PHP_TZ: Europe/Yekaterinburg
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    depends_on:
+      - zabbix-postgres
+ 
+volumes:
+  postgres-zabbix: </code></pre>
+<p>Запустите стек контейнеров:</p>
+<pre><code class="language-plaintext">docker compose -f zabbix.yml up -d</code></pre>
+<p>Убедитесь что все контейнеры запустились и исправны:</p>
+<pre><code class="language-plaintext">docker ps -a</code></pre>
+<h2><span class="text-small"><strong>Веб-конфигурирование</strong></span></h2>
+<p>На HQ-SRV создайте DNS запись для сервиса:</p>
+<pre><code class="language-plaintext">mon		IN	  A	   192.168.10.2</code></pre>
+<p>Перейдите на веб-интерфейс по адресу <a href="https://mon.au-team.irpo/">https://mon.au-team.irpo:8080</a></p>
+<p>Зайдите под стандартной учеткой:</p>
+<ul>
+  <li>логин: Admin</li>
+  <li>пароль: zabbix</li>
+</ul>
+<p>Первым делом нам нужно сменить пароль на P@ssw0rd, но в zabbix по умолчанию стоит проверка пароля на сложность, ее надо отключить.</p>
+<p>Перейдите по пути <strong>Users → Authentication</strong> и снимите галочку на пункте <strong>Avoid easy-to-guess password</strong>, после чего можно менять пароль <strong>User settings → Profile </strong>и смените пароль.</p>
+<h2><span class="text-small">Настройка zabbix-агентов</span></h2>
+<p><strong>На Linux:</strong></p>
+<p>На узлах HQ-SRV и BR-SRV откройте /etc/zabbix/zabbix_agentd.conf и измените в нем параметры:</p>
+<pre><code class="language-plaintext">Server=0.0.0.0/0
+ServerActive=192.168.10.2</code></pre>
+<p>После чего запустите агент:</p>
+<pre><code class="language-plaintext">systemctl restart zabbix_agentd</code></pre>
+<p><strong>На Eltex</strong> (здесь пример на HQ-RTR):</p>
+<pre><code class="language-plaintext">hq-rtr(config)# zabbix-agent
+hq-rtr(config-zabbix-agent)# server 192.168.10.2
+hq-rtr(config-zabbix-agent)# active-server 192.168.10.2
+hq-rtr(config-zabbix-agent)# port 10050
+hq-rtr(config-zabbix-agent)# hostname hq-rtr.au-team.irpo
+hq-rtr(config-zabbix-agent)# enable
+hq-rtr(config-zabbix-agent)# end
+
+hq-rtr# commit
+hq-rtr# confirm</code></pre>
+<h2><span class="text-small">Подключение zabbix-агентов к серверу</span></h2>
+<p>Вернитесь к веб-интерфейсу <a href="https://mon.au-team.irpo/">https://mon.au-team.irpo:8080</a>, и перейдите по пути Monitorin → Hosts, далее нажмите Create host</p>
+<p>Zabbix server (сам HQ-SRV, который мы мониторим из контейнера, он уже создан его нужно только изменить):</p>
+<figure class="image"><img src="/ssa/demo2025/demo_zabbix1.png"></figure>
+<p>BR-SRV:</p>
+<figure class="image"><img src="/ssa/demo2025/demo_zabbix2.png"></figure>
+<p>HQ-RTR:</p>
+<figure class="image"><img src="/ssa/demo2025/demo_zabbix3.png"></figure>
+<p>BR-RTR:</p>
+<figure class="image"><img src="/ssa/demo2025/demo_zabbix4.png"></figure>
+<p>У вас должно быть так:</p>
+<figure class="image"><img src="/ssa/demo2025/demo_zabbix5.png"></figure>

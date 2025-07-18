@@ -1,0 +1,43 @@
+<!--
+title: Планирование
+description: 
+published: true
+date: 2025-02-05T03:56:06.343Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-02T19:37:29.119Z
+-->
+
+<h1><span class="text-small">Построение схемы сети</span></h1>
+<p>Перед построением сетевой архитектуры стоит составить схему сети.</p>
+<p>Схема позволяет визуализировать взаимодействие различных компонентов, таких как маршрутизаторы, коммутаторы, серверы и рабочие станции, что упрощает понимание трафика и позволяет определить необходимые ресурсы для удовлетворения текущих и будущих потребностей.</p>
+<p>Кроме того, правильно разработанная схема помогает избежать узких мест и избыточных задержек, что приводит к оптимизации работы сети.&nbsp;</p>
+<p>Такая схема служит единым документом для согласования между всеми заинтересованными сторонами, гарантируя, что у всех будет одинаковое представление о структуре сети. Это также позволяет выявить уязвимости безопасности и определить средства для их устранения еще на этапе проектирования.</p>
+<figure class="image image_resized" style="width:60.44%;"><img src="/ssa/windows_server/ws_network_sheme.png"></figure>
+<p>&nbsp;</p>
+<figure class="table">
+  <table>
+    <tbody>
+      <tr>
+        <td style="background-color:#2e2e2e;padding:10px;text-align:center;">Hostname</td>
+        <td style="background-color:#2e2e2e;padding:10px;text-align:center;">ОС</td>
+        <td style="background-color:#2e2e2e;padding:10px;text-align:center;">Роль устройства</td>
+      </tr>
+      <tr>
+        <td style="background-color:#2e2e2e;padding:10px;text-align:center;">DC1</td>
+        <td style="background-color:#2e2e2e;padding:10px;text-align:center;">Windows Server 2025</td>
+        <td style="background-color:#2e2e2e;padding:10px;text-align:center;">Контроллер домена (основной), маршрутизатор</td>
+      </tr>
+      <tr>
+        <td style="background-color:#2e2e2e;padding:10px;text-align:center;">DC2</td>
+        <td style="background-color:#2e2e2e;padding:10px;text-align:center;">Windows Server 2025</td>
+        <td style="background-color:#2e2e2e;padding:10px;text-align:center;">Контроллер домена (резервный)</td>
+      </tr>
+      <tr>
+        <td style="background-color:#2e2e2e;padding:10px;text-align:center;">WCLI</td>
+        <td style="background-color:#2e2e2e;padding:10px;text-align:center;">Windows 10</td>
+        <td style="background-color:#2e2e2e;padding:10px;text-align:center;">Клиент</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>

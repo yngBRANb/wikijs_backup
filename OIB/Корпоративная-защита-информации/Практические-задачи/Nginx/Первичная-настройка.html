@@ -1,0 +1,58 @@
+<!--
+title: Первичная настройка Nginx
+description: 
+published: true
+date: 2025-03-11T05:16:46.479Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-02T20:35:12.100Z
+-->
+
+<p>Первичная настройка <strong>nginx.service</strong>:</p>
+<ol>
+  <li><strong>Запуск nginx</strong>. После установки запустить службу командой <code>sudo systemctl start nginx</code></li>
+  <li><strong>Включение автозапуска</strong>. Для этого нужно ввести sudo <code>systemctl enable nginx</code></li>
+  <li><strong>Проверка статуса службы</strong>. Для этого используется команда sudo systemctl status nginx. Если всё прошло успешно, должны появиться строки:<mark class="pen-green"> Loaded: loaded Active: active (running).</mark></li>
+  <li><strong>Проверка доступности по HTTP</strong>. Для этого нужно открыть в браузере страницу сервера. Если всё настроено правильно, появится сообщение.</li>
+</ol>
+<figure class="image image_resized" style="width:41.87%;"><img src="https://skillbox.ru/upload/setka_images/14031012022024_c7c2d6650fe8dd3125b1541cb39af56649bd56fa.jpg">
+  <figcaption>Приветственное сообщение Nginx в браузере</figcaption>
+</figure>
+<blockquote>
+  <p><strong>Примечания!</strong></p>
+  <ol>
+    <li><strong>Настройка сетевого экрана</strong>. Для этого можно использовать утилиту UFW (Uncomplicated Firewall). По умолчанию в ней стоит запрет на все входящие соединения. Нужно открыть нужные порты: 22 — для удалённого доступа по SSH, 80 — для связи между клиентом и сервером по протоколу HTTP, 443 — для связи между клиентом и сервером по протоколу HTTPS.</li>
+    <li><strong>Проверка работоспособности сервера</strong>. Для этого нужно ввести sudo service nginx status. Если сервер запущен и активен, вернётся ответ <mark class="pen-green">Active: active (running) since….</mark></li>
+    <li><strong>Проверка наличия сервера в списке на автозагрузку</strong>. Для этого нужно ввести sudo systemctl is-enabled nginx В ответ должно вернуться <mark class="pen-green">enabled</mark>.</li>
+  </ol>
+</blockquote>
+<p><strong>Для первичной настройки nginx конфига</strong> необходимо выполнить следующие шаги:</p>
+<ol>
+  <li><strong>Ознакомиться с основным файлом конфигурации</strong>. По умолчанию он называется <code><strong>nginx.conf</strong></code> и расположен в каталоге <code><strong>/usr/local/nginx/conf</strong></code>, <code><strong>/etc/nginx</strong></code> или <code><strong>/usr/local/etc/nginx</strong></code>.</li>
+  <li><strong>Создать директории для хранения SSL-сертификатов и DH-ключей</strong>, а также файл с параметрами для DHE-шифров:<br><code>mkdir /etc/nginx/ssl
+      openssl dhparam -out /etc/nginx/ssl/dhparams.pem 2048</code></li>
+  <li><strong>Создать директории для хранения настроек веб-сайтов</strong>:<br><code>mkdir /etc/nginx/sites-available
+      mkdir /etc/nginx/sites-enabled
+    </code></li>
+  <li>Обозначить сервер (server). В него нужно положить имя сервера, обозначить корневую директорию и файл по умолчанию, с которого будет запускаться сервер:</li>
+</ol>
+<pre><code class="language-plaintext">server {
+	server_name ${HOSTNAME};
+	root /var/www;
+	index index.php;
+}</code></pre>
+<p>В место переменной <strong>${HOSTNAME}</strong> нужно передать URL сайта, который настраивается.&nbsp;</p>
+<p>5. <strong>Добавить локации (location)</strong>. Они могут обрабатывать как статические, так и файлы PHP. Например, чтобы перенаправлять на исполнение файлов PHP, нужно добавить следующие строки:</p>
+<pre><code class="language-plaintext">location / {
+	try_files $uri $uri/ /index.php;
+}
+	location ~ \.php$ {
+		fastcgi_pass ${PHP_HOST}:9000;
+		include fastcgi_params;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+}</code></pre>
+<p><strong>Где ${PHP_HOST}</strong> — IP или URL хоста, где лежит PHP.</p>
+<p>После перезапуска nginx конфигурация вступит в силу. Для этого нужно выполнить команду</p>
+<p><code><strong>sudo systemctl restart nginx</strong></code></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>

@@ -1,0 +1,45 @@
+<!--
+title: Настройте принт-сервер cups на сервере HQ-SRV
+description: Настройка сервера CUPS на ALT Linux
+published: true
+date: 2025-03-12T03:15:40.247Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-26T22:52:24.759Z
+-->
+
+<h1><span class="text-small">Опубликуйте виртуальный pdf-принтер</span></h1>
+<p>Скачайте CUPS на HQ-SRV (пакет cups-pfd на 2 стенде пока не предустановлен, так что качайте через внешку):</p>
+<pre><code class="language-plaintext">apt-get install cups cups-pdf</code></pre>
+<p>Откройте /etc/cups/cupsd.conf и везде где есть строка Location вставьте<strong> Allow all</strong>, вот пример:</p>
+<pre><code class="language-plaintext">&lt;Location /&gt;
+   Allow all
+&lt;/Location&gt;</code></pre>
+<p>Далее измените в этом же файле строку <strong>Listen localhost</strong> на:</p>
+<pre><code class="language-plaintext">Listen hq-srv.au-team.irpo:631</code></pre>
+<p>Затем включите CUPS:</p>
+<pre><code class="language-plaintext">systemctl enable --now cups</code></pre>
+<h2><span class="text-small">Веб-конфигурирование</span></h2>
+<p>Зайдите с HQ-CLI на <code>https://hq-srv.au-team.irpo:631</code>&nbsp;</p>
+<p>Зайдите на вкладку Администрирование, залогиньтесь под root P@ssw0rd.</p>
+<p>Следуйте шагам:</p>
+<figure class="image"><img src="/ssa/demo2025/demo_cups16.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/demo_cups17.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/demo_cups18.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/demo_cups19.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/demo_cups20.png"></figure>
+<h1><span class="text-small">На клиенте HQ-CLI подключите виртуальный принтер как принтер по умолчанию</span></h1>
+<p>Нужно добавить принтер в систему в качестве принтера по умолчанию:</p>
+<figure class="image"><img src="/ssa/demo2025/demo_cups8.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/demo_cups9.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/demo_cups10.png"></figure>
+<p>Подождите загрузку драйверов.</p>
+<figure class="image"><img src="/ssa/demo2025/demo_cups11.png"></figure>
+<p>У вас в системе будет 2 принтера, по этому нужно выбрать принтер по умолчанию:</p>
+<figure class="image"><img src="/ssa/demo2025/demo_cups12.png"></figure>
+<p>Создайте любой текстовый файл с текстом, откройте его через блокнот (Pluma) и отправьте на печать:</p>
+<figure class="image"><img src="/ssa/demo2025/demo_cups6.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/demo_cups13.png"></figure>
+<p>Далее проверьте сработала ли печать, чтобы это сделать перейдите на веб-морде CUPS на вкладку Задания и нажмите “Показать все задания”:</p>
+<figure class="image"><img src="/ssa/demo2025/demo_cups14.png"></figure>
+<p>Если у вас появились задания, то все все хорошо</p>

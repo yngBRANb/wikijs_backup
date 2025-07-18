@@ -1,0 +1,93 @@
+<!--
+title: Инструменты для работы с сетью ALT Linux
+description: 
+published: true
+date: 2025-03-16T15:32:06.600Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-03-16T15:30:33.900Z
+-->
+
+<p><strong>Цель работы:</strong>&nbsp;Знакомство с настройкой сети. Изучение базовых инструментов для работы с сетью&nbsp;Linux.</p>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p>Варианты управления сетевыми настройками интерфейсов в ОС «Альт»:</p>
+<ul>
+  <li><strong>Etcnet</strong>&nbsp;— настройки берутся исключительно из файлов находящихся в каталоге настраиваемого интерфейса&nbsp;<strong>/etc/net/ifaces/&lt;интерфейс&gt;</strong>. Настройки сети могут изменяться либо в&nbsp;ЦУС&nbsp;(модуль&nbsp;Ethernet-интерфейсы), либо напрямую через редактирование файлов&nbsp;<strong>/etc/net/ifaces/&lt;интерфейс&gt;</strong>.</li>
+  <li><strong>Network Manager</strong>&nbsp;— обеспечивает базовые операции с сетевыми интерфейсами. Управлять настройками можно через графический интерфейс (nm-applet) или консольный инструмент&nbsp;<strong>nmcli</strong>. Файлы с настройками находятся в каталоге&nbsp;<strong>/etc/NetworkManager/system-connections</strong>.</li>
+  <li><strong>systemd-networkd</strong>&nbsp;— системная служба для управления сетевыми настройками. Её задачей является обнаружение и настройка сетевых устройств по мере их появления, а также создание виртуальных сетевых устройств. Настройки находятся в каталоге&nbsp;<strong>/etc/systemd/network/</strong>. При стандартной установке ОС «Альт» эта служба (пакет&nbsp;systemd-networkd) не устанавливается.</li>
+</ul>
+<p>В практической рассмотрен вариант настройки сети через инструмент&nbsp;<strong>Etcnet.</strong></p>
+<p>В директории&nbsp;<strong>/etc/net/ifaces/&lt;интерфейс&gt; </strong>хранятся определенные файлы, вот их список:</p>
+<ul>
+  <li><strong>ipv4address</strong> – в этом файле хранится IP-адрес интерфейса.<br>Пример записи: 192.168.0.50/24.</li>
+  <li><strong>ipv4route</strong> – хранит сетевые маршруты (в том числе маршрут по умолчанию). Пример записи:&nbsp;defaultvia 192.168.0.1.</li>
+  <li><strong>options</strong> – содержит настройки конфигурации интерфейса;</li>
+  <li><strong>resolv.conf</strong>&nbsp;– содержит&nbsp;DNS-сервер(а) и&nbsp;DNS-суффикс.<br>Пример&nbsp;записи:<br>nameserver 192.168.0.100<br>search demo.lab</li>
+</ul>
+<h1><span class="text-small"><strong>Задания для лабораторной работы:</strong></span></h1>
+<h2><span class="text-small">1. Удостоверьтесь что интерфейс виртуальной машины находиться в&nbsp;VMnet8:</span></h2>
+<figure class="image"><img src="/ssa/gnu_linux/prac/networkalt__(1).png"></figure>
+<h2><span class="text-small">2. Узнайте адрес сети, в которой вы находитесь (VMnet8):</span></h2>
+<figure class="image"><img src="/ssa/gnu_linux/prac/networkalt__(2).png"></figure>
+<p>В моем случае это оказалась сеть 192.168.14.0/24:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/networkalt__(3).png"></figure>
+<h2><span class="text-small">3. Теперь преступим к настройке нашего&nbsp;ALT`a. Для начала настроим&nbsp;hostname&nbsp;(имя компьютера). Для этого в терминале вводим:&nbsp;</span></h2>
+<pre><code class="language-plaintext">vim /etc/hostname
+#Вводим наше имя
+server-alt-1</code></pre>
+<p>Это имя применится к нашей ВМ только после перезагрузки. Но мы перезагрузим машину чуть позже (после настройки сети).&nbsp;</p>
+<h2><span class="text-small">4. Перейдем к настройке сети. Выполните команду:</span></h2>
+<pre><code class="language-plaintext">ip&nbsp;a</code></pre>
+<p>Примерный вывод:&nbsp;</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/networkalt__(4).png"></figure>
+<p>В этом выводе мы может видеть 2 интерфейса:&nbsp;lo (loopback) самозамыкающийся интерфейс, который в этой практической нам не пригодится и&nbsp;ens33 на котором (в моем случае) назначен&nbsp;IP-адрес 192.168.14.129/24. Из вывода так же видно, что этот адрес получен по&nbsp;DHCP (после самого адреса идет слово&nbsp;dynamic).</p>
+<h2><span class="text-small">5. Давайте изменим этот адрес на 192.168.14.200/24, тем самым сделав его статическим. Для этого переходим в директорию&nbsp;<strong>/etc/net/ifaces/&lt;интерфейс&gt;</strong>:</span></h2>
+<pre><code class="language-plaintext">#Переходим под учетную запись суперпользователя для вашего удобства
+su -
+#Переходим в директорию
+cd /etc/net/ifaces/ens33
+#Смотрим файлы в директории. Скорее всего у вас есть только&nbsp;options
+ls -la
+#Создаем файлы&nbsp;touch ipv4address
+touch ipv4route
+touch resolv.conf</code></pre>
+<h2><span class="text-small">6. Первым делом, чтобы сделать статический&nbsp;IP-адрес, мы должны поменять настройку, отвечающую за получение адреса по&nbsp;DHCP. Для этого открываем файл&nbsp;options&nbsp;и приводим его к следующему виду:</span></h2>
+<pre><code class="language-plaintext">vim options
+BOOTPROTO=static
+TYPE=eth
+CONFIG_WIRELESS=no
+SYSTEMD_BOOTPROTO=dhcp4
+CONFIG_IPV4=yes
+DISABLED=no
+NM_CONTROLLED=noS
+YSTEMD_CONTROLLED=no</code></pre>
+<h2><span class="text-small">7. Настраиваем&nbsp;IP-адрес. Для этого открываем файл&nbsp;ipv4address:&nbsp;</span></h2>
+<pre><code class="language-plaintext">vim&nbsp;ipv4address
+192.168.14.200/24</code></pre>
+<h2><span class="text-small">8. Настраиваем маршрут по умолчанию (шлюз). В нашем случае шлюзом выступит&nbsp;IP-адрес внутреннего интерфейса&nbsp;VMware&nbsp;Workstation&nbsp;–&nbsp;VMnet8 (VMnet 8 имеет два адреса&nbsp;x.x.x.1 и&nbsp;x.x.x.2, в качестве шлюза нужно использовать именно второй).</span></h2>
+<pre><code class="language-plaintext">vim ipv4route
+default via 192.168.14.2</code></pre>
+<h2><span class="text-small">9. Определим&nbsp;DNS&nbsp;сервер. В качестве&nbsp;DNS-сервера мы выберем 8.8.8.8 – это публичный&nbsp;DNS&nbsp;от&nbsp;Google.&nbsp;</span></h2>
+<pre><code class="language-plaintext">vim&nbsp;resolv.conf
+nameserver 8.8.8.8</code></pre>
+<h2><span class="text-small">10 . Чтобы применить новые настройки нам нужно перезагрузить демон отвечающий за сетевой стек -&nbsp;network.service. Для этого введите в терминале:</span></h2>
+<pre><code class="language-plaintext">systemctl&nbsp;restart&nbsp;network</code></pre>
+<p>Чтобы проверить результат используйте команду –&nbsp;<code>ip&nbsp;a</code>:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/networkalt__(7).png"></figure>
+<p>Как вы можете на интерфейсе теперь 2 адреса, 1 (основной) – статический, 2 – (побочный) старый динамический. Чтобы пропал 2 лишний адрес и изменился&nbsp;hostname, нам нужно перезагрузить нашу ВМ.<br>После перезагрузки:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/networkalt__(8).png"></figure>
+<h2><span class="text-small">11. Проверьте правильность настройки сети используя команду&nbsp;<code>ping</code>&nbsp;и&nbsp;<code>nslookup</code>:</span></h2>
+<figure class="image"><img src="/ssa/gnu_linux/prac/networkalt__(10).png"></figure>
+<figure class="image"><img src="/ssa/gnu_linux/prac/networkalt__(12).png"></figure>
+<p>Установите&nbsp;утилиту <code>nslookup</code>:</p>
+<pre><code class="language-plaintext">sudo apt-get install bind-utils</code></pre>
+<figure class="image"><img src="/ssa/gnu_linux/prac/networkalt__(14).png"></figure>
+<h1><span class="text-small">Контрольные вопросы:</span></h1>
+<ol>
+  <li>Какие варианты управления сетевыми настройками интерфейсов в ОС «Альт» вы знаете?</li>
+  <li>В какой директории находятся файлы для конфигурации сети в&nbsp;ALT&nbsp;Linux?</li>
+  <li>Какие существуют файлы с сетевыми настройками в&nbsp;ALT&nbsp;Linux?</li>
+  <li>К какому уровню модели OSI можно было бы отнести протокол ICMP (Internet Control Message Protocol). Он, в частности, позволяет проверить работоспособность и правильность настроек сетевого оборудования.</li>
+  <li>Что такое демон в&nbsp;Linux?</li>
+  <li>Какой командой мы можем перезагрузить демон&nbsp;network.service? Зачем это нужно?</li>
+</ol>

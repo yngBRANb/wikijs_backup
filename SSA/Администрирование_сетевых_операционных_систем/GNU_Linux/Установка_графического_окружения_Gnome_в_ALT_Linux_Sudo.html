@@ -1,0 +1,97 @@
+<!--
+title: Установка среды рабочего стола Gnome в ALT Linux. Знакомство с командой sudo
+description: 
+published: true
+date: 2025-03-16T18:03:55.089Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-03-16T14:57:31.146Z
+-->
+
+<p><strong>Цель работы:</strong>&nbsp;Первичное знакомство с командным интерпретатором. Изучение базовых команд операционной системы Linux.</p>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p><strong>GNOME (GNU&nbsp;Network&nbsp;Object&nbsp;Model&nbsp;Environment)</strong> — одна из популярных сред рабочего стола в мире&nbsp;Linux. Она постоянно поддерживается и довольно легко интегрируется с аппаратным и программным обеспечением. Стоит отметить тот факт, что Canonical даже приняла GNOME для ОС Ubuntu в качестве среды рабочего стола по умолчанию. Однако надо помнить, что GNOME — не самый простой инструмент. Дизайн довольно сильно отличается от привычного виндового интерфейса, и для начального взаимодействия и простоты использования, вам придётся поколдовать с существующими расширениями. Например, если вам необходима панель задач, как в винде, для приложений или переключения окон, то вы можете попробовать для себя Dash to Panel. Нет смысла дублировать тут туториал по установке, лучше воспользоваться инструкцией разработчика. Но помните, что с большим набором расширений оболочка начинает заметно подъедать системные ресурсы слабомощных машинок.&nbsp;</p>
+<p>Существует большое количество разнообразных графических оболочек для ОС&nbsp;Linux. Одни из самых популярных:</p>
+<ul>
+  <li>GNOME</li>
+  <li>GNOME Flashback</li>
+  <li>KDE Plasma</li>
+  <li>XFCE</li>
+  <li>LXDE</li>
+  <li>Cinnamon</li>
+  <li>Pantheon</li>
+  <li>MATE</li>
+</ul>
+<p>Стоит учитывать, что одна и таже графическая оболочка в разных<br>дистрибутивах может выглядеть абсолютно по-разному.</p>
+<p>Для удобной установки GNOME в ALT Linux предусмотрено два<br>виртуальных пакета:</p>
+<ul>
+  <li><code><strong>gnome3-default</strong></code>&nbsp;- оптимальная установка, подходящая для большинства пользователей</li>
+  <li><code><strong>gnome3-minimal</strong></code>&nbsp;- минимальная установка</li>
+</ul>
+<h1><span class="text-small"><strong>Задания для лабораторной работы:</strong></span></h1>
+<h2><span class="text-small">1. Откройте терминал и введите&nbsp;<code>apt-get&nbsp;update</code>&nbsp;чтобы обновить пакетную базу:</span></h2>
+<figure class="image"><img src="/ssa/gnu_linux/prac/gnomealt__(1).png"></figure>
+<p>Далее введите команду&nbsp;<code>apt-get&nbsp;install&nbsp;gnome3-default -y</code>&nbsp;для установки пакета&nbsp;gnome&nbsp;в&nbsp;ALT&nbsp;Linux</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/gnomealt__(2).png"></figure>
+<p>После этого у вас начнется загрузка пакета&nbsp;gnome&nbsp;для&nbsp;alt. Дождитесь ее завершения.</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/gnomealt__(3).png"></figure>
+<h2><span class="text-small">2. GNOME нормально запускается только через gdm (GNOME Display Manager), поэтому необходимо переключиться на него. Отключаем текущий display manager:</span></h2>
+<pre><code class="language-plaintext">systemctl disable display-manager</code></pre>
+<p>Включаем gdm:</p>
+<pre><code class="language-plaintext">systemctl enable gdm</code></pre>
+<h2><span class="text-small">3. Перезагружаем систему:</span></h2>
+<pre><code class="language-plaintext">reboot</code></pre>
+<h2><span class="text-small">4. После перезагрузки залогиньтесь и введите команду активирующую&nbsp;gdm:</span></h2>
+<pre><code class="language-plaintext">systemctl&nbsp;start&nbsp;gdm</code></pre>
+<p>Это запустит графический интерфейс:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/gnomealt__(4).png"></figure>
+<blockquote>
+  <p>Выполните авторизацию под вашим пользователем.&nbsp;<u>Под пользователем&nbsp;root пройти авторизацию в средах рабочего стола не получится!</u></p>
+</blockquote>
+<h2><span class="text-small">5. Разрешение экрана будет очень маленьким, для решения этой проблемы нужно установить&nbsp;vm-tools. Для этого откройте терминал:&nbsp;</span></h2>
+<p>Нажмите обзор</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/gnomealt__(5).png"></figure>
+<p>Введите в поиске&nbsp;terminal<br>&nbsp;</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/gnomealt__(6).png"></figure>
+<p>В терминале введите команду для перехода под суперпользователя (root) и введите пароль от него:</p>
+<pre><code class="language-plaintext">su -</code></pre>
+<p>Установите пакет&nbsp;open-vm-tools-desktop&nbsp;и добавьте его в автозагрузку:</p>
+<pre><code class="language-plaintext">apt-get install open-vm-tools-desktop
+chkconfig vmtoolsd onsystemctl enable --now vmtoolsd</code></pre>
+<p>Перезагрузитесь:</p>
+<pre><code class="language-plaintext">reboot</code></pre>
+<p>Снова зайдите в режим среды рабочего стола (Используйте это команду всегда когда вам нужна будет графическая оболочка):</p>
+<pre><code class="language-plaintext">systemctl&nbsp;start&nbsp;gdm</code></pre>
+<p>Проверьте исчезла ли проблемы с разрешением экрана</p>
+<h2><span class="text-small">6. Проблему с разрешением экрана мы решили, но осталась проблема со сломанным шрифтом в терминале. Это легко починить установкой новых шрифтов. Зайдите в терминал и введите:</span></h2>
+<pre><code class="language-plaintext">#Переходим под суперпользователя
+su -
+#Устанавливаем шрифты от&nbsp;Microsoft (полный список шрифтов можете #увидеть здесь https://clck.ru/3AGaJQ)
+apt-get install fonts-ttf-ms -y
+#Обновляем кэш установленных в ОС шрифтов
+fc-cache -f -v</code></pre>
+<p>После этих операций закройте терминал и откройте его заново, проблема должна решиться. Если проблема осталась перейдите в настройки терминала и выберите необходимый шрифт вручную:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/gnomealt__(7).png"></figure>
+<figure class="image"><img src="/ssa/gnu_linux/prac/gnomealt__(8).png"></figure>
+<p>Во вкладке «Основное» можете выбрать Темную тему.</p>
+<h2><span class="text-small">7. Чтобы каждый раз не переходить под суперпользователя&nbsp;root&nbsp;командой&nbsp;su&nbsp;– давайте выдадим вашему пользователю&nbsp;user1 возможность использовать команду&nbsp;sudo (Эта команда дает возможность единоразово выполнить любую операцию из режима суперпользователя). Для этого в терминале введите:</span></h2>
+<pre><code class="language-plaintext">su -
+apt-get install sudo -y</code></pre>
+<p>Откройте файл&nbsp;sudoers&nbsp;через утилиту&nbsp;visudo&nbsp;используя редактор&nbsp;vim</p>
+<pre><code class="language-plaintext">EDITOR=vim&nbsp;visudo</code></pre>
+<p>Промотайте в конец файла и введите строку:&nbsp;</p>
+<p><code>user1&nbsp;ALL=(ALL)&nbsp;NOPASSWD:&nbsp;ALL</code></p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/gnomealt__(9).png"></figure>
+<p>Осталось добавить этого пользователя в группу&nbsp;wheel:&nbsp;</p>
+<pre><code class="language-plaintext">usermod -aG&nbsp;wheel&nbsp;user1</code></pre>
+<p>Затем закройте терминал и откройте его заново (или просто выполните команду <code>exit</code>, чтобы выйти из режима суперпользователя) и выполните команду&nbsp;<code>sudo&nbsp;apt-get&nbsp;update</code>&nbsp;для проверки, результат должен быть следующим:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/gnomealt__(10).png"></figure>
+<h1><span class="text-small">Контрольные вопросы:</span></h1>
+<ol>
+  <li>Что такое&nbsp;GNOME?</li>
+  <li>Какие графические оболочки вы знаете?</li>
+  <li>Какую команду вы вводили чтобы запустить графическую оболочку&nbsp;GNOME?</li>
+  <li>Что делает команда&nbsp;su - ? В чем отличие команд&nbsp;su&nbsp;и&nbsp;su - ?</li>
+  <li>Что делает команда&nbsp;sudo?</li>
+  <li>Какую пакет вы скачивали чтобы получить все преимущества использования&nbsp;VMware&nbsp;workstation? (Адаптивное разрешение экрана, общий буфер обмена между хостовой ОС и ВМ)</li>
+</ol>

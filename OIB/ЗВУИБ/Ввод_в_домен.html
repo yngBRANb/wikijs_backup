@@ -1,0 +1,60 @@
+<!--
+title: Ввод в домен ALD PRO
+description: 
+published: true
+date: 2025-03-11T16:15:58.766Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-03-11T15:34:32.459Z
+-->
+
+<h1>Подготовка клиентской машины и присоединение к домену</h1>
+<p style="text-align:justify;">Вводом компьютера в домен или присоединением к домену (<i>англ. Domain Join</i>) называется процедура, в ходе которой компьютеру создается доменная учетная запись и выполняется его настройка, чтобы он мог выполнять аутентификацию/авторизацию пользователей и получать параметры групповых политик из домена. Компьютеры, присоединенные к домену, называют также участниками домена (<i>англ. Domain Members</i>).</p>
+<h2 style="text-align:justify;">Настройка сетевого интерфейса клиентского ПК</h2>
+<p style="text-align:justify;">На пользовательских компьютерах настройка сети выполняется через стандартную службу NetworkManager. В реальной инфраструктуре для настройки пользовательских компьютеров используется DHCP, но в рамках данной инструкции с целью упрощения компьютеру будет назначен статический адрес.</p>
+<p style="text-align:justify;">Откройте настройки сети, воспользовавшись апплетом NetworkManager, и на вкладке «Параметры IPv4» установите изменения:</p>
+<p style="text-align:justify;">Метод: <i>Вручную</i></p>
+<p style="text-align:justify;">Адрес: 192.168.99.11</p>
+<p style="text-align:justify;">Маска: <i>24</i> или <i>255.255.255.0</i></p>
+<p style="text-align:justify;">Шлюз: 192.168.99.1, шлюз маршрутизатора или <i>gateway</i></p>
+<p style="text-align:justify;">Серверы DNS: 192.168.99.10 (адрес контроллера домена dc)</p>
+<p style="text-align:justify;">Поисковый домен: office.lab (это значение будет добавляться к коротким именам)</p>
+<figure class="image image_resized" style="width:602px;"><img src="https://lh7-rt.googleusercontent.com/docsz/AD_4nXe20Dy_aHPk8k3yUidyCzMWmcO-qtNKc0r2URBriC2u2vok-2LJ5SoFoH7zYOEeg4_TCBkeExnEqapI6eIU4Mn8WiIrPSrabp0ddVceF486Ca3P4-GwwF07nrU6QMaFgUijsW3FXA?key=CewUAsP1bP6UFLS16yRbOjcf"></figure>
+<p style="text-align:justify;">Для сохранения изменений не забудьте нажать кнопку «Сохранить», однако это не изменит текущих настроек на сетевом интерфейсе.</p>
+<p style="text-align:justify;">Для применения настроек необходимо выключить и повторно включить поддержку сети в контекстном меню апплета.</p>
+<figure class="image image_resized" style="width:327px;"><img src="https://lh7-rt.googleusercontent.com/docsz/AD_4nXd5mnfdA99l-hY_2-r0jvQHYzk-L0w8atL51JRIQZD38WyBxsMqLk0W_i7UWTtSPnSABljLPEyacmLXOt6oid0AVLHhvOeMY_1SC2vuRX__97GCFmIOzj2vz_HIiRbPAmgNty8c1g?key=CewUAsP1bP6UFLS16yRbOjcf" alt="../_images/aldpro_mod2_image25.png"></figure>
+<h2 style="text-align:justify;">Подключение репозиториев</h2>
+<p style="text-align:justify;">Для установки клиентской части «ALD Pro» версии 2.4.0 на ALSE 1.7.5 из официальных интернет-репозиториев РусБИТех-Астра содержание файла <code>/etc/apt/sources.list</code> должно быть таким же, как при установке серверной части.</p>
+<pre><code class="language-plaintext">deb http://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.5/repository-base 1.7_x86-64 main non-free contrib
+deb http://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.5/repository-extended 1.7_x86-64 main contrib non-free</code></pre>
+<p style="text-align:justify;">Также как и в случае контроллера домена, необходимо создать отдельный список для репозитория ALD Pro в файле <code>/etc/apt/sources.list.d/aldpro.list</code> :</p>
+<pre><code class="language-plaintext">deb https://dl.astralinux.ru/aldpro/frozen/01/2.4.0 1.7_x86-64 main base</code></pre>
+<h2 style="text-align:justify;">Обновление программных пакетов</h2>
+<p style="text-align:justify;">После подключения репозиториев обязательно обновляемся.</p>
+<pre><code class="language-plaintext">sudo apt update
+sudo apt list --upgradable
+sudo apt dist-upgrade -y -o Dpkg::Options::=--force-confnew</code></pre>
+<h2 style="text-align:justify;">Ввод компьютера в домен</h2>
+<p style="text-align:justify;">Для успешного ввода компьютера в домен требуется соблюдение нескольких условий:</p>
+<ul>
+  <li style="text-align:justify;">У компьютера должно быть задано уникальное имя, которое еще никем не используется в домене.</li>
+  <li style="text-align:justify;">В качестве DNS-сервера должен быть указан IP-адрес контроллера домена.</li>
+  <li style="text-align:justify;">Установлен пакет клиентского программного обеспечения <strong>aldpro-client</strong>.</li>
+</ul>
+<p style="text-align:justify;">Теперь система готова к установке клиентской части ALD Pro. Для этого выполним команду:</p>
+<pre><code class="language-plaintext">sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -q aldpro-client</code></pre>
+<p style="text-align:justify;">Все готово для ввода компьютера в домен. Выполним ввод с помощью команды:</p>
+<pre><code class="language-plaintext">sudo /opt/rbta/aldpro/client/bin/aldpro-client-installer</code></pre>
+<p>&nbsp;</p>
+<ul>
+  <li>Наименование домена - Название домена</li>
+  <li>Учетная запись - Учетная запись администратора домена с необходимыми правами</li>
+  <li>Хост - Название которое будет иметь компьютер в домене</li>
+  <li>Пароль - Пароль от учетной записи администратора</li>
+</ul>
+<figure class="image image_resized" style="width:559px;"><img src="https://lh7-rt.googleusercontent.com/docsz/AD_4nXfhKgmkyblwKmbjY_36FCxF8Sf2hRS-5ZWk3v0Xvyx9ifEcSubHN6qUUfxTegyWHbPVY3Db1PKsM4abuPTI34c1vHheEpHOUUHGcX7B6jHzmb90pWwBdWRT1F_GFPhkF4WyNRKQxw?key=CewUAsP1bP6UFLS16yRbOjcf"></figure>
+<p>После проделанных действий нас встречает окно об успешном вводе в домен.</p>
+<figure class="image image_resized" style="width:343px;"><img src="https://lh7-rt.googleusercontent.com/docsz/AD_4nXeD4_1x615qeq9BLLVYIG-RmiP30TLvK6Y78qa4gLR2rZqdyn1tqXEjjscVTTXrwkyMKlefvxzCXNT_yWP39LjtScL7zwzPgmHpwZ_CHYGk7lWepCM3E6iMrZS0zVqySPH905CmdA?key=CewUAsP1bP6UFLS16yRbOjcf"></figure>
+<p style="text-align:justify;">Для того чтобы изменения вступили в силу, требуется выполнить перезагрузку компьютера</p>
+<pre><code class="language-plaintext">sudo reboot</code></pre>
+<p style="text-align:justify;">&nbsp;</p>

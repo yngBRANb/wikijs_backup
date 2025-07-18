@@ -1,0 +1,222 @@
+<!--
+title: Создание Kubernetes кластера с помощью kubeadm
+description: 
+published: true
+date: 2025-07-12T15:27:05.518Z
+tags: devops, kubernetes
+editor: ckeditor
+dateCreated: 2025-07-12T09:45:43.617Z
+-->
+
+<h1><span class="text-small">Введение</span></h1>
+<p>Kubernetes (K8s) - это система оркестрации с открытым исходным кодом, разработанная для автоматизации развертывания, масштабирования и управления контейнеризованными приложениями. Она позволяет упростить работу с контейнерами, обеспечивая автоматическое управление жизненным циклом приложений, балансировку нагрузки и масштабирование.&nbsp;</p>
+<p>В Kubernetes узлы (Nodes) делятся на два основных типа: главные узлы (Master Nodes или Control Plane) и рабочие узлы (Worker Nodes). Главные узлы отвечают за управление кластером Kubernetes, в то время как рабочие узлы выполняют фактическую работу, запуская контейнеры с приложениями.&nbsp;</p>
+<p>Так как эта статья может устареть, перед установкой лучше узнать актуальную информацию на официальном сайте:</p>
+<ul>
+  <li><a href="https://kubernetes.io/releases/">Актуальная версия Kubernetes</a></li>
+  <li><a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#:~:text=kubeadm%20(Kubernetes%20v1.29)-,%D0%9F%D1%80%D0%B5%D0%B6%D0%B4%D0%B5%20%D1%87%D0%B5%D0%BC%20%D0%BD%D0%B0%D1%87%D0%B0%D1%82%D1%8C,-%D0%A1%D0%BE%D0%B2%D0%BC%D0%B5%D1%81%D1%82%D0%B8%D0%BC%D1%8B%D0%B9%20%D1%85%D0%BE%D1%81%D1%82%20Linux">Минимальные системные требования</a></li>
+  <li><a href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/">Рекомендации по подготовке kubeadm</a></li>
+  <li><a href="https://kubernetes.io/docs/reference/networking/ports-and-protocols/">Требуемые сетевые порты для работы кластера</a></li>
+</ul>
+<h2><span class="text-small">Характеристики будущего кластера</span></h2>
+<ul>
+  <li>Устанавливаемая версия K8s - 1.33</li>
+  <li>Создание кластера - kubeadm</li>
+  <li>Дистрибутив - RHEL 10.0</li>
+  <li>CRI - Containerd</li>
+  <li>Количество узлов:<ul>
+      <li>Master - 1 шт.</li>
+      <li>Worker - 2 шт.</li>
+      <li>Storage - 3 шт. (в статье по Ceph)</li>
+    </ul>
+  </li>
+</ul>
+<p>Каждый узел Kubernetes должен иметь соответствующую DNS запись, чтобы узлы могли обращаться к друг другу по именам.</p>
+<h2><span class="text-small">Установка Master-ноды</span></h2>
+<p>Для начала обновите дистрибутив и отключите файл подкачки (SWAP):</p>
+<pre><code class="language-plaintext">sudo dnf update
+
+# Отключение файла подкачки
+sudo swapoff -a
+sudo sed -i '/ swap / s/^/#/' /etc/fstab</code></pre>
+<p>Если настроен firewalld нужно будет открыть следующие порты:</p>
+<pre><code class="language-plaintext"># Добавляем основные порты для Master Node
+sudo firewall-cmd --permanent --zone=public --add-port=6443/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=2379-2380/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=10250/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=10259/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=10257/tcp
+
+# Если используется CNI Calico (BGP)
+sudo firewall-cmd --permanent --zone=public --add-port=179/tcp
+
+# Если используется CNI Flannel (VXLAN)
+sudo firewall-cmd --permanent --zone=public --add-port=8472/udp
+
+# Опционально: открываем NodePort диапазон
+sudo firewall-cmd --permanent --zone=public --add-port=30000-32767/tcp
+
+# Перезагружаем firewalld
+sudo firewall-cmd --reload
+
+# Проверяем открытые порты
+sudo firewall-cmd --zone=public --list-ports</code></pre>
+<p>Так же для корректной работы требуется отключить SELinux:</p>
+<pre><code class="language-plaintext">sudo setenforce 0
+sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config</code></pre>
+<p>Затем произведите настройку сети и модулей ядра Linux:</p>
+<pre><code class="language-plaintext"># Настройка перенаправления IPv4 и разрешение iptables видеть bridge-трафик
+cat &lt;&lt;EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+# Загрузка модулей ядра
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+#Для проверки автоматической загрузки модулей br_netfilter и overlay выполним команды:
+lsmod | grep br_netfilter
+lsmod | grep overlay
+
+# Параметры sysctl, необходимые для настройки, сохраняются после перезагрузки
+cat &lt;&lt;EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+
+# Применение параметров sysctl без перезагрузки
+sudo sysctl --system</code></pre>
+<p>После чего указываем официальный репозиторий пакетов на котором хранятся компоненты Kubernetes:</p>
+<pre><code class="language-plaintext">cat &lt;&lt;EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://pkgs.k8s.io/core:/stable:/v1.33/rpm/
+enabled=1
+gpgcheck=1
+gpgkey=https://pkgs.k8s.io/core:/stable:/v1.33/rpm/repodata/repomd.xml.key
+EOF</code></pre>
+<p>Далее перейдем к самой установке пакетов K8s:</p>
+<pre><code class="language-plaintext">sudo dnf makecache
+sudo dnf install -y kubelet kubeadm kubectl 
+sudo systemctl enable --now kubelet
+
+# Помечаем пакеты как исключённые из обновлений
+sudo dnf install 'dnf-command(versionlock)'
+sudo dnf versionlock add kubelet kubeadm kubectl
+
+#Установка Containerd
+#Предварительно стоит убедится, что эта версия containerd совместима с версией k8s
+sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+sudo dnf install containerd.io
+sudo systemctl enable --now containerd </code></pre>
+<p>По умолчанию конфигурацию Containerd пуста, нам нужно ее создать и правильно отредактировать:</p>
+<pre><code class="language-plaintext"># Создание конфигурации containerd по умолчанию
+containerd config default | sudo tee /etc/containerd/config.toml
+
+sudo sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+sudo systemctl restart containerd</code></pre>
+<p>Команды ниже позволяют создать кластер</p>
+<pre><code class="language-plaintext"># Инициализация кластера Kubernetes с указанием сети для pod'ов
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+
+# Настройка конфигурации kubectl для текущего пользователя
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# Создание команды для присоединения worker-узлов к кластеру
+kubeadm token create --print-join-command</code></pre>
+<p>После чего ваш Control Plane и кластер готовы.</p>
+<h2><span class="text-small">Установка Worker-нод</span></h2>
+<p>Для начала обновите дистрибутив и отключите файл подкачки (SWAP):</p>
+<pre><code class="language-plaintext">sudo dnf update
+
+# Отключение файла подкачки
+sudo swapoff -a
+sudo sed -i '/ swap / s/^/#/' /etc/fstab</code></pre>
+<p>Если настроен firewalld нужно будет открыть следующие порты:</p>
+<pre><code class="language-plaintext"># Добавляем порты для Worker Node
+sudo firewall-cmd --permanent --zone=public --add-port=10250/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=30000-32767/tcp
+
+# Если используется CNI Calico (BGP)
+sudo firewall-cmd --permanent --zone=public --add-port=179/tcp
+
+# Если используется CNI Flannel (VXLAN)
+sudo firewall-cmd --permanent --zone=public --add-port=8472/udp
+
+# Для CoreDNS (если поды используют DNS)
+sudo firewall-cmd --permanent --zone=public --add-port=53/udp
+sudo firewall-cmd --permanent --zone=public --add-port=53/tcp
+
+# Перезагружаем firewalld
+sudo firewall-cmd --reload
+
+# Проверяем открытые порты
+sudo firewall-cmd --zone=public --list-ports</code></pre>
+<p>Так же для корректной работы требуется отключить SELinux:</p>
+<pre><code class="language-plaintext">sudo setenforce 0
+sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config</code></pre>
+<p>Затем произведите настройку сети и модулей ядра Linux:</p>
+<pre><code class="language-plaintext"> Настройка перенаправления IPv4 и разрешение iptables видеть bridge-трафик
+cat &lt;&lt;EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+# Загрузка модулей ядра
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+#Для проверки автоматической загрузки модулей br_netfilter и overlay выполним команды:
+lsmod | grep br_netfilter
+lsmod | grep overlay
+
+# Параметры sysctl, необходимые для настройки, сохраняются после перезагрузки
+cat &lt;&lt;EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+
+# Применение параметров sysctl без перезагрузки
+sudo sysctl --system</code></pre>
+<p>После чего указываем официальный репозиторий пакетов на котором хранятся компоненты Kubernetes:</p>
+<pre><code class="language-plaintext">cat &lt;&lt;EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://pkgs.k8s.io/core:/stable:/v1.33/rpm/
+enabled=1
+gpgcheck=1
+gpgkey=https://pkgs.k8s.io/core:/stable:/v1.33/rpm/repodata/repomd.xml.key
+EOF</code></pre>
+<p>Далее перейдем к самой установке пакетов K8s:</p>
+<pre><code class="language-plaintext">sudo dnf makecache
+sudo dnf install -y kubelet kubeadm kubectl 
+sudo systemctl enable --now kubelet
+
+# Помечаем пакеты как исключённые из обновлений
+sudo dnf install 'dnf-command(versionlock)'
+sudo dnf versionlock add kubelet kubeadm kubectl
+
+#Установка Containerd
+#Предварительно стоит убедится, что эта версия containerd совместима с версией k8s
+sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+sudo dnf install containerd.io
+sudo systemctl enable --now containerd </code></pre>
+<p>По умолчанию конфигурацию Containerd пуста, нам нужно ее создать и правильно отредактировать:</p>
+<pre><code class="language-plaintext"># Создание конфигурации containerd по умолчанию
+containerd config default | sudo tee /etc/containerd/config.toml
+
+sudo sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+sudo systemctl restart containerd</code></pre>
+<p>Остается только ввести Worker ноду в кластер, для этого используйте команду ввода, которую вы получили на Master ноде. Пример такой команды ниже:</p>
+<pre><code class="language-plaintext">sudo kubeadm join 172.16.1.100:6443 --token l6jogc.wcu2lul3odn9sk31 --discovery-token-ca-cert-hash sha256:df4c8ee5ce7c156e6f67b08bfb78449e8f0735af5a49a8fce4d10480fb5c782e</code></pre>
+<p>После ввода проверьте на Мастере, что все узлы появились в кластере:</p>
+<pre><code class="language-plaintext">kubectl get nodes -o wide</code></pre>
+<h2><span class="text-small">Откат инициализации кластера</span></h2>
+<p>Если во время инициализации кластера возникли ошибки, их нужно исправить, откатиться и начать процесс инициализации заново.</p>
+<p>Команда для отката инициализации:</p>
+<pre><code class="language-plaintext">kubeadm reset</code></pre>

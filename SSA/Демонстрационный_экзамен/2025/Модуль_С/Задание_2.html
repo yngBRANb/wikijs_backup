@@ -1,0 +1,197 @@
+<!--
+title: Выполните настройку центра сертификации на базе HQ-SRV
+description: Создание Центра сертификации (ЦС, CA, УЦ) с помощью OpenSSL
+published: true
+date: 2025-03-06T11:43:05.043Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-28T10:54:45.318Z
+-->
+
+<h1><span class="text-small">Выполните настройку центра сертификации на базе HQ-SRV</span></h1>
+<p>Требования:</p>
+<ul>
+  <li>Необходимо использовать отечественные алгоритмы шифрования (мы этого делать не будем)</li>
+  <li>Сертификаты выдаются на 365 дней</li>
+  <li>Обеспечьте доверие сертификату для HQ-CLI</li>
+  <li>Выдайте сертификаты веб серверам</li>
+  <li>Перенастройте ранее настроенные веб сервера, moodle, wiki, реверсивный прокси nginx на протокол https (мы установим только на reverse-proxy nginx)</li>
+  <li>При обращении к веб серверам по их доменным именам у браузера клиента не должно возникать предупреждений</li>
+</ul>
+<h2><span class="text-small">Создание центра сертификации (теория)</span></h2>
+<p>Центр сертификации (Certificate authority) состоит всего из 2 компонентов:</p>
+<ol>
+  <li><strong>Закрытый ключ</strong>, имеет расширение .key, его мы должны хранить в тайне;</li>
+  <li><strong>Сертификат</strong>, содержит открытый ключ, имеет расширение .crt.</li>
+</ol>
+<p>Этапы создания CA:</p>
+<ol>
+  <li>Создание закрытого ключа (ca.key)<br><code>openssl genrsa -out ca.key 2048</code></li>
+  <li>Создание запроса на подпись (ca.csr)<br><code>openssl req -key ca.key -new -out ca.csr</code></li>
+  <li>Создание самоподписанного сертификата из запроса (ca.crt)<br><code>openssl x509 -signkey ca.key -in ca.csr -req -days 365 -out ca.crt</code></li>
+</ol>
+<p>Как видите ничего особо сложного, но можно сделать намного проще, эти 3 действия можно выполнить всего 1 командой, именно так мы и поступим.</p>
+<h2><span class="text-small">Создание центра сертификации (практика)</span></h2>
+<p>Для начала перейдите в домашнюю директорию пользователя:</p>
+<pre><code class="language-plaintext">cd</code></pre>
+<p>Организацию CA начнем со следующей команды:</p>
+<pre><code class="language-plaintext">openssl req -newkey rsa:4096 -nodes -keyout ca.key -x509 -days 365 -out ca.crt</code></pre>
+<p>Далее начнется интерактивный ввод параметров, заполните его следующим образом:</p>
+<pre><code class="language-plaintext">Generating a RSA private key
+.................+++++
+.............................................................+++++
+writing new private key to 'ca.key'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [RU]:
+State or Province Name (full name) []: RU-BA
+Locality Name (eg, city) []: UFA
+Organization Name (eg, company) []: URKTB
+Organizational Unit Name (eg, section) []: 308
+Common Name (e.g., your name or your server's hostname) []: AU-Team CA
+Email Address []:</code></pre>
+<p>Теперь мы имеем закрытый ключ, и сам сертификат (файла csr при этом не будет)</p>
+<pre><code class="language-plaintext">[root@hq-srv ~]# ls -l
+total 12
+-rw-r--r-- 1 root root 1159 Feb 28 15:57 ca.crt
+-rw------- 1 root root 1708 Feb 28 15:56 ca.key</code></pre>
+<h2><span class="text-small">Создание сертификата для веб-сервера</span></h2>
+<p>Создаем закрытый ключ:</p>
+<pre><code class="language-plaintext">openssl genrsa -out web.key 4096</code></pre>
+<p>Запрос на подпись:</p>
+<pre><code class="language-plaintext">openssl req -key web.key -new -out web.csr</code></pre>
+<p>Здесь так же начнется ввод параметров:</p>
+<pre><code class="language-plaintext">You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]: RU
+State or Province Name (full name) [Some-State]: RU-BA
+Locality Name (eg, city) []: UFA
+Organization Name (eg, company) [Internet Widgits Pty Ltd]: UKRTB
+Organizational Unit Name (eg, section) []:308
+Common Name (e.g. server FQDN or YOUR name) []:*.au-team.irpo
+Email Address []:
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:</code></pre>
+<p>Мы использовали wildcard домен *.au-team.irpo, чтобы не генерировать сертификаты отдельно под wiki и moodle.</p>
+<p>Создайте файл openssl.cnf:</p>
+<pre><code class="language-plaintext">[req]
+req_extensions = req_ext
+
+[req_ext]
+#Эту строку указывать необязательно, так как Common Name сертификата wildcard
+subjectAltName = DNS:wiki.au-team.irpo, DNS:moodle.au-team.irpo
+extendedKeyUsage = serverAuth
+keyUsage = digitalSignature</code></pre>
+<p>Этот файл указывает, что сертификат можно будет использовать для создания TLS на веб-сервере</p>
+<p>Теперь подписываем этот запрос через наш CA:</p>
+<pre><code class="language-plaintext">openssl x509 -req -in web.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
+    -out web.crt -days 365 -sha256 -extfile openssl.cnf -extensions req_ext</code></pre>
+<p>И того получаем:</p>
+<pre><code class="language-plaintext">[root@hq-srv ~]# ls -l
+total 24
+-rw-r--r-- 1 root root 1159 Feb 28 15:57 ca.crt
+-rw------- 1 root root 1159 Feb 28 15:57 ca.key
+-rw-r--r-- 1 root root 1159 Feb 28 15:57 ca.srl
+-rw-r--r-- 1 root root 1159 Feb 28 15:57 web.crt
+-rw-r--r-- 1 root root 1159 Feb 28 15:57 web.csr
+-rw------- 1 root root 1159 Feb 28 15:57 web.key</code></pre>
+<p>Теперь осталось 2 задачи:</p>
+<ol>
+  <li>Настроить веб-сервер Nginx на работу с нашим сертификатом;</li>
+  <li>Установить доверие HQ-CLI к нашему CA (иначе он не будет доверять сертификату web.crt, который подписан нашим CA, а как следствие будет ошибка - “Подключение не защищено”).</li>
+</ol>
+<h2><span class="text-small">Установка сертификата на веб-сервер</span></h2>
+<p>Нам нужно закинуть web.crt и web.key на BR-SRV, где у нас находится Nginx, для этого выполняем:</p>
+<pre><code class="language-plaintext">scp -P 2024 web.crt sshuser@192.168.20.2:/home/sshuser
+scp -P 2024 web.key sshuser@192.168.20.2:/home/sshuser</code></pre>
+<p>Затем на самом BR-SRV перенесем эти файлы в директорию /etc/nginx</p>
+<pre><code class="language-plaintext">mv /home/sshuser/web.crt /etc/nginx
+mv /home/sshuser/web.key /etc/nginx</code></pre>
+<p>Теперь изменим конфиг <strong>/etc/nginx/sites-available.d/default.conf</strong>:</p>
+<pre><code class="language-xml">upstream moodle.au-team.irpo {
+  server 192.168.10.2;
+}
+
+upstream wiki.au-team.irpo {
+  server 192.168.20.2:8080;
+}
+
+#MOODLE
+server {
+  listen 80;
+  server_name moodle.au-team.irpo;
+
+  return 301 https://$host;
+}
+
+server {
+  listen 443 ssl;
+  server_name moodle.au-team.irpo;
+
+  ssl_certificate /etc/nginx/web.crt;
+  ssl_certificate_key /etc/nginx/web.key;
+
+  location / {
+    proxy_pass http://moodle.au-team.irpo;
+  }
+}
+
+
+#MEDIAWIKI
+server {
+  listen 80;
+  server_name wiki.au-team.irpo;
+
+  return 301 https://$host;
+}
+
+server {
+  listen 443 ssl;
+  server_name wiki.au-team.irpo;
+
+  ssl_certificate /etc/nginx/web.crt;
+  ssl_certificate_key /etc/nginx/web.key;
+
+  location / {
+    proxy_pass http://wiki.au-team.irpo;
+  }
+}</code></pre>
+<p>После чего проверьте конфигурацию на ошибки:</p>
+<pre><code class="language-plaintext">nginx -t</code></pre>
+<p>Если все в порядке перезагрузите веб-сервер:</p>
+<pre><code class="language-plaintext">systemctl restart nginx</code></pre>
+<h2><span class="text-small">Установка доверительных отношений</span></h2>
+<p>Чтобы при заходе на наши веб-сервисы был HTTPS, нужно чтобы HQ-CLI доверял нашему CA. Для этого нужно установить корневой сертификат CA ca.crt в качестве доверенного на HQ-CLI.</p>
+<p>С HQ-SRV скопируйте ca.crt на HQ-CLI:</p>
+<pre><code class="language-plaintext">scp ca.crt user@192.168.10.66:/home/user</code></pre>
+<p>На самом HQ-CLI переместите сертификат в директорию /etc/pki/ca-trust/source/anchors:</p>
+<pre><code class="language-plaintext">mv /home/user/ca.crt /etc/pki/ca-trust/source/anchors/</code></pre>
+<p>А потом выполните команду:</p>
+<pre><code class="language-plaintext">update-ca-trust</code></pre>
+<h2><span class="text-small">Проверка успешности выполнения задания</span></h2>
+<p>Полностью перезапустите браузер и зайдите на веб-ресурсы по доменным именам. У вас должен висеть замочек “Защищенное соединение”.</p>
+<figure class="image"><img src="/ssa/demo2025/module_b/demo_ca1.png"></figure>
+<p>Если возникли проблемы проверьте доверяет ли HQ-CLI вашему CA:</p>
+<pre><code class="language-plaintext">trust list | grep 'AU-Team CA'</code></pre>
+<p>Так же можете проверить сам сертификат:</p>
+<pre><code class="language-plaintext">openssl x509 -in web.crt -text -noout | less</code></pre>
+<p>Там должны быть расширения (X509v3 extensions): &nbsp;</p>
+<ul>
+  <li>X509v3 Subject Altenative Name</li>
+  <li>X509v3 Extended Key Usage</li>
+  <li>X509v3 Key Usage</li>
+</ul>

@@ -1,0 +1,117 @@
+<!--
+title: Произведите базовую настройку устройств
+description: 
+published: true
+date: 2025-02-27T20:22:13.038Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-18T10:51:40.731Z
+-->
+
+<h1><span class="text-small"><strong>Настройте имена устройств согласно топологии. Используйте полное доменное имя:</strong></span></h1>
+<p>По заданию необходимо задать полное доменное имя устройства. Необходимые имена указаны в Таблице:</p>
+<figure class="table">
+  <table>
+    <thead>
+      <tr>
+        <th style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">
+          <p style="text-align:center;">Устройство</p>
+        </th>
+        <th style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">
+          <p style="text-align:center;">Hostname</p>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">HQ-RTR</td>
+        <td style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">hq-rtr.au-team.irpo</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">HQ-SRV</td>
+        <td style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">hq-srv.au-team.irpo</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">HQ-SW</td>
+        <td style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">hq-sw.au-team.irpo</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">HQ-CLI</td>
+        <td style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">hq-cli.au-team.irpo</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">BR-RTR</td>
+        <td style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">br-rtr.au-team.irpo</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">BR-SRV</td>
+        <td style="border-bottom:1px solid var(--borderColor-default, var(--color-border-default));border-left:1px solid var(--borderColor-default, var(--color-border-default));border-right:1px solid var(--borderColor-default, var(--color-border-default));border-top:1px solid var(--borderColor-default, var(--color-border-default));padding:6px 13px;">br-srv.au-team.irpo</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Для изменения имени на Linux устройстве необходимо редактировать файл <strong>hostname</strong>:</p>
+<pre><code class="language-plaintext">vim /etc/hostname</code></pre>
+<p>В случае с Linux, чтобы hostname применился нужно перезагрузить устройство.</p>
+<p>Для изменения имени на Eltex (в данном примере HQ-RTR) необходимо выполнить следующие команды:</p>
+<pre><code class="language-xml">vesr# config
+vesr(config)# hostname hq-rtr.au-team.irpo
+vesr(config)# exit
+vesr# commit
+vesr# confirm</code></pre>
+<h1><span class="text-small"><strong>На всех устройствах необходимо сконфигурировать IPv4</strong></span></h1>
+<p>Процесс настройки сети на <strong>ALT Linux</strong> смотрите <a href="/configure-things/Etcnet">здесь</a></p>
+<h2><span class="text-small"><strong>Процесс настройки сети на Eltex:</strong></span></h2>
+<p>HQ-RTR:</p>
+<pre><code class="language-plaintext"># Узнайте по MAC какой интерфейс куда смотрит
+HQ-RTR# show interfaces status
+
+HQ-RTR# config
+HQ-RTR(config)# int gi 1/0/1
+HQ-RTR(config-if-gi)# description external
+HQ-RTR(config-if-gi)# ip firewall disable
+HQ-RTR(config-if-gi)# ip address 172.16.4.2/28
+HQ-RTR(config-if-gi)# exit
+
+HQ-RTR(config)# interface gi 1/0/2
+HQ-RTR(config-sub-in)# description servers
+HQ-RTR(config-sub-in)# ip firewall disable
+HQ-RTR(config-sub-in)# ip address 192.168.10.1/26
+HQ-RTR(config-if-gi)# exit
+
+HQ-RTR(config)# interface gi 1/0/3
+HQ-RTR(config-sub-in)# description clients
+HQ-RTR(config-sub-in)# ip firewall disable
+HQ-RTR(config-sub-in)# ip address 192.168.10.65/28
+HQ-RTR(config-if-gi)# exit
+
+HQ-RTR(config)# interface gi 1/0/4
+HQ-RTR(config-sub-in)# description mgmt
+HQ-RTR(config-sub-in)# ip firewall disable
+HQ-RTR(config-sub-in)# ip address 192.168.10.81/29
+HQ-RTR(config-if-gi)# exit
+
+HQ-RTR(config)# ip route 0.0.0.0/0 172.16.4.1
+HQ-RTR(config)# end
+HQ-RTR# commit
+HQ-RTR# confirm</code></pre>
+<p>BR-RTR:</p>
+<pre><code class="language-plaintext">BR-RTR# show interfaces status
+
+BR-RTR# config
+BR-RTR(config)# int gi 1/0/1
+BR-RTR(config-if-gi)# description external
+BR-RTR(config-if-gi)# ip address 172.16.5.2/28
+BR-RTR(config-if-gi)# ip firewall disable
+BR-RTR(config-if-gi)# exit
+
+BR-RTR(config)# interface gi 1/0/2
+BR-RTR(config-sub-in)# description internal
+BR-RTR(config-sub-in)# ip firewall disable
+BR-RTR(config-sub-in)# ip address 192.168.20.1/27
+BR-RTR(config-if-gi)# exit
+
+BR-RTR(config)# ip route 0.0.0.0/0 172.16.5.1
+BR-RTR(config)# end
+BR-RTR# commit
+BR-RTR# confirm</code></pre>

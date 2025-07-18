@@ -1,0 +1,148 @@
+<!--
+title: Знакомство со структурой Nginx
+description: 
+published: true
+date: 2025-03-11T05:16:30.063Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-03T17:09:52.782Z
+-->
+
+<h2><strong>Структура Nginx</strong> включает следующие основные элементы:</h2>
+<ol>
+  <li><strong>Мастер-процесс</strong>. Читает и выполняет конфигурацию сервера, управляет воркерами. Не обрабатывает никаких запросов, а нужен для управления другими процессами.</li>
+  <li><strong>Воркер-процесс</strong>. Обрабатывает запросы, направленные серверу. Именно эти процессы и будут обрабатывать HTTP-запросы (или запросы с другими протоколами). Количество воркер-процессов задаётся в конфигурации или вычисляется автоматически исходя из ресурсов сервера (количества ядер в CPU).</li>
+  <li><strong>Модули</strong>. Предоставляют большую часть функциональности уровня приложений. Также модули читают и пишут в сеть и хранилище, трансформируют контент, осуществляют исходящую фильтрацию и, в случае работы в режиме прокси, передают запросы вышестоящим серверам.</li>
+</ol>
+<p><strong>Конфигурационные файлы Nginx</strong> имеют два уровня:</p>
+<ol>
+  <li><strong>Глобальный</strong>. К нему относится конфигурационный файл <code>/etc/nginx/nginx.conf</code> В нём содержатся глобальные настройки: пользователь, от чьего имени будет запускаться Nginx, расположение pid-файла, количество рабочих процессов, ограничения на количество соединений, условия сжатия контента и многое другое.</li>
+  <li><strong>Локальный</strong>. К нему относятся конфигурационные файлы конкретных сайтов, расположенных, как правило, в <code>/etc/nginx/site-available</code> или в <code>/etc/nginx/conf.d/</code></li>
+</ol>
+<h2>Структура конфигурационного файла</h2>
+<p>Теперь можно приступать к самому интересному — настройке. Давайте взглянем на основной файл конфигурации <code><strong>/etc/nginx/nginx.conf</strong></code>. Он содержит строки, содержащие директивы nginx и их параметры, и комментарии, начинающиеся со знака «#».</p>
+<p>Общая структура конфигурации nginx выглядит так:</p>
+<pre><code class="language-plaintext">...
+http {
+    ...
+    server {
+        ...
+        location ... {
+            ...
+        }
+    }
+}</code></pre>
+<p>Блок <code><strong>server</strong></code> определяет общие настройки вашего сайта, а <code><strong>location</strong></code> обрабатывает конкретные пути (URI) в адресах запросов. Блоков <code><strong>server</strong></code> и<code><strong>location</strong></code> может быть несколько. Как внутри, так и снаружи блоков могут располагаться директивы — строки, содержащие имя директивы и её параметры и завершающиеся точкой с запятой. Конечно, можно внести все настройки прямо в файл <code><strong>nginx.conf</strong></code>, но это неудобно.&nbsp;</p>
+<ol>
+  <li>Во-первых, у вас может быть несколько сайтов. Тогда вам понадобится несколько блоков server, и файл станет настолько большим, что его будет трудно читать.&nbsp;</li>
+  <li>Во-вторых, некоторые настройки могут повторяться в разных блоках, поэтому обычно их выносят в отдельные файлы и в нужных местах подключают директивой include.&nbsp;</li>
+  <li>В-третьих, если вынести настройки каждого блока server в отдельную конфигурацию, очень удобно включать и отключать сайты простым переносом или переименованием всего одного файла.&nbsp;</li>
+  <li>В-четвёртых, вы всегда будете видеть, какой именно сайт был изменён последним по времени модификации файла.&nbsp;</li>
+  <li>И в пятых, хранение настроек сайта в отдельном файле сводит к минимуму риск случайного повреждения общей конфигурации при редактировании. Надеюсь, я убедили вас придерживаться правила «один сайт — один файл конфигурации».</li>
+</ol>
+<p>А пока давайте рассмотрим <code><strong>nginx.conf</strong></code>, настройка которого была выполнена автоматически при установке пакета, повнимательней. Полная версия этого файла в Debian выглядит так:</p>
+<pre><code class="language-plaintext">user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+error_log /var/log/nginx/error.log;
+include /etc/nginx/modules-enabled/*.conf;
+events {
+    worker_connections 768;
+}
+http {
+    sendfile on;
+    tcp_nopush on;
+    types_hash_max_size 2048;
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    access_log /var/log/nginx/access.log;
+    gzip on;
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+}
+</code></pre>
+<p>а в CentOS так:</p>
+<pre><code class="language-plaintext">user nginx;
+worker_processes auto;
+error_log /var/log/nginx/error.log notice;
+pid /run/nginx.pid;
+include /usr/share/nginx/modules/*.conf;
+events {
+    worker_connections 1024;
+}
+http {
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+    access_log  /var/log/nginx/access.log  main;
+    sendfile            on;
+    tcp_nopush          on;
+    keepalive_timeout   65;
+    types_hash_max_size 4096;
+    include             /etc/nginx/mime.types;
+    default_type        application/octet-stream;
+    include /etc/nginx/conf.d/*.conf;
+    server {
+        listen       80;
+        listen       [::]:80;
+        server_name  _;
+        root         /usr/share/nginx/html;
+        include /etc/nginx/default.d/*.conf;
+        error_page 404 /404.html;
+        location = /404.html {
+        }
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+        }
+    }
+}</code></pre>
+<p>Как мы видим, эти файлы очень похожи. Разница в том, что основная конфигурация CentOS содержит блок server для сайта по умолчанию, который в Debian вынесен в отдельный файл в каталоге <code><strong>/etc/nginx/sites-enabled/</strong></code> и включается директивой <code><strong>include</strong></code>. После установки мы найдем тут файл <code><strong>default</strong></code> (на самом деле, являющийся ссылкой на файл <code><strong>/etc/nginx/sites-available/default</strong></code>) следующего содержания:</p>
+<pre><code class="language-plaintext">server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}</code></pre>
+<p>Как мы убедились ранее, этот блок указывает службе nginx принимать, или, как говорят администраторы, «слушать» входящие соединения на порту 80. Это порт по умолчанию для протокола HTTP.</p>
+<h2>Раздача статического содержимого</h2>
+<p style="text-align:justify;">Одна из важных задач конфигурации nginx&nbsp;— раздача файлов, таких как изображения или статические HTML-страницы. Рассмотрим пример, в котором в зависимости от запроса файлы будут раздаваться из разных локальных каталогов: <code>/data/www</code>, который содержит HTML-файлы, и <code>/data/images</code>, содержащий файлы с изображениями. Для этого потребуется отредактировать конфигурационный файл и настроить блок <a href="https://nginx.org/ru/docs/http/ngx_http_core_module.html#server"><u>server</u></a> внутри блока <a href="https://nginx.org/ru/docs/http/ngx_http_core_module.html#http"><u>http</u></a> с двумя блоками <a href="https://nginx.org/ru/docs/http/ngx_http_core_module.html#location"><u>location</u></a>.</p>
+<p style="text-align:justify;">Во-первых, создайте каталог <code>/data/www</code> и положите в него файл <code>index.html</code> с любым текстовым содержанием, а также создайте каталог <code>/data/images</code> и положите в него несколько файлов с изображениями.</p>
+<p style="text-align:justify;">Далее, откройте конфигурационный файл. Конфигурационный файл по умолчанию уже включает в себя несколько примеров блока <code>server</code>, большей частью закомментированных. Для нашей текущей задачи лучше закомментировать все такие блоки и добавить новый блок <code>server</code>:</p>
+<pre><code class="language-plaintext">http {
+    server {
+    }
+}</code></pre>
+<p style="text-align:justify;">В общем случае конфигурационный файл может содержать несколько блоков <code>server</code>, <a href="https://nginx.org/ru/docs/http/request_processing.html"><u>различаемых</u></a> по портам, на которых они <a href="https://nginx.org/ru/docs/http/ngx_http_core_module.html#listen"><u>слушают</u></a>, и по <a href="https://nginx.org/ru/docs/http/server_names.html"><u>имени сервера</u></a>. Определив, какой <code>server</code> будет обрабатывать запрос, nginx сравнивает URI, указанный в заголовке запроса, с параметрами директив <code>location</code>, определённых внутри блока <code>server</code>.</p>
+<p style="text-align:justify;">В блок <code>server</code> добавьте блок <code>location</code> следующего вида:</p>
+<pre><code class="language-plaintext">location / {
+    root /data/www;
+}</code></pre>
+<p style="text-align:justify;">Этот блок <code>location</code> задаёт “<code>/</code>” в качестве префикса, который сравнивается с URI из запроса. Для подходящих запросов добавлением URI к пути, указанному в директиве <a href="https://nginx.org/ru/docs/http/ngx_http_core_module.html#root"><u>root</u></a>, то есть, в данном случае, к <code>/data/www</code>, получается путь к запрашиваемому файлу в локальной файловой системе. Если есть совпадение с несколькими блоками <code>location</code>, nginx выбирает блок с самым длинным префиксом. В блоке <code>location</code> выше указан самый короткий префикс, длины один, и поэтому этот блок будет использован, только если не будет совпадения ни с одним из остальных блоков <code>location</code>.</p>
+<p style="text-align:justify;">Далее, добавьте второй блок <code>location</code>:</p>
+<pre><code class="language-plaintext">location /images/ {
+    root /data;
+}</code></pre>
+<p style="text-align:justify;">Он будет давать совпадение с запросами, начинающимися с <code>/images/</code> (<code>location /</code> для них тоже подходит, но указанный там префикс короче).</p>
+<p style="text-align:justify;">Итоговая конфигурация блока <code>server</code> должна выглядеть следующим образом:</p>
+<pre><code class="language-plaintext">server {
+    location / {
+        root /data/www;
+    }
+
+    location /images/ {
+        root /data;
+    }
+}</code></pre>
+<p style="text-align:justify;">Это уже работающая конфигурация сервера, слушающего на стандартном порту 80 и доступного на локальном компьютере по адресу <code>http://localhost/</code>. В ответ на запросы, URI которых начинаются с <code>/images/</code>, сервер будет отправлять файлы из каталога <code>/data/images</code>. Например, на запрос <code>http://localhost/images/example.png</code> nginx отправит в ответ файл <code>/data/images/example.png</code>. Если же этот файл не существует, nginx отправит ответ, указывающий на ошибку 404. Запросы, URI которых не начинаются на <code>/images/</code>, будут отображены на каталог <code>/data/www</code>. Например, в результате запроса <code>http://localhost/some/example.html</code> в ответ будет отправлен файл <code>/data/www/some/example.html</code>.</p>
+<p style="text-align:justify;">Чтобы применить новую конфигурацию, запустите nginx, если он ещё не запущен, или отправьте сигнал <code>reload</code> главному процессу nginx, выполнив:</p>
+<pre><code class="language-plaintext">nginx -s reload</code></pre>
+<p>&nbsp;</p>
+<blockquote>
+  <p>В случае если что-то работает не как ожидалось, можно попытаться выяснить причину с помощью файлов <code>access.log</code> и <code>error.log</code> из каталога <code>/usr/local/nginx/logs</code> или <code>/var/log/nginx</code>.</p>
+</blockquote>

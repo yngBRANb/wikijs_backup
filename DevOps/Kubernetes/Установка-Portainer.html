@@ -1,0 +1,40 @@
+<!--
+title: Установка Portainer в Kuberntes
+description: 
+published: true
+date: 2025-07-16T05:52:44.621Z
+tags: devops, kubernetes, portainer
+editor: ckeditor
+dateCreated: 2025-07-16T05:41:03.799Z
+-->
+
+<h1>Установка Portainer в Kubernetes</h1>
+<p>Официальная инструкция по установке Portainer CE - <a href="https://docs.portainer.io/start/install-ce/server/kubernetes/baremetal">тык</a></p>
+<p>Перед установкой нужно определить в кластере StorageClass по умолчанию:</p>
+<pre><code class="language-plaintext">kubectl patch storageclass &lt;storage-class-name&gt; -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'</code></pre>
+<p>Установка выполняется с помощью Helm:</p>
+<pre><code class="language-plaintext">helm repo add portainer https://portainer.github.io/k8s/
+helm repo update</code></pre>
+<p>Есть несколько способов вывода Portainer в сеть:</p>
+<p>Через NodePort через порт 30779:</p>
+<pre><code class="language-plaintext">helm upgrade --install --create-namespace -n portainer portainer portainer/portainer \
+    --set tls.force=true \
+    --set image.tag=lts</code></pre>
+<p>При использовании этого способа Portainer будет выведен через порт 30779 и доступен по IP адресу любой ноды кластера.</p>
+<p>Через Ingress Controller:</p>
+<pre><code class="language-plaintext">helm upgrade --install --create-namespace -n portainer portainer portainer/portainer \
+    --set service.type=ClusterIP \
+    --set tls.force=true \
+    --set image.tag=lts \
+    --set ingress.enabled=true \
+    --set ingress.ingressClassName=&lt;ingressClassName (eg: nginx)&gt; \
+    --set ingress.annotations."nginx\.ingress\.kubernetes\.io/backend-protocol"=HTTPS \
+    --set ingress.hosts[0].host=&lt;fqdn (eg: portainer.example.io)&gt; \
+    --set ingress.hosts[0].paths[0].path="/"</code></pre>
+<p>Здесь нужно задать желаемый Ingress, fqdn по которому будет доступен Portainer и route.</p>
+<p>Через выделенный IP балансировщика нагрузки:</p>
+<pre><code class="language-plaintext">helm upgrade --install --create-namespace -n portainer portainer portainer/portainer \
+    --set service.type=LoadBalancer \
+    --set tls.force=true \
+    --set image.tag=lts</code></pre>
+<p>При использовании этого способа Portainer будет доступен по назначенному IP-адресу балансировщика нагрузки на порту <code>9443</code>для HTTPS.</p>

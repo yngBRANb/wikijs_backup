@@ -1,0 +1,20 @@
+<!--
+title: Настройте часовой пояс на всех устройствах, согласно месту проведения экзамена
+description: 
+published: true
+date: 2025-02-27T20:22:51.950Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-18T11:03:04.224Z
+-->
+
+<h1><span class="text-small"><strong>Настройте часовой пояс на всех устройствах, согласно месту проведения экзамена:</strong></span></h1>
+<p>Чтобы изменить часовой пояс на ALT Linux используйте команду:</p>
+<pre><code class="language-plaintext">timedatectl set-timezone Asia/Yekaterinburg</code></pre>
+<p>Для изменения часового пояса на Eltex:</p>
+<pre><code class="language-plaintext">vesr# config
+vesr(config)# clock timezone gmt +5
+vesr(config)# exit
+vesr# commit
+vesr# confirm</code></pre>
+<p><strong>Настроить часовой пояс нужно на всех устройствах!</strong></p>

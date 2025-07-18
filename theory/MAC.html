@@ -1,0 +1,144 @@
+<!--
+title: MAC
+description: 
+published: true
+date: 2025-02-04T16:23:06.642Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-04T16:22:59.122Z
+-->
+
+<p>Всем известно, что это шесть байт, обычно отображаемых в шестнадцатеричном формате, присвоены сетевой карте на заводе, и на первый взгляд случайны. Некоторые знают, что первые три байта адреса – это идентификатор производителя, а остальные три байта им назначаются. Известно также, что можно поставить себе <i>произвольный</i> адрес. Многие слышали и про "рандомные адреса" в Wi-Fi.</p>
+<p>Разберемся, что это такое.</p>
+<p>МАС адрес (media access control address) – уникальный идентификатор, назначенный сетевому адаптеру, применяется в сетях стандартов IEEE 802, в основном Ethernet, Wi-Fi и Bluetooth. Официально он называется «идентификатором типа EUI-48». Из названия очевидно, что адрес имеет длину в 48 бит, т.е. 6 байт. Общепринятого стандарта на написание адреса нет (в противоположность IPv4 адресу, где октеты всегда разделяют точками).Обычно он записывается как шесть шестнадцатеричных чисел, разделенных двоеточием: 00:AB:CD:EF:11:22, хотя некоторые производители оборудования предпочитают запись вида 00-AB-CD-EF-11-22 и даже 00ab.cdef.1122.</p>
+<p>Исторически адреса прошивались в ПЗУ чипсета сетевой карты без возможности их модификации без флеш-программатора, но в настоящее время адрес может быть изменен программно, из операционной системы. Задать вручную МАС адрес сетевой карте можно в Linux и MacOS (всегда), Windows (почти всегда, если позволит драйвер), Android (только рутованный); с iOS (без рута) подобный трюк невозможен.</p>
+<h3>Структура адреса</h3>
+<p>Адрес состоит из части идентификатора производителя, OUI, и идентификатора, присваиваемого производителем. Назначением идентификаторов OUI (Organizationally Unique Identifier) <a href="https://standards.ieee.org/products-services/regauth/oui/index.html">занимается</a> организация IEEE. На самом деле его длина может быть не только 3 байта (24 бита), а 28 или 36 бит, из которых формируются блоки (MAC Address Block, МА) адресов типов Large (MA-L), Medium (MA-M) и Small (MA-S) соответственно. Размер выдаваемого блока, в таком случае, составит 24, 20, 12 бит или 16 млн, 1 млн, 4 тыс. штук адресов. В настоящий момент распределено порядка 38 тысяч блоков, их можно посмотреть многочисленными онлайн-инструментами, например у <a href="https://regauth.standards.ieee.org/standards-ra-web/pub/view.html">IEEE</a> или <a href="https://www.wireshark.org/tools/oui-lookup.html">Wireshark</a>.</p>
+<h3>Кому принадлежат адреса</h3>
+<p>Несложная обработка публично доступной <a href="https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob_plain;f=manuf;hb=HEAD">базы данных выгрузки</a> IEEE даёт довольно много информации. Например, некоторые организации забрали себе много OUI блоков. Вот наши герои:</p>
+<figure class="table" style="width:auto;">
+  <table style="background-color:rgb(23, 23, 23);border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);">
+    <thead>
+      <tr>
+        <th style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Вендор</th>
+        <th style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Число блоков/записей</th>
+        <th style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Число адресов, млн.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Cisco Systems Inc</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">888</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">14208</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Apple</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">772</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">12352</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Samsung</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">636</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">10144</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Huawei Technologies Co.Ltd</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">606</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">9696</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Intel Corporation</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">375</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">5776</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">ARRIS Group Inc.</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">319</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">5104</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Nokia Corporation</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">241</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">3856</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Private</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">232</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">2704</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Texas Instruments</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">212</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">3392</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">zte corporation</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">198</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">3168</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">IEEE Registration Authority</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">194</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">3072</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Hewlett Packard</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">149</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">2384</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Hon Hai Precision</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">136</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">2176</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">TP-LINK</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">134</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">2144</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Dell Inc.</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">123</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">1968</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Juniper Networks</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">110</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">1760</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Sagemcom Broadband SAS</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">97</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">1552</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Fiberhome Telecommunication Technologies Co. LTD</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">97</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">1552</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Xiaomi Communications Co Ltd</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">88</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">1408</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">Guangdong Oppo Mobile Telecommunications Corp.Ltd</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">82</td>
+        <td style="border-bottom:1px solid var(--silver);border-left:1px solid var(--silver);border-right:1px solid var(--silver);border-top:1px solid var(--silver);padding:6px 12px 9px;vertical-align:top;">1312</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>У Google их всего 40, и это не удивительно: они сами производят не так много сетевых устройств.</p>
+<p>Блоки МА не предоставляются бесплатно, их можно приобрести за разумные деньги (без абонентской платы) за $3000, $1800 или $755 соответственно. Интересно, что за дополнительные деньги (в год) можно приобрести «сокрытие» публичной информации о выделенном блоке. Таких сейчас, как видно выше, 232.</p>
+<h3>Когда закончатся МАС-адреса</h3>
+<p>Мы все порядком устали от не прекращающихся уже лет 10 историй о том, что «IPv4 адреса вот-вот кончатся». Да, новые блоки IPv4 получить уже непросто. При этом известно, что IP адреса <a href="https://habr.com/ru/company/globalsign/blog/355006/">распределены крайне неравномерно</a>; существуют гигантские и мало использованные блоки, принадлежащие крупным корпорациям и государственным учреждением США, впрочем, без особой надежды на их перераспределение в пользу нуждающихся. Распространение NAT, CG-NAT и IPv6 сделало проблему нехватки публичных адресов не такой острой.</p>
+<p>В МАС адресе 48 бит, из которых «полезными» можно считать 46 (почему? читай дальше), что даёт 2<sup>46</sup> или 10<sup>14</sup> адресов, что в 2<sup>14</sup> раз больше IPv4 адресного пространства.<br>В настоящий момент распределено примерно полтриллиона адресов, или лишь 0.73% от всего объёма. До исчерпания MAC адресов ещё очень, очень далеко.</p>
+<h3>Случайность бит</h3>
+<p>Можно предположить, что OUI распределены случайно, а вендор затем также случайно назначает адреса индивидуальным сетевым устройствам. Так ли это? Посмотрим на распределение бит в имеющихся в моём распоряжении базах МАС адресов 802.11-устройств, собранных работающими системами авторизации в беспроводных сетях <a href="https://www.netams.com/wnam/">WNAM</a>. Адреса принадлежат реальным устройствам, подключавшихся к Wi-Fi на протяжении нескольких лет в трех странах. В дополнение идет маленькая база 802.3-устройств проводной ЛВС.</p>
+<p>Действительно, стандарт определяет эти биты как специальные (<a href="https://ru.wikipedia.org/wiki/MAC-%D0%B0%D0%B4%D1%80%D0%B5%D1%81">Википедия</a>):<br>&nbsp;</p>
+<figure class="image image_resized" style="width:33.77%;"><img src="https://habrastorage.org/r/w1560/webt/0-/oc/jk/0-ocjkovhfyalpqzrsjdecvg7na.png"></figure>
+<p>Восьмой (с начала) бит первого байта МАС адреса называется Unicast/Multicast битом и определяет, какого типа кадр (фрейм) передается с этим адресом, обычный (0) или широковещательный (1) (мультикаст или броадкаст). Для обычного, unicast взаимодействия сетевого адаптера, этот бит выставлен в «0» во всех пакетах, им отправляемых.</p>
+<p>Седьмой (с начала) бит первого байта МАС адреса называется U/L (Universal/Local) битом и определяет, является ли адрес глобально уникальным (0), или локально уникальным (1). По умолчанию, все «прошитые изготовителем» адреса глобально уникальны, поэтому подавляющее число собранных МАС адресов содержат седьмой бит выставленным в «0». В таблице присвоенных идентификаторов OUI только порядка 130 записей имеет U/L бит «1», и по всей видимости это блоки МАС адресов для специальных нужд.</p>
+<p>С шестого по первый биты первого байта, биты второго и третьего байта в OUI идентификаторах, и тем более биты в 4-6 байтах адреса, назначаемые производителем, распределены более-менее равномерно.</p>
+<p>Таким образом, в реальном МАС-адресе сетевого адаптера биты фактически равноценны и не несут технологического смысла, за исключением двух служебных бит старшего байта.</p>

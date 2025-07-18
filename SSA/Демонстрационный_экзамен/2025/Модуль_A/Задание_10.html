@@ -1,0 +1,27 @@
+<!--
+title: Настройка протокола динамической конфигурации хостов
+description: 
+published: true
+date: 2025-02-27T20:32:04.847Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-18T11:18:09.447Z
+-->
+
+<h1><span class="text-small"><strong>Для офиса HQ в качестве сервера DHCP выступает маршрутизатор HQ-RTR</strong></span></h1>
+<p>Конфигурация HQ-RTR:</p>
+<pre><code class="language-plaintext"># Включаем DHCP
+hq-rtr(config)# ip dhcp-server
+
+# Настраиваем DHCP pool
+hq-rtr(config)# ip dhcp-server pool CLI-pool
+hq-rtr(config-dhcp-server)# network 192.168.10.64/28
+hq-rtr(config-dhcp-server)# address-range 192.168.10.66-192.168.10.78
+hq-rtr(config-dhcp-server)# default-router 192.168.10.65
+hq-rtr(config-dhcp-server)# dns-server 192.168.10.2
+hq-rtr(config-dhcp-server)# domain-name au-team.irpo
+hq-rtr(config-dhcp-server)# end
+
+hq-rtr# commit
+hq-rtr# confirm</code></pre>
+<p>После этого зайдите на HQ-CLI и переведите интерфейс со static на dhcp, и проверьте получает ли он адрес по dhcp</p>

@@ -1,0 +1,127 @@
+<!--
+title: Инструменты создания кластера Ceph
+description: 
+published: true
+date: 2025-07-16T03:37:19.322Z
+tags: ceph, devops, kubernetes
+editor: ckeditor
+dateCreated: 2025-07-13T14:35:49.862Z
+-->
+
+<h1>Какой инструмент организации кластера выбрать?</h1>
+<p>Ceph — это масштабируемое распределённое хранилище, которое можно развернуть на Bare Metal серверах как для standalone-использования, так и для обеспечения Persistent Storage в Kubernetes (K8s). Существует несколько инструментов для автоматизации развертывания Ceph: <strong>Rook</strong>, <strong>ceph-ansible</strong> и <strong>cephadm</strong>. В этой статье мы сравним их ключевые особенности, преимущества и недостатки.</p>
+<h2>Краткое сравнение</h2>
+<figure class="table" style="width:max-content;">
+  <table style="background-color:rgb(41, 42, 45);">
+    <thead>
+      <tr>
+        <th style="border-bottom:0.533333px solid rgb(139, 139, 139);border-left:rgb(139, 139, 139);border-right:rgb(139, 139, 139);border-top:none;padding:10px 10px 10px 0px;"><strong>Критерий</strong></th>
+        <th style="border-bottom:0.533333px solid rgb(139, 139, 139);border-left:rgb(139, 139, 139);border-right:rgb(139, 139, 139);border-top:none;padding:10px;"><strong>Rook Ceph</strong></th>
+        <th style="border-bottom:0.533333px solid rgb(139, 139, 139);border-left:rgb(139, 139, 139);border-right:rgb(139, 139, 139);border-top:none;padding:10px;"><strong>ceph-ansible</strong></th>
+        <th style="border-bottom:0.533333px solid rgb(139, 139, 139);border-left:rgb(139, 139, 139);border-right:rgb(139, 139, 139);border-top:none;padding:10px;"><strong>Сephadm</strong></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px 10px 10px 0px;"><strong>Поддержка</strong></td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Сообщество + Red Hat</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Устаревает</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Официальный инструмент</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px 10px 10px 0px;"><strong>Сложность</strong></td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Средняя (интеграция с K8s)</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Высокая (Ansible + ручная настройка)</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Низкая (CLI + оркестрация)</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px 10px 10px 0px;"><strong>Сеть</strong></td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Зависит от CNI K8s, возможны проблемы с производительностью</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Гибкая настройка</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Оптимизирована под Ceph</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px 10px 10px 0px;"><strong>Масштабируемость</strong></td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Хорошо для K8s, но зависит от его инфраструктуры</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Средняя (требует ручного управления)</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Высокая (автоматическое управление)</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px 10px 10px 0px;"><strong>K8s-интеграция</strong></td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Полная (работает внутри K8s)</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Внешний (не зависит от K8s)</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Внешний (но может интегрироваться через CSI)</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px 10px 10px 0px;"><strong>Поддержка OSD</strong></td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Локальные диски узлов K8s</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Любые Bare Metal диски</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Любые Bare Metal диски</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px 10px 10px 0px;"><strong>Обновления</strong></td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Зависит от K8s-оператора</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Требует ручного обновления</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Автоматические (через Сephadm)</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px 10px 10px 0px;"><strong>Использование</strong></td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Dev/Test, небольшие K8s-кластеры</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Устаревший, не рекомендуется</td>
+        <td style="border-bottom:0.533333px solid rgb(82, 82, 82);border-left:rgb(82, 82, 82);border-right:rgb(82, 82, 82);border-top:rgb(82, 82, 82);padding:10px;">Продакшен, большие кластеры</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<h2>Подробное сравнение&nbsp;</h2>
+<h3><strong>1. Rook Ceph</strong></h3>
+<p><strong>Плюсы:</strong></p>
+<ul>
+  <li>Полная интеграция с Kubernetes (развертывается как оператор).</li>
+  <li>Упрощённое управление через CRD (Custom Resource Definitions).</li>
+  <li>Автоматическое масштабирование и восстановление OSD.</li>
+</ul>
+<p><strong>Минусы:</strong></p>
+<ul>
+  <li>Производительность может страдать из-за работы внутри K8s (особенно сеть и дисковые операции).</li>
+  <li>Сложности с настройкой выделенной сети для Ceph (трафик проходит через CNI K8s).</li>
+  <li>Зависимость от стабильности K8s-кластера.</li>
+</ul>
+<p><strong>Вывод:</strong> Хорош для тестовых и небольших продакшен-сред, но не всегда оптимален для высоконагруженных Bare Metal-развертываний.</p>
+<h3><strong>2. ceph-ansible</strong></h3>
+<p><strong>Плюсы:</strong></p>
+<ul>
+  <li>Гибкость в настройке (Ansible позволяет кастомизировать развертывание).</li>
+  <li>Поддержка разных версий Ceph.</li>
+</ul>
+<p><strong>Минусы:</strong></p>
+<ul>
+  <li>Высокий порог входа (требует глубоких знаний Ansible и Ceph).</li>
+  <li>Устаревает (Red Hat смещает фокус на Сephadm).</li>
+  <li>Требует ручного управления и обновлений.</li>
+</ul>
+<p><strong>Вывод:</strong> Ранее был стандартом, но сейчас уступает cephadm в простоте и автоматизации.</p>
+<h3><strong>3. Сephadm</strong></h3>
+<p><strong>Плюсы:</strong></p>
+<ul>
+  <li>Официальный инструмент от разработчиков Ceph.</li>
+  <li>Простота развертывания (использует CLI и оркестрацию через systemd или Podman).</li>
+  <li>Автоматическое управление кластером (добавление/удаление узлов, обновления).</li>
+  <li>Поддержка выделенных сетей для Ceph (public/cluster).</li>
+</ul>
+<p><strong>Минусы:</strong></p>
+<ul>
+  <li>Требует современных версий ОС (с поддержкой Podman или Docker).</li>
+  <li>Менее гибкий, чем ceph-ansible (но достаточно для большинства сценариев).</li>
+</ul>
+<p><strong>Вывод:</strong> Лучший выбор для продакшен-развертываний на Bare Metal.</p>
+<h2>Заключение</h2>
+<ul>
+  <li><strong>Rook Ceph</strong> подходит для интеграции с K8s, но не всегда оптимален для высоких нагрузок.</li>
+  <li><strong>ceph-ansible</strong> устаревает и требует много ручной работы.</li>
+  <li><strong>Сephadm</strong> — современный стандарт для Bare Metal, обеспечивающий простоту и автоматизацию.</li>
+</ul>
+<p>Для продакшен-среды на Bare Metal С<strong>ephadm</strong> предпочтительнее, тогда как <strong>Rook</strong> стоит рассматривать только если Ceph нужен исключительно внутри K8s. <strong>ceph-ansible</strong> лучше избегать, если нет специфических требований к legacy-развертыванию.<br>&nbsp;</p>
+<blockquote>
+  <p>Рекомендуемые методы развертывания Ceph с официального сайта - <a href="https://docs.ceph.com/en/latest/install/">тут</a></p>
+</blockquote>

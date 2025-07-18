@@ -1,0 +1,320 @@
+<!--
+title: Написание bash скриптов
+description: 
+published: true
+date: 2025-04-03T08:10:54.805Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-04-01T08:19:12.533Z
+-->
+
+<h2><strong>Основы Bash: синтаксис, переменные и&nbsp;команды</strong></h2>
+<p>Кодить будем в&nbsp;терминале Linux&nbsp;— он&nbsp;открывается сочетанием клавиш <strong>Ctrl + Alt + T</strong>. Если вы&nbsp;хотите научиться работать с&nbsp;Bash, но&nbsp;пока не пользуетесь Linux, то&nbsp;пишите код в одном из&nbsp;онлайн-терминалов&nbsp;— например, <a href="https://repl.it/languages/bash"><u>Replit</u></a>.</p>
+<h3><strong>Переменные</strong></h3>
+<p>Переменные в&nbsp;Bash объявляются просто:</p>
+<pre><code class="language-plaintext">message="Hello, World!"</code></pre>
+<p>Теперь переменная <u>message</u> хранит значение&nbsp;— текстовое сообщение «Hello, World!». Давайте выведем его&nbsp;— сделать это можно с&nbsp;помощью команды <u>echo</u>:</p>
+<pre><code class="language-plaintext">echo $message # Будет выведено «Hello, World!»</code></pre>
+<p>Обратите внимание на&nbsp;отсутствие пробелов. В&nbsp;Bash пробелы являются разделителями. Если пробелы есть, то&nbsp;Bash будет считать их отдельными токенами и&nbsp;выдавать ошибки.</p>
+<p>Следующий код приведёт к&nbsp;ошибке:</p>
+<pre><code class="language-plaintext">message = "Hello, World!"
+bash: message: command not found</code></pre>
+<p>Также обратите внимание на&nbsp;символ <u>$</u><strong> —</strong> в&nbsp;Bash он&nbsp;называется символом расширения (expansion character). Поставленный перед именем переменной, он&nbsp;указывает на&nbsp;то, что нужно использовать именно значение переменной, а&nbsp;не&nbsp;одноимённую строку.</p>
+<p>Следующий код выведет сообщение «message»:</p>
+<pre><code class="language-plaintext">message="Hello, World!"
+echo message</code></pre>
+<p>Чтобы сохранить в&nbsp;переменной введённое пользователем значение, используйте команду <u>read</u>:</p>
+<pre><code class="language-plaintext">read name
+# Пользователь вводит что-то — например, «Olga»
+echo $name # Будет выведено «Olga»</code></pre>
+<p>Если вы&nbsp;хотите добавить сообщение перед пользовательским вводом, добавьте флаг <u>-p</u> и&nbsp;сообщение после команды <u>read</u>:</p>
+<pre><code class="language-plaintext">read -p "Enter your name: " name # Будет выведено «Enter your name: »
+# Пользователь вводит что-то — например, «Olga»
+echo $name # Будет выведено «Olga»</code></pre>
+<p>В&nbsp;Bash есть несколько правил именования переменных:</p>
+<ul>
+  <li>Имя переменной должно начинаться с&nbsp;буквы латинского алфавита (нижнего или верхнего регистра) или символа подчёркивания <u>_</u>.</li>
+  <li>Оно может включать буквы, цифры и&nbsp;символ подчёркивания, но&nbsp;не&nbsp;может содержать пробелы или специальные символы.</li>
+  <li>Регистр букв в&nbsp;именах переменных имеет значение. Например, переменные <u>var1</u> и&nbsp;<u>Var1</u> будут рассматриваться как разные.</li>
+  <li>Не&nbsp;рекомендуется использовать зарезервированные слова Bash в&nbsp;качестве имён переменных.</li>
+</ul>
+<h3><strong>Типы данных</strong></h3>
+<p>Ну&nbsp;что&nbsp;же, вот мы&nbsp;и&nbsp;создали нашу первую переменную. Поздравляем! Пока эта переменная содержит всего один тип данных&nbsp;— строковый (<u>string</u>). Но&nbsp;в&nbsp;Bash он&nbsp;далеко не&nbsp;единственный&nbsp;— давайте разберём ещё несколько.</p>
+<p><strong>Важная оговорка</strong></p>
+<p>В&nbsp;Bash нет строгой системы типов, как в&nbsp;некоторых других языках. Тип данных зависит от&nbsp;содержимого переменной и&nbsp;контекста её&nbsp;использования. Поэтому термин «типы данных» в&nbsp;этой статье используется условно, для облегчения понимания. Простите нам это упрощение.</p>
+<p><strong>Строки (strings)</strong>&nbsp;— это набор символов, заключённый в&nbsp;кавычки. В&nbsp;Bash можно писать строки в&nbsp;одинарных <u>'…'</u> или двойных <u>"…"</u> кавычках. Например, <u>'Привет'</u> и&nbsp;<u>"Мир"</u>&nbsp;— это строки.</p>
+<p><strong>Числа (numbers)</strong>&nbsp;— это целочисленные значения. Bash поддерживает арифметические операции с&nbsp;целыми числами, включая сложение, вычитание, умножение и&nbsp;деление. Арифметические выражения нужно предварять знаком <u>$</u> и&nbsp;обрамлять двойными круглыми скобками:</p>
+<p><code>a=2 b=3 echo $(($a + $b)) # Будет выведено 5</code></p>
+<p>Также можно использовать команду <u>expr</u>:</p>
+<p><code>echo $(expr $a + $b) &nbsp;# Будет выведено 5</code></p>
+<p>Стандартные библиотеки Bash поддерживают следующие арифметические операции:</p>
+<ul>
+  <li>Сложение&nbsp;— <u>+</u>.</li>
+  <li>Вычитание&nbsp;— <u>-</u>.</li>
+  <li>Умножение&nbsp;— <u>*</u>.</li>
+  <li>Целочисленное деление&nbsp;— <u>/</u>.</li>
+  <li>Остаток от&nbsp;деления&nbsp;— <u>%</u>.</li>
+  <li>Возведение в&nbsp;степень&nbsp;— <u>**</u>.</li>
+</ul>
+<p><strong>Примечание</strong>: арифметические операторы в&nbsp;Bash не&nbsp;работают с&nbsp;числами с&nbsp;плавающей точкой.</p>
+<p><strong>Массивы (arrays)</strong>&nbsp;— тип переменных, который может хранить несколько значений. Элементы массива перечисляются в&nbsp;круглых скобках через пробел:</p>
+<pre><code class="language-plaintext">my_array=(apple banana cherry)</code></pre>
+<p>При использовании переменной массива в&nbsp;команде применяются фигурные скобки. Если мы&nbsp;хотим вывести его отдельные элементы, это можно сделать с&nbsp;помощью символа <u>$</u> и&nbsp;номера индекса в&nbsp;квадратных скобках:</p>
+<pre><code class="language-plaintext">echo ${my_array[0]} # Выведет «apple»
+echo ${my_array[1]} # Выведет «banana»
+echo ${my_array[2]} # Выведет «cherry»</code></pre>
+<p>А&nbsp;если нам нужно получить сразу все элементы массива, вместо индекса в&nbsp;квадратных скобках нужно поставить символ <u>*</u> или <u>@</u>:</p>
+<pre><code class="language-plaintext">echo ${my_array[*]} # Выведет «apple banana cherry»
+echo ${my_array[@]} # Выведет «apple banana cherry»</code></pre>
+<p><strong>Логические значения (boolean)</strong>&nbsp;— нужны для того, чтобы проверить, выполняется&nbsp;ли какое-то условие или&nbsp;нет. Они могут быть либо true (истина), либо false (ложь). Например, в&nbsp;операторах <u>if</u> и&nbsp;<u>while</u> мы&nbsp;пишем условие, и&nbsp;если оно true, то&nbsp;выполняем какое-то действие.</p>
+<p>В Bash логические значения представлены целыми числами. Число <u>0</u> означает <u>true</u>, а любое другое число означает <u>false</u>. Когда мы выводим логическое значение на экран, то вместо <u>true</u> мы видим <u>0</u>.</p>
+<p>Также в&nbsp;Bash есть операторы сравнения. Например, эти нужны для строк:</p>
+<ul>
+  <li><u>=</u> проверяет, одинаковы&nbsp;ли две строки.</li>
+  <li><u>!=</u> проверяет, различаются&nbsp;ли две строки.</li>
+</ul>
+<p>А&nbsp;эти&nbsp;— для чисел:</p>
+<ul>
+  <li><u>-eq</u> проверяет, равны&nbsp;ли два числа.</li>
+  <li><u>-ne</u> проверяет, различаются&nbsp;ли два числа.</li>
+  <li><u>-gt</u> проверяет, больше&nbsp;ли первое число, чем второе.</li>
+  <li><u>-lt</u> проверяет, меньше&nbsp;ли первое число, чем второе.</li>
+  <li><u>-ge</u>&nbsp;выводит true, если первое число больше или равно второму.</li>
+  <li><u>-le</u> выводит true, если первое число меньше или равно второму.</li>
+</ul>
+<p>Использовать операторы сравнения можно с помощью команды <u>test</u>. Команда <u>test</u> принимает два значения и оператор сравнения и возвращает <u>1</u> или <u>0</u> в зависимости от результата:</p>
+<pre><code class="language-plaintext">test "hello" = "hello" 
+echo $? 
+# Выведет 0 (true), так как строки одинаковые
+test "hello" != "world" 
+echo $? 
+# Выведет 0 (true), так как строки различаются</code></pre>
+<p>Помимо команды <u>test</u>, операторы сравнения можно использовать квадратных скобках <u>[</u> <u>]</u>. Но для этого нам понадобится разобраться, как работать с ветвлениями.</p>
+<h3><strong>Ветвления</strong></h3>
+<p>Ветвления <u>if-then-else</u> позволяют проверить условие и&nbsp;выполнить один набор команд, если условие истинно, и&nbsp;другой набор команд, если условие ложно. Это выглядит так:</p>
+<pre><code class="language-plaintext">if [ условие ]; 
+then
+    # Команды, которые нужно выполнить, если условие истинно
+else
+    # Команды, которые нужно выполнить, если условие ложно
+fi</code></pre>
+<p><strong>Обратите внимание</strong>: открывающую и закрывающую квадратные скобки нужно отделять от операндов пробелами.</p>
+<p>А&nbsp;если в&nbsp;паре с&nbsp;основным условием нужно проверить дополнительное, используют конструкцию <u>elif</u>:</p>
+<pre><code class="language-plaintext">if [ условие_1 ]; 
+then
+    # Команды, которые нужно выполнить, если условие_1 истинно
+elif [ условие_2 ];
+then
+    # Команды, которые нужно выполнить, если условие_2 истинно
+else
+    # Команды, которые нужно выполнить, если все условия ложны
+fi</code></pre>
+<p>Существует и&nbsp;более короткая форма записи условной конструкции&nbsp;— <u>if-then</u>. Её&nbsp;используют, когда нужно проверить только одно условие:</p>
+<pre><code class="language-plaintext">if [ условие ]; 
+then 
+# Команды, которые нужно выполнить
+fi</code></pre>
+<p>В&nbsp;этом случае команды будут выполнены, только если условие истинно.</p>
+<p>Для наглядности давайте напишем скрипт, который проверяет правильность введённого пароля:</p>
+<pre><code class="language-plaintext">#!/bin/bash
+# Задаём значение переменной password
+password="14pomTEr"
+
+# Запрашиваем ввод пароля у пользователя и сохраняем полученное значение в переменную user_input
+read -p "Enter the password: " user_input
+
+# Сравниваем значение переменной password с введённым пользователем значением user_input
+if [ "$password" = "$user_input" ]; then
+  # Если пароли совпадают, выводим сообщение о том, что пароль введён правильно
+  echo "Password accepted"
+else
+  # Если пароли не совпадают, выводим сообщение о том, что пароль введён неправильно
+  echo "Wrong password"
+fi</code></pre>
+<p>Кроме того, в&nbsp;Bash есть логические операторы <u>&amp; &amp;</u> (логическое И) и&nbsp;<strong><u>||</u></strong> (логическое ИЛИ), которые позволяют комбинировать несколько условий и&nbsp;возвращать соответствующее булево значение.</p>
+<p>Например, вот как будет выглядеть наша программа, если мы&nbsp;добавим проверку логина:</p>
+<pre><code class="language-plaintext">#!/bin/bash
+
+username="OlgaBelova94"  # Устанавливаем переменную с именем пользователя
+password="14pomTEr"
+
+read -p "Enter your username: " user_input_username  # Запрашиваем имя пользователя
+read -p "Enter the password: " user_input_username  # Запрашиваем пароль
+
+echo "Enter the password: "
+read user_input_password  # Запрашиваем пароль
+
+if [ "$username" == "$user_input_username" ] &amp;&amp; [ "$password" == "$user_input_password" ]; then
+  echo "Password accepted"
+else
+  echo "Wrong username or password"  # Уточняем, что именно было неверно
+fi</code></pre>
+<p>Здесь мы&nbsp;получим значение true и&nbsp;сообщение «Password accepted», только если будут выполнены оба условия.</p>
+<h3><strong>Циклы</strong></h3>
+<p>Как и&nbsp;в&nbsp;большинстве языков программирования, в&nbsp;Bash есть циклы. Они бывают двух видов:</p>
+<ul>
+  <li><u>for</u>&nbsp;— когда количество итераций заранее известно.</li>
+  <li><u>while</u>&nbsp;— когда количество итераций заранее не&nbsp;известно.</li>
+</ul>
+<p>Вот как выглядит сигнатура цикла <u>for</u>:</p>
+<pre><code class="language-plaintext">for переменная цикла in элемент1 элемент2 ... элементN
+do
+# Команды, которые будут выполняться в цикле
+done</code></pre>
+<p>Количество итераций (часть между <u>in</u> и&nbsp;<u>do</u>) можно указать простым перечислением элементов:</p>
+<pre><code class="language-plaintext">for fruit in apple banana cherry
+do
+    echo "I like $fruit"
+done
+
+# Будет выведено:
+# I like apple
+# I like banana
+# I like cherry</code></pre>
+<p>Можно перебрать элементы массива:</p>
+<pre><code class="language-plaintext">my_array=("apple" "banana" "orange")
+
+for fruit in "${my_array[@]}"
+do
+    echo "I like $fruit"
+done
+
+# Будет выведено:
+# I like apple
+# I like banana
+# I like cherry</code></pre>
+<p>Для явного указания нужного количества итераций используют арифметические выражения:</p>
+<pre><code class="language-plaintext">for ((i=0; i&lt;5; i++))
+do
+  echo "Iteration number $i"
+done
+# Будет выведено:
+# Iteration number 0
+# Iteration number 1
+# Iteration number 2
+# Iteration number 3
+# Iteration number 4</code></pre>
+<p>А&nbsp;вот так выглядит сигнатура цикла <u>while</u>:</p>
+<pre><code class="language-plaintext">while [ условие ]
+do
+  # Команды, которые будут выполняться в цикле
+done</code></pre>
+<p><strong>Условие</strong> <strong>(condition)</strong>&nbsp;— это выражение, результат которого является логическим значением true или false. Команды внутри цикла будут выполняться до&nbsp;тех пор, пока condition возвращает true.</p>
+<p>Давайте усовершенствуем нашу программу проверки пароля так, чтобы она запрашивала его до&nbsp;тех пор, пока пользователь не&nbsp;введёт верный:</p>
+<pre><code class="language-plaintext">#!/bin/bash
+
+password="14pomTEr"
+user_input=""
+
+while [ "$user_input" != "$password" ]
+do
+  read -p "Enter the password: " user_input
+  echo "Wrong password, login denied"
+done
+
+echo "Password accepted, login allowed"</code></pre>
+<p><strong>Что здесь происходит.</strong> В&nbsp;этом примере цикл <u>while</u> запрашивает пароль у&nbsp;пользователя, а&nbsp;потом проверяет его на&nbsp;совпадение с&nbsp;правильным с&nbsp;помощью оператора <u>["$user_input" != "$password"]</u>. А&nbsp;дальше происходит следующее:</p>
+<ul>
+  <li>Если пароль неверный, программа выводит соответствующее сообщение, а&nbsp;цикл продолжается.</li>
+  <li>Если пароль верный, программа выводит сообщение о&nbsp;принятии пароля и&nbsp;завершает выполнение.</li>
+</ul>
+<h3><strong>Функции</strong></h3>
+<p>Функции на&nbsp;языке Bash имеют такой вид:</p>
+<pre><code class="language-plaintext">имя_функции (аргументы) {
+    # Тело функции
+}</code></pre>
+<p>Например, вот как выглядит простая функция без аргументов:</p>
+<pre><code class="language-plaintext">say_hello () {       # Создаём функцию
+
+    echo hello
+}
+
+say_hello        # Вызываем функцию, будет выведено «hello»</code></pre>
+<p>А&nbsp;вот как выглядит функция, которая принимает аргументы:</p>
+<pre><code class="language-plaintext">repeat_text () {
+    local text=$1
+    local reps=$2
+
+    for (( i=0; i&lt;$reps; i++ )); do
+        echo "$text"
+    done
+}
+repeat_text "hello" 3</code></pre>
+<p><strong>Что здесь происходит:</strong></p>
+<ul>
+  <li>С&nbsp;помощью ключевого слова <u>local</u> мы&nbsp;создали две локальные переменные&nbsp;— то&nbsp;есть переменные, существующие только внутри функции.</li>
+  <li>В&nbsp;одну из&nbsp;них поместили текст, а&nbsp;во&nbsp;вторую&nbsp;— количество повторов.</li>
+  <li>Затем создали цикл, который берёт текст из&nbsp;первой переменной и&nbsp;повторяет его столько раз, сколько раз указано во&nbsp;второй.</li>
+  <li>Вызвали функцию, передав ей&nbsp;значения <u>hello</u>&nbsp;и&nbsp;<u>3</u>&nbsp;— то&nbsp;есть приказали повторить слово «hello» три раза.</li>
+</ul>
+<h2><strong>Ну&nbsp;здравствуй, Bash! Пишем первый скрипт</strong></h2>
+<p>Настало время применить знания на&nbsp;практике&nbsp;— напишем скрипт для автоматической очистки кэша браузера и&nbsp;DNS.</p>
+<p>Состоять наш скрипт будет из&nbsp;трёх функций: первая&nbsp;— для очистки кэша браузера, вторая&nbsp;— для очистки кэша DNS, а&nbsp;в&nbsp;третью завернём небольшое меню для выбора нужного действия.</p>
+<p>Начинаем, как водится, с&nbsp;шебанга&nbsp;— специальной строки, которая говорит компьютеру, с&nbsp;помощью какой программы нужно запускать скрипт. Так как мы&nbsp;хотим использовать <u>bash</u>, которая лежит в&nbsp;папке <u>/bin</u>, шебанг будет выглядеть так:</p>
+<p><code>#!/bin/bash</code></p>
+<p>Теперь напишем функцию, которая будет очищать браузерный&nbsp;кэш. В&nbsp;комментариях&nbsp;— разбор синтаксиса.</p>
+<pre><code class="language-plaintext">clear_browser_cache() {
+
+# Проверяем, какой браузер установлен на компьютере
+    if command -v google-chrome &gt;/dev/null 2&gt;&amp;1; then
+
+# Если установлен Google Chrome, очищаем кэш браузера
+        google-chrome --user-data-dir=$(mktemp -d) --disable-extensions --disable-plugins --disable-geolocation --no-default-browser-check --no-first-run --noerrdialogs --disable-session-crashed-bubble --disable-infobars --disk-cache-size=0 --media-cache-size=0
+
+# Далее проверяем, установлен ли Firefox
+    elif command -v firefox &gt;/dev/null 2&gt;&amp;1; then
+
+# Если установлен Firefox, очищаем кэш браузера
+        firefox --new-instance --safe-mode
+
+# Если браузер не установлен, выводим сообщение об ошибке
+    else
+        echo "Error: no supported browser found"
+    fi
+}</code></pre>
+<p>Далее напишем функцию для очистки кэша&nbsp;DNS.</p>
+<pre><code class="language-plaintext">clear_dns_cache() {
+# Проверяем, какая операционная система установлена на компьютере
+# Если установлена Linux, очищаем кэш DNS
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        sudo systemd-resolve --flush-caches
+# Если установлена macOS, очищаем кэш DNS
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        sudo dscacheutil -flushcache
+        sudo killall -HUP mDNSResponder
+# Если операционная система не поддерживается, выводим сообщение об ошибке
+    else
+        echo "Error: unsupported operating system"
+    fi
+}</code></pre>
+<p>Ну&nbsp;а&nbsp;теперь дело за&nbsp;малым. Напишем небольшое меню, чтобы пользователь мог выбрать, кэш браузера или кэш DNS нужно очистить.</p>
+<pre><code class="language-plaintext"># Сначала выведем варианты
+clear_cache() {
+    echo "Select cache to clear:"
+    echo "1. Browser cache"
+    echo "2. DNS cache"
+# Запросим у пользователя номер выбранного пункта меню
+    read -p "Enter your choice: " choice
+# В зависимости от выбранного пункта меню вызываем соответствующую функцию для очистки кэша
+    if [ "$choice" -eq 1 ]; then
+    clear_browser_cache
+elif [ "$choice" -eq 2 ]; then
+    clear_dns_cache
+else
+    echo "Invalid choice"
+fi
+}</code></pre>
+<p>Вуаля! Наш скрипт готов. Чтобы его запустить, нам нужно лишь вызвать функцию <u>clear_cache</u>:</p>
+<p><code>clear_cache</code></p>
+<p>В&nbsp;теории можно сделать скрипт и&nbsp;ещё лучше&nbsp;— например, добавить больше браузеров, реализовать проверку прав администратора и&nbsp;другие фишки. Но&nbsp;на&nbsp;сегодня, пожалуй, достаточно.</p>
+<h2>Практическая часть</h2>
+<p>Задание 1.</p>
+<p>Разработать bash скрипт для установки node_exporter prometheus, он должен автоматически запускаться при старте компьютера и работать на порте 3100.</p>
+<p>Скачать нужную версию node_exporter для debian можно по ссылке: <a href="https://github.com/prometheus/node_exporter/releases/download/v1.9.1/node_exporter-1.9.1.linux-amd64.tar.gz">скрипт</a></p>
+<p>Скрипт должен:</p>
+<ol>
+  <li>Автоматически скачивать node_exporter по ссылке</li>
+  <li>Распаковывать его</li>
+  <li>Создавать сервис для его автозапуска и постоянной работы</li>
+  <li>Вносить настройку для работы на 3100 порту, в случае если этот порт уже занят, можно выбрать любой из этого диапазона: 3150 - 3200.</li>
+</ol>

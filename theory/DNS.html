@@ -1,0 +1,117 @@
+<!--
+title: DNS
+description: Что такое DNS? Система доменных имен (DNS) является одной из фундаментальных технологий современной интернет-среды и представляет собой распределенную систему хранения и обработки информации о доменных зонах.
+published: true
+date: 2025-06-04T18:48:37.628Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-15T12:01:01.540Z
+-->
+
+<h1><span class="text-small"><strong>Что такое DNS?</strong></span></h1>
+<p>Система доменных имен (DNS) является одной из фундаментальных технологий современной интернет-среды и представляет собой распределенную систему хранения и обработки информации о доменных зонах. Она необходима, в первую очередь, для соотнесения IP-адресов устройств в сети и более удобных для человеческого восприятия символьных имен.</p>
+<p>DNS состоит из распределенной базы имен, чья структура напоминает логическое дерево, называемое пространством имен домена. Каждый узел в этом пространстве имеет свое уникальное имя. Это логическое дерево «растет» из корневого домена, который является самым верхним уровнем иерархии DNS и обозначается символом – точкой. А уже от корневого элемента ответвляются поддоменые зоны или узлы (компьютеры).</p>
+<figure class="image"><img src="/ssa/windows/theoretical/dns_tree.png"></figure>
+<p>Пространство имен, которое сопоставляет адреса и уникальные имена, может быть организовано двумя путями: плоско и иерархически. В первом случае имя назначается каждому адресу и является последовательностью символов без структуры, закрепленной какими-либо правилами. Главный недостаток плоского пространства имен – оно не может быть использовано в больших системах, таких как интернет, из-за своей хаотичности, поскольку в этом случае достаточно сложно провести проверку неоднозначности и дублирования.</p>
+<p>В иерархическом же пространстве имен каждое имя составлено из нескольких частей: например, домена первого уровня .pro, домена второго уровня black-sprut.pro, домена третьего уровня wiki.black-sprut.pro и т. д. Этот тип пространства имен позволяет легко проводить проверки на дубликаты, и при этом организациям не нужно беспокоиться, что префикс, выбранный для хоста, занят кем-то другим – полный адрес будет отличаться.</p>
+<h2><span class="text-small"><strong>Сопоставление имен</strong></span></h2>
+<p>DNS имеет 2 зоны просмотра – прямую и обратную. Прямая зона преобразует доменное имя в IP-адрес, а обратная – IP-адрес в доменное имя.</p>
+<p>Давайте взглянем, как происходит сопоставление имен и IP-адресов. Предположим, пользователь набирает в строке браузера www.yandex.ru и нажимает Enter. Браузер посылает запрос DNS-серверу сети, а сервер, в свою очередь, либо отвечает сам (если ответ ему известен), либо пересылает запрос одному из высокоуровневых доменных серверов (или корневому).</p>
+<p>Затем запрос начинает свое путешествие – корневой сервер пересылает его серверу первого уровня (поддерживающего зону .ru). Тот – серверу второго уровня (yandex) и так далее, пока не найдется сервер, который точно знает запрошенное имя и адрес, либо знает, что такого имени не существует. После этого запрос начинает движение обратно.</p>
+<p>Также стоит пару слов сказать про процедуру обратного сопоставления – получение имени по предоставленному IP-адресу. Это происходит, например, при проверках сервера электронной почты. Существует специальный домен in-addr.arpa, записи в котором используются для преобразования IP-адресов в символьные имена. Например, для получения DNS-имени для адреса 11.22.33.44 можно запросить у DNS-сервера запись 44.33.22.11.in-addr.arpa, и тот вернёт соответствующее символьное имя.</p>
+<h2><span class="text-small"><strong>Кто управляет и поддерживает DNS-сервера?</strong></span></h2>
+<p>Когда вы вводите имя интернет-ресурса в строку браузера, ваш компьютер отправляет запрос DNS-серверу провайдера, если он не имеет необходимой записи, то DNS-сервер провайдера совершает рекурсивный запрос на DNS-сервер отвечающий за корневую зону.</p>
+<p>Корневые серверы DNS — DNS-серверы, обеспечивающие работу корневой зоны DNS в сети Интернет. Корневые серверы DNS отвечают на запросы других DNS-серверов в ходе трансляции доменных имён в IP-адреса и позволяют получить список DNS-серверов для любого домена верхнего уровня (TLD): RU, SU, COM, NET, ORG и др.</p>
+<p>Таких серверов 13 и они управляются различными операторами и организациями. Например, сервер a.root-servers.net имеет IP-адрес 198.41.0.4 и находится в ведении компании Verisign, а e.root-servers.net (192.203.230.10) обслуживает NASA.</p>
+<p>&nbsp;</p>
+<figure class="table" style="width:708.391px;">
+  <table style="background-color:rgb(0, 0, 0);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);">
+    <tbody>
+      <tr>
+        <th style="background-color:rgb(44, 47, 51);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Имя хоста</th>
+        <th style="background-color:rgb(44, 47, 51);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">IP-адреса</th>
+        <th style="background-color:rgb(44, 47, 51);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Управляющая организация</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">a.root-servers.net</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">198.41.0.4, 2001:503:ba3e::2:30</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">VeriSign, Inc.</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">b.root-servers.net</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">199.9.14.201, 2001:500:200::b</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">University of Southern California (ISI)</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">c.root-servers.net</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">192.33.4.12, 2001:500:2::c</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Cogent Communications</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">d.root-servers.net</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">199.7.91.13, 2001:500:2d::d</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">University of Maryland</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">e.root-servers.net</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">192.203.230.10, 2001:500:a8::e</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">NASA (Ames Research Center)</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">f.root-servers.net</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">192.5.5.241, 2001:500:2f::f</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Internet Systems Consortium, Inc.</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">g.root-servers.net</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">192.112.36.4, 2001:500:12::d0d</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">US Department of Defense (NIC)</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">h.root-servers.net</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">198.97.190.53, 2001:500:1::53</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">US Army (Research Lab)</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">i.root-servers.net</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">192.36.148.17, 2001:7fe::53</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Netnod</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">j.root-servers.net</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">192.58.128.30, 2001:503:c27::2:30</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">VeriSign, Inc.</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">k.root-servers.net</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">193.0.14.129, 2001:7fd::1</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">RIPE NCC</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">l.root-servers.net</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">199.7.83.42, 2001:500:9f::42</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">ICANN</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">m.root-servers.net</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">202.12.27.33, 2001:dc3::35</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">WIDE Project</th>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Каждый из этих операторов предоставляет данную услугу бесплатно, а также обеспечивает бесперебойную работу, поскольку при отказе любого из этих серверов станут недоступны целые зоны интернета. Ранее корневые DNS-серверы, являющиеся основой для обработки всех запросов о доменных именах в интернете, располагались в Северной Америке. Однако с внедрением технологии альтернативной адресации они «распространились» по всему миру, и фактически их число увеличилось с 13 до 123, что позволило повысить надёжность фундамента DNS.</p>
+<p>Например, в Северной Америке находятся 40 серверов (32,5%), в Европе – 35 (28,5%), еще 6 серверов располагаются в Южной Америке (4,9%) и 3 – в Африке (2,4%). Если взглянуть на карту, то DNS-серверы расположены согласно интенсивности использования интернет-инфраструктуры.</p>
+<h2><span class="text-small"><strong>Развертывание локального DNS сервера</strong></span></h2>
+<p>В наше время подавляющее количество компаний имеет свою IT-инфраструктуру и сервисы, поэтому они разворачивают свой внутренний DNS. Это позволяет офисным сотрудникам подключающимся, например к корпоративной 1С не запоминая IP-адрес. Так же DNS необходим для создания домена администрирования (AD, IPA и т.д.).</p>
+<p>Локальные DNS серверы также можно <strong>условно</strong> разделить на три типа:</p>
+<ul>
+  <li>Рекурсивный DNS-сервер — сервер принимает DNS-запросы из пользовательского приложения, такого как браузер. Это первый ресурс, к которому обращается пользователь, и он либо предоставляет ответ на запрос, если он кэширован, либо <strong>сам осуществляет рекурсивный запрос</strong> (обращается к серверу следующего уровня). Этот сервер может выполнить несколько итераций запроса, прежде чем вернуть ответ клиенту.</li>
+  <li>Авторитетный DNS-сервер — это сервер, который хранит информацию о доменах и их записях (например, A, PTR, CNAME и других). Он предоставляют окончательные ответы на DNS-запросы для конкретных доменов. Если вы имеете к ним доступ, вы можете вносить изменения в записи домена.</li>
+  <li>Перенаправляющий DNS-сервер — сервер, который перенаправляет DNS-запросы на другой DNS-сервер. Сервера этого типа часто используются в сетях для централизованного управления DNS-запросами, направляя их на внешний (или внутренний) сервер, чтобы уже он нашел у себя запись (если он авторитетный) или сделал рекурсивный запрос (если он рекурсивный).</li>
+</ul>
+<p>Но чаще всего используются гибридные варианты:</p>
+<ul>
+  <li>Авторитетный/Рекурсивный — хранит в себе информацию о локальных доменах и их записях. Если такому серверу приходит запрос на запись, которой у него нет, он совершает рекурсивные запросы к корневым серверам.</li>
+  <li>Авторитетный/Перенаправляющий — хранит в себе информацию о локальных доменах и их записях. Если такому серверу приходит запрос на запись, которой у него нет, пересылает DNS-запрос вышестоящему серверу (чаще всего публичному, например - 8.8.8.8).</li>
+</ul>

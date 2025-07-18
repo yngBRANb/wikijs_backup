@@ -1,0 +1,119 @@
+<!--
+title: Сетевые протоколы транспортного уровня
+description: 
+published: true
+date: 2025-05-21T11:56:59.715Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-15T11:52:45.772Z
+-->
+
+<h1><span class="text-small"><strong>Введение в протоколы TCP и UDP</strong></span></h1>
+<p>Протоколы TCP (Transmission Control Protocol) и UDP (User Datagram Protocol) являются основными транспортными протоколами, используемыми в сети Интернет и других компьютерных сетях. Их основная функция заключается в обеспечении передачи данных между устройствами, подключенными к сети. Эти протоколы работают на транспортных уровнях моделей OSI и TCP/IP, они играют ключевую роль в обеспечении взаимодействия между различными приложениями и сервисами.</p>
+<h1><span class="text-small"><strong>Что такое TCP протокол</strong></span></h1>
+<p>Протокол TCP — это технология передачи данных, которая является одним из главных транспортных протоколов. Его также называют протоколом сквозной связи. Эта технология была изобретена еще в далеком 1974 году. С тех пор она несколько усовершенствовалась и стала одним из элементов фундамента современного Интернета. Для передачи данных TCP использует — сегменты.</p>
+<p>Протокол передает данные с пользовательского устройства на веб-сервера. TCP обеспечивает надежное, ориентированное на соединение соединение, что позволяет гарантировать доставку данных, их целостность и порядок. Он использует механизмы управления потоком и контроль за перегрузками, что делает его идеальным для приложений, требующих максимальной надежности, таких как веб-серфинг, электронная почта и передачи файлов.</p>
+<h2><span class="text-small"><strong>Как работает протокол TCP</strong></span></h2>
+<p>Чтобы установить надежное соединение, TCP использует процесс, называемый термином “трехстороннее рукопожатие” (TCP three-way/triple handshake). Этот процесс обеспечивает синхронизацию и подготовку обеих сторон к обмену данными. Установленное соединение будет полнодуплексным, то есть оба канала могут передавать информацию одновременно, а также они синхронизируют (SYN) и подтверждают (ACK) друг друга.</p>
+<p>Перед тем как рассматривать алгоритм работы TCP, нужно ознакомиться с этапами “трехстороннего рукопожатия”:&nbsp;</p>
+<figure class="image"><img src="/ssa/windows/theoretical/net_1.png"></figure>
+<ol>
+  <li>Клиент отправляет сегмент с установленным флагом SYN. При этом сегменту присваивается произвольный порядковый номер (sequence number) в интервале от 1 до 232 (т.н. initial sequence number), относительно которого будет вестись дальнейший отсчет последовательности сегментов в соединении.</li>
+  <li>Сервер получает запрос и отправляет ответный сегмент с одновременно установленными флагами SYN+ACK, при этом записывает в поле «номер подтверждения» (acknowledgement number), полученный порядковый номер, увеличенный на 1 (что подтверждает получение первого сегмента), а также устанавливает свой порядковый номер, который, как и в SYN-сегменте, выбирается произвольно.</li>
+  <li>После получения клиентом сегмента с флагами SYN+ACK соединение считается установленным, клиент, в свою очередь, отправляет в ответ сегмент с флагом ACK, обновленными номерами последовательности, и не содержащий полезной нагрузки.</li>
+  <li>Начинается передача данных.</li>
+</ol>
+<p>Алгоритм работы протокола TCP выглядит следующим образом:</p>
+<p>1. Установка стабильного соединения:</p>
+<ul>
+  <li>Процесс описан выше в трехстороннем рукопожатии.</li>
+</ul>
+<p>2. Непосредственно передача данных:</p>
+<ul>
+  <li>данные разбиваются на сегменты (пакеты), каждый из которых имеет заголовок с информацией о портах, номерах последовательности и других параметрах;</li>
+  <li>происходит обмен пакетами между клиентом и сервером;</li>
+  <li>принимающая сторона отправляет подтверждение за каждым принятым сегментом.</li>
+</ul>
+<p>3. Обнаружение и коррекция ошибок:</p>
+<ul>
+  <li>получатель проверяет целостность принятых данных;</li>
+  <li>если обнаружено повреждение пакета, он запрашивает повторную его отправку;</li>
+  <li>также протокол предусматривает тайм-аут для повторной передачи пакетов, если подтверждение не было получено.</li>
+</ul>
+<p>4. Завершение соединения:</p>
+<ul>
+  <li>одна из сторон инициирует завершение соединения – отправляет пакет FIN;</li>
+  <li>получатель отправляет подтверждение и отправляет свой пакет FIN;</li>
+  <li>после получения подтверждения соединение считается завершенным.</li>
+</ul>
+<p>В процессе обмена данными протокол TCP гарантирует отправку и получение сегментов в точном порядке. Каждому пакету присваивается номер, который указывает на позицию данных в потоке.</p>
+<p>Отдельно стоит отметить использование Window Size — это параметр, который отображает сколько данных готов принять получатель. Отправитель может передавать данные в пределах этого окна, чтобы избежать перегрузки получателя.</p>
+<h1><span class="text-small"><strong>Что такое UDP протокол</strong></span></h1>
+<p>Протокол UDP — это более быстрая, но менее надежная технология обмена данными. Она применяется там, где важна непрерывность потока. Протокол был разработан не намного позже TCP — в 1980 году. С его помощью возможен обмен пакетами по IP-сети без необходимости предварительной установки стабильных каналов или путей передачи данных. Он работает используя дейтаграммы — блоки информации, передаваемые напрямую, без создания выделенного виртуального канала.</p>
+<h2><span class="text-small"><strong>Принцип работы протокола UDP</strong></span></h2>
+<p>Эта технология предлагает более простой алгоритм передачи данных. Он состоит всего из 4 базовых этапов:</p>
+<ol>
+  <li>Упаковка данных в дейтаграммы — общий объем информации для передачи разбивается на сегменты (дейтаграммы).</li>
+  <li>Отправка дейтаграмм — начинается сразу же после их формирования. Отправитель отсылает дейтаграммы на целевой адрес и порт получателя.</li>
+  <li>Передача дейтаграмм — данных передаются по сети разными путями, поэтому могут быть доставлены в разное время и в хаотичном порядке.</li>
+  <li>Получение пакетов — получатель принимает дейтаграммы и извлекает данные. Он может проверить целостность полученных данных, но не может запросить повторную отправку поврежденных или потерянных сегментов.</li>
+</ol>
+<p>Протокол UDP не предусматривает отправку подтверждений. Поэтому часть дейтаграмм точно будет утеряна. Однако и применяется эта технология там, где такие потери несущественны, а главную роль играет скорость передачи. Например, в онлайн-играх, VoIP или сервисах потокового видео. Для защиты такого вида передачи данных используют дополнительные меры. Например, прокси или туннельное соединение между пользователем и серверами компании.</p>
+<h1><span class="text-small"><strong>TCP и UDP разница</strong></span></h1>
+<p>Разница между UDP и TCP заключается в скорости и надежности передачи данных. На фото ниже видно, что при использовании TCP, после каждой отправки данных (сегмента), получатель обязан отправить сообщение ACK (Acknowledge), чтобы подтвердить целостность пришедших данных и только после этого будет отправлен еще один сегмент c данными.</p>
+<figure class="image"><img src="/ssa/windows/theoretical/net_2.png"></figure>
+<p>В этой таблице представлено наглядное сравнение этих протоколов.</p>
+<p>&nbsp;</p>
+<figure class="table" style="width:1080px;">
+  <table style="background-color:rgb(0, 0, 0);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);">
+    <tbody>
+      <tr>
+        <th style="background-color:rgb(44, 47, 51);border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;">Характеристика</th>
+        <th style="background-color:rgb(44, 47, 51);border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:var(--space-xs) var(--space-sm);">TCP</th>
+        <th style="background-color:rgb(44, 47, 51);border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:var(--space-xs) var(--space-sm);">UDP</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Установка соединения</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Устанавливает устойчивое соединение перед передачей данных</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Начинает передачу сразу</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Гарантированная доставка</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Обеспечивает гарантированную доставку данных с подтверждением</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Не гарантирует доставку и не подтверждает получение данных</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Контроль ошибок</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Использует механизмы для обнаружения и исправления ошибок</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Не имеет механизмов</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Порядок доставки</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Строго правильный</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Хаотичный</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Механизм подтверждения</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Имеет механизмы подтверждения доставки и повторной передачи</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Не имеет данных механизмов</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Пропускная способность</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Ниже</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Выше</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Применение</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Часто используется для передачи данных, где ценится надежность</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Применяется там, где небольшая задержка критична</th>
+      </tr>
+      <tr>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">Примеры протоколов</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">HTTP, FTP, SMTP</th>
+        <th style="border-bottom:0px solid;border-left:0px solid;border-right:0px solid;border-top:0px solid;padding:5px;">DNS, VoIP</th>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p><br>Нельзя сказать, что один протокол хуже или лучше другого. Для достижения лучшего качества и скорости передачи данных, а соответственно и работы онлайн-сервисов, протоколы используются в тандеме. Например, для передачи мультимедийных файлов, потокового видео и аудио или стриминга лучше использовать технологию UDP. Тут на первый план выходит его малая скорость задержки. В свою очередь протокол TCP применяют там, где важна гарантия и подтверждение доставки пакетов. Например, для осуществления транзакций.</p>
+<p><br>&nbsp;</p>

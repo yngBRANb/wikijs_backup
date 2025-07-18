@@ -1,0 +1,117 @@
+<!--
+title: Просмотр событий в Windows
+description: 
+published: true
+date: 2025-03-11T04:20:50.428Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-15T11:42:45.571Z
+-->
+
+<p><strong>Цель работы:</strong> изучить средство просмотра событий Windows.</p>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p>Средство просмотра событий Windows показывает журнал приложений и системных сообщений, включая ошибки, информационные сообщения и предупреждения. Это полезный инструмент для устранения всевозможных проблем с Windows.</p>
+<p>Обратите внимание, что даже правильно функционирующая система будет отображать различные предупреждения и ошибки в журналах, которые вы можете просмотреть с помощью средства просмотра событий. Мошенники даже иногда используют этот факт, чтобы обмануть людей, заставив их поверить в то, что в их системе есть проблема, которую может решить только мошенник. В одном печально известном мошенничестве человек, утверждающий, что он из Microsoft, звонит кому–то и дает указание открыть средство просмотра событий. Человек обязательно увидит здесь сообщения об ошибках, и мошенник запросит номер кредитной карты человека, чтобы исправить их.</p>
+<p>При условии, что ваш компьютер работает нормально, вы можете игнорировать ошибки и предупреждения, которые появляются в средстве просмотра событий. Тем не менее, стоит иметь базовые практические знания об этом инструменте и знать, когда он может быть вам полезен.</p>
+<h1><span class="text-small"><strong>Задания для лабораторной работы:</strong></span></h1>
+<h2><span class="text-small">1. Запуск просмотра событий:</span></h2>
+<p>Чтобы запустить запуск просмотра событий, необходимо нажать клавиши Windows + R и ввести eventvwr.msc в окно «Выполнить».</p>
+<figure class="image"><img src="/ssa/windows/pract/event_1.png"></figure>
+<p>Еще один способ, который также подойдет для всех актуальных версий ОС – найти Средства администрирования Windows (В Windows 11 название было изменено на "Инструменты Windows") и выбрать там соответствующий пункт:</p>
+<figure class="image"><img src="/ssa/windows/pract/event_2.png"></figure>
+<figure class="image"><img src="/ssa/windows/pract/event_3.png"></figure>
+<p>И еще один вариант – кликнуть правой кнопкой мыши по кнопке «Пуск» и выбрать пункт контекстное меню «Просмотр событий». Это же меню можно вызвать, нажав на клавиатуре клавиши Win + X.</p>
+<h2><span class="text-small">2. Интерфейс просмотра событий</span></h2>
+<figure class="image"><img src="/ssa/windows/pract/event_4.png"></figure>
+<p>Журналы Windows (в которых хранятся события) делятся на различные категории. Хотя категорий много, большинство действий по устранению неполадок, которые вам могут понадобиться, относятся к трем из них:</p>
+<figure class="image"><img src="/ssa/windows/pract/event_5.png"></figure>
+<ul>
+  <li><strong>Приложение</strong>: в журнале приложений записываются события, связанные с системными компонентами Windows, такими как драйверы и встроенные элементы интерфейса.</li>
+  <li><strong>Система</strong>: в системный журнал записываются события, связанные с программами, установленными в системе.</li>
+  <li><strong>Безопасность</strong>: если ведение журнала безопасности включено (в Windows оно отключено по умолчанию), в этот журнал записываются события, связанные с безопасностью, такие как попытки входа в систему и доступ к ресурсам.</li>
+</ul>
+<h2><span class="text-small">3. Интерфейс данного инструмента администрирования можно условно разделить на три части:</span></h2>
+<figure class="image"><img src="/ssa/windows/pract/event_6.png"></figure>
+<p>В левой панели находится древовидная структура, в которой отсортированы события по различным параметрам. Кроме этого, сюда же можно добавить собственные «Настраиваемые представления», в которых будут отображаться лишь нужные вам события.</p>
+<p>По центру, при выборе одной из «папок» слева будет отображаться сам список событий, а при выборе любого из них, в нижней части вы увидите более подробную информацию о нем.</p>
+<p>В правой части собраны ссылки на действия, позволяющие отфильтровать события по параметрам, найти нужные, создать настраиваемые представления, сохранить список и создать задачу в планировщике заданий, которая будет связана с определенным событием.</p>
+<h2><span class="text-small">4. Информация о событиях</span></h2>
+<figure class="image"><img src="/ssa/windows/pract/event_7.png"></figure>
+<p>Когда мы выбираем событие в одной из категорий Журналов Windows, то видим:</p>
+<ul>
+  <li><strong>Имя журнала</strong> – имя файла журнала, куда была сохранена информация о событии.</li>
+  <li><strong>Источник</strong> – название программы, процесса или компонента системы, которое сгенерировало событие (если вы видите здесь Application Error), то имя самого приложение вы можете увидеть в поле выше.</li>
+  <li><strong>Код</strong> – код события, может помочь найти информацию о нем в Интернете. Правда, искать стоит в англоязычном сегменте по запросу Event ID + цифровое обозначение кода + название приложения, вызывавшего сбой (поскольку коды событий для каждой программы уникальны).</li>
+  <li><strong>Код операции</strong> – как правило, здесь всегда указано «Сведения», так что толку от этого поля мало.</li>
+  <li><strong>Уровень</strong> – тип события, занесенного в журнал.</li>
+  <li><strong>Дата</strong> – дата, когда произошло событие.</li>
+  <li><strong>Категория задачи, ключевые слова</strong> – обычно не используются.</li>
+  <li><strong>Пользователь и компьютер</strong> – сообщает о том, от имени какого пользователя и на каком компьютере был запущен процесс, вызвавший событие.</li>
+</ul>
+<p>Внизу, в поле «Подробности», вы можете также увидеть ссылку «Справка в Интернете», которая передает информацию о событии на сайт Microsoft и, по идее, должна отображать информацию о данном событии. Однако, в большинстве случаев вы увидите сообщение о том, что страница не найдена.</p>
+<p>Также стоит отметить, что большинство предупреждений не представляют из себя что–то опасное, а сообщения об ошибках также не всегда говорят о том, что с компьютером что–то не так.</p>
+<h2><span class="text-small">5. События и что они означают.</span></h2>
+<p>Как мы уже с вами узнали, Журналы Windows делятся на категории, в этих категориях хранятся события, но события тоже бывают разные:</p>
+<figure class="table" style="width:1013.59px;">
+  <table style="background-color:rgb(0, 0, 0);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);">
+    <tbody>
+      <tr>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">Событие</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">Значение события</th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(227, 38, 54);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Критический</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Серьезная проблема, требующая немедленного вмешательства для предотвращения значительных последствий</th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(210, 105, 30);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Ошибка</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Проблема, которая требует внимания, но не критична для функционирования системы</th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(255, 215, 0);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Предупреждение</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Не серьезное событие, указывающее на потенциальную проблему в будущем</th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(176, 196, 222);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Сведения</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Информация о нормальном состоянии системы или процессе</th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(152, 251, 152);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Аудит успеха</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Подтверждение успешного завершения действия с учетной записью (вход, назначение привилегий и т.д.)</th>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<h2><span class="text-small">6. Просмотр журнала производительности Windows</span></h2>
+<p>В просмотре событий Windows можно найти достаточное количество интересных вещей, например – посмотреть на проблемы с производительностью компьютера.</p>
+<figure class="image"><img src="/ssa/windows/pract/event_8.png"></figure>
+<p>Для этого в правой панели откройте Журналы приложений и служб – Microsoft — Windows – Diagnostics–Perfomance – Работает и посмотрите, есть ли среди событий какие–либо ошибки – они сообщают о том, что какой–то компонент или программа привела к замедлению загрузки Windows.</p>
+<figure class="image"><img src="/ssa/windows/pract/event_9.png"></figure>
+<h2><span class="text-small">7. Поиск по журналу событий. Фильтрация журнала.</span></h2>
+<p>Перейдите в Журналы Windows - Система.</p>
+<p>Чтобы использовать фильтры для поиска определенного типа журнала, выполните следующие действия. Откройте просмотр событий, разверните группу событий, щелкните категорию правой кнопкой мыши и выберите параметр «Фильтр текущего журнала».</p>
+<figure class="image"><img src="/ssa/windows/pract/event_10.png"></figure>
+<p>Вот пример фильтрации, я вывел в журнал только события с уровнями - Критическая и Ошибка:</p>
+<figure class="image"><img src="/11_eventvwr.png"></figure>
+<figure class="image"><img src="/ssa/windows/pract/event_12.png"></figure>
+<h2><span class="text-small">8. Поиск по журналу событий. Быстрый поиск</span></h2>
+<figure class="image"><img src="/ssa/windows/pract/event_13.png"></figure>
+<figure class="image"><img src="/ssa/windows/pract/event_14.png"></figure>
+<h2><span class="text-small">9. Создание пользовательских представлений</span></h2>
+<p>В случае, если вы часто ищете события одного и того же типа, средство просмотра событий также имеет возможность создавать настраиваемые представления для быстрой фильтрации журналов для просмотра только тех, которые имеют отношение к вам.</p>
+<p>В таком случае можно создать настраиваемое приложение. Для этого нужно: открыть просмотр событий, развернуть группу событий, щелкнуть категорию правой кнопкой мыши и выбрать параметр «Создать настраиваемое представление», выбрать фильтр и настроить его.</p>
+<figure class="image"><img src="/ssa/windows/pract/event_15.png"></figure>
+<p>Настройка фильтра для сведений с кодом событий «1796» за последний час.</p>
+<figure class="image"><img src="/ssa/windows/pract/event_16.png"></figure>
+<figure class="image"><img src="/ssa/windows/pract/event_17.png"></figure>
+<h2><span class="text-small">10. Очистка истории журнала</span></h2>
+<p>В Windows журналы помогают отслеживать состояние устройства и устранять неполадки, и их следует хранить как можно дольше. Однако вы можете очистить историю журнала, чтобы освободить место или упростить отслеживание существующей проблемы.</p>
+<figure class="image"><img src="/ssa/windows/pract/event_18.png"></figure>
+<h1><span class="text-small"><strong>Контрольные вопросы:</strong></span></h1>
+<ol>
+  <li>С каким инструментов вы работали на этой практической работе? Для чего он нужен?</li>
+  <li>На какие основные категории делятся Журналы Windows?</li>
+  <li>Назовите все типы событий в Журналах Windows.</li>
+  <li>Возможно ли очистить журнал Windows полностью?</li>
+  <li>Что такое код события и для чего он может пригодиться?</li>
+</ol>

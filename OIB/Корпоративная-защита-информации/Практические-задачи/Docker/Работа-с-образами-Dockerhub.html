@@ -1,0 +1,67 @@
+<!--
+title: Работа с образами Dockerhub
+description: 
+published: true
+date: 2025-03-11T05:15:37.344Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-03T18:24:33.606Z
+-->
+
+<p>Работа с образами из Docker Hub включает в себя несколько основных операций: поиск, загрузка, создание, обновление и удаление образов. Вот подробное руководство по каждой из этих операций.</p>
+<h3><strong>1. Поиск образов</strong></h3>
+<p>Чтобы найти образы на Docker Hub, вы можете использовать команду <code><strong>docker search</strong></code>. Например, чтобы найти образы, связанные с Nginx, выполните:</p>
+<pre><code class="language-plaintext">docker search nginx</code></pre>
+<p>Эта команда выведет список доступных образов, включая их имена, описания и количество звезд (рейтингов).</p>
+<h3><strong>2. Загрузка образов</strong></h3>
+<p>Чтобы загрузить образ из Docker Hub, используйте команду <code><strong>docker pull</strong></code>. Например, чтобы загрузить официальный образ Nginx, выполните:</p>
+<pre><code class="language-plaintext">docker pull nginx</code></pre>
+<p>Если вы хотите загрузить конкретный тег образа, укажите его:</p>
+<pre><code class="language-plaintext">docker pull nginx:latest</code></pre>
+<h3><strong>3. Просмотр загруженных образов</strong></h3>
+<p>Чтобы увидеть список всех образов, загруженных на ваш локальный компьютер, используйте команду:</p>
+<pre><code class="language-plaintext">docker images</code></pre>
+<p>Эта команда покажет вам имя образа, тег, идентификатор, дату создания и размер.</p>
+<h3><strong>4. Запуск контейнера из образа</strong></h3>
+<p>После загрузки образа вы можете запустить контейнер на его основе. Например, чтобы запустить контейнер Nginx, выполните:</p>
+<pre><code class="language-plaintext">docker run -d -p 80:80 nginx</code></pre>
+<ul>
+  <li><code><strong>-d</strong></code> запускает контейнер в фоновом режиме (detached mode).</li>
+  <li><code><strong>-p 80:80</strong></code> перенаправляет порт 80 на вашем хосте на порт 80 контейнера.</li>
+</ul>
+<h3><strong>5. Обновление образа</strong></h3>
+<p>Чтобы обновить образ до последней версии, выполните команду <code><strong>docker pull</strong></code> снова:</p>
+<pre><code class="language-plaintext">docker pull nginx</code></pre>
+<p>Docker автоматически загрузит последнюю версию образа, если она доступна.</p>
+<h3><strong>6. Удаление образа</strong></h3>
+<p>Если вам нужно удалить образ, используйте команду <code><strong>docker rmi</strong></code>. Например, чтобы удалить образ Nginx, выполните:</p>
+<pre><code class="language-plaintext">docker rmi nginx</code></pre>
+<p>Если образ используется в одном или нескольких контейнерах, вам нужно сначала остановить и удалить эти контейнеры.</p>
+<h3><strong>7. Публикация образа на Docker Hub</strong></h3>
+<p>Если вы хотите поделиться своим образом с другими, вы можете загрузить его на Docker Hub. Сначала выполните вход в свою учетную запись Docker Hub:</p>
+<pre><code class="language-plaintext">docker login</code></pre>
+<p>Затем загрузите образ:</p>
+<pre><code class="language-plaintext">docker push &lt;ваше_имя_пользователя&gt;/my-nginx-image</code></pre>
+<p><strong>Список популярных образов:</strong></p>
+<ul>
+  <li>nginx</li>
+  <li>mysql</li>
+  <li>postgres</li>
+  <li>redis</li>
+  <li>ubuntu</li>
+  <li>alpine</li>
+  <li>node</li>
+  <li>python</li>
+  <li>mongo</li>
+  <li>httpd (Apache)</li>
+  <li>php</li>
+  <li>ruby</li>
+  <li>openjdk</li>
+  <li>centos</li>
+  <li>elasticsearch</li>
+  <li>redis</li>
+  <li>rabbitmq</li>
+  <li>jupyter/scipy-notebook</li>
+  <li>tensorflow/tensorflow</li>
+  <li>golang</li>
+</ul>

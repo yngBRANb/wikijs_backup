@@ -1,0 +1,71 @@
+<!--
+title: Проксирование Nginx
+description: 
+published: true
+date: 2025-03-11T05:17:00.596Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-03T17:13:09.196Z
+-->
+
+<h2>Настройка простого прокси-сервера</h2>
+<p style="text-align:justify;">Одним из частых применений nginx является использование его в качестве прокси-сервера, то есть сервера, который принимает запросы, перенаправляет их на проксируемые сервера, получает ответы от них и отправляет их клиенту.</p>
+<p style="text-align:justify;">Мы настроим базовый прокси-сервер, который будет обслуживать запросы изображений из локального каталога и отправлять все остальные запросы на проксируемый сервер. В этом примере оба сервера будут работать в рамках одного экземпляра nginx.</p>
+<p style="text-align:justify;">Во-первых, создайте проксируемый сервер, добавив ещё один блок <code>server</code> в конфигурационный файл nginx со следующим содержимым:</p>
+<pre><code class="language-plaintext">server {
+    listen 8080;
+    root /data/up1;
+
+    location / {
+    }
+}
+</code></pre>
+<p style="text-align:justify;">Это будет простой сервер, слушающий на порту 8080 (ранее директива <code>listen</code> не указывалась, потому что использовался стандартный порт 80) и отображающий все запросы на каталог <code>/data/up1</code> в локальной файловой системе. Создайте этот каталог и положите в него файл <code>index.html</code>. Обратите внимание, что директива <code>root</code> помещена в контекст <code>server</code>. Такая директива <code>root</code> будет использована, когда директива <code>location</code>, выбранная для выполнения запроса, не содержит собственной директивы <code>root</code>.</p>
+<p style="text-align:justify;">Далее, используйте конфигурацию сервера из предыдущего раздела и видоизмените её, превратив в конфигурацию прокси-сервера. В первый блок <code>location</code> добавьте директиву <a href="https://nginx.org/ru/docs/http/ngx_http_proxy_module.html#proxy_pass"><u>proxy_pass</u></a>, указав протокол, имя и порт проксируемого сервера в качестве параметра (в нашем случае это <code>http://localhost:8080</code>):</p>
+<pre><code class="language-plaintext">server {
+    location / {
+        proxy_pass http://localhost:8080;
+    }
+
+    location /images/ {
+        root /data;
+    }
+}
+</code></pre>
+<p style="text-align:justify;">Мы изменим второй блок <code>location</code>, который на данный момент отображает запросы с префиксом <code>/images/</code> на файлы из каталога <code>/data/images</code> так, чтобы он подходил для запросов изображений с типичными расширениями файлов. Изменённый блок <code>location</code> выглядит следующим образом:</p>
+<pre><code class="language-plaintext">location ~ \.(gif|jpg|png)$ {
+    root /data/images;
+}
+</code></pre>
+<p style="text-align:justify;">Параметром является регулярное выражение, дающее совпадение со всеми URI, оканчивающимися на <code>.gif</code>, <code>.jpg</code> или <code>.png</code>. Регулярному выражению должен предшествовать символ <code>~</code>. Соответствующие запросы будут отображены на каталог <code>/data/images</code>.</p>
+<p style="text-align:justify;">Когда nginx выбирает блок <code>location</code>, который будет обслуживать запрос, то вначале он проверяет директивы <a href="https://nginx.org/ru/docs/http/ngx_http_core_module.html#location"><u>location</u></a>, задающие префиксы, запоминая <code>location</code> с самым длинным подходящим префиксом, а затем проверяет регулярные выражения. Если есть совпадение с регулярным выражением, nginx выбирает соответствующий <code>location</code>, в противном случае берётся запомненный ранее <code>location</code>.</p>
+<p style="text-align:justify;">Итоговая конфигурация прокси-сервера выглядит следующим образом:</p>
+<pre><code class="language-plaintext">server {
+    location / {
+        proxy_pass http://localhost:8080/;
+    }
+
+    location ~ \.(gif|jpg|png)$ {
+        root /data/images;
+    }
+}
+</code></pre>
+<p style="text-align:justify;">Этот сервер будет фильтровать запросы, оканчивающиеся на <code>.gif</code>, <code>.jpg</code> или <code>.png</code>, и отображать их на каталог <code>/data/images</code> (добавлением URI к параметру директивы <code>root</code>) и перенаправлять все остальные запросы на проксируемый сервер, сконфигурированный выше.</p>
+<p style="text-align:justify;">Чтобы применить новую конфигурацию, отправьте сигнал <code>reload</code> nginx’у, как описывалось в предыдущих разделах.</p>
+<p style="text-align:justify;">Существует <a href="https://nginx.org/ru/docs/http/ngx_http_proxy_module.html"><u>множество</u></a> других директив для дальнейшей настройки прокси-соединения.</p>
+<h2>Настройка проксирования FastCGI</h2>
+<p style="text-align:justify;">nginx можно использовать для перенаправления запросов на FastCGI-серверы. На них могут исполняться приложения, созданные с использованием разнообразных фреймворков и языков программирования, например, PHP.</p>
+<p style="text-align:justify;">Базовая конфигурация nginx для работы с проксируемым FastCGI-сервером включает в себя использование директивы <a href="https://nginx.org/ru/docs/http/ngx_http_fastcgi_module.html#fastcgi_pass"><u>fastcgi_pass</u></a> вместо директивы <code>proxy_pass</code>, и директив <a href="https://nginx.org/ru/docs/http/ngx_http_fastcgi_module.html#fastcgi_param"><u>fastcgi_param</u></a> для настройки параметров, передаваемых FastCGI-серверу. Представьте, что FastCGI-сервер доступен по адресу <code>localhost:9000</code>. Взяв за основу конфигурацию прокси-сервера из предыдущего раздела, замените директиву <code>proxy_pass</code> на директиву <code>fastcgi_pass</code> и измените параметр на <code>localhost:9000</code>. В PHP параметр <code>SCRIPT_FILENAME</code> используется для определения имени скрипта, а в параметре <code>QUERY_STRING</code> передаются параметры запроса. Получится следующая конфигурация:</p>
+<pre><code class="language-plaintext">server {
+    location / {
+        fastcgi_pass  localhost:9000;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param QUERY_STRING    $query_string;
+    }
+
+    location ~ \.(gif|jpg|png)$ {
+        root /data/images;
+    }
+}
+</code></pre>
+<p style="text-align:justify;">Таким образом будет настроен сервер, который будет перенаправлять все запросы, кроме запросов статических изображений, на проксируемый сервер, работающий по адресу <code>localhost:9000</code>, по протоколу FastCGI.</p>

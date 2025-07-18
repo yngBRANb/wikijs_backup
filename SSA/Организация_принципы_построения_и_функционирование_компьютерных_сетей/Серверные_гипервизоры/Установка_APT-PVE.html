@@ -1,0 +1,80 @@
+<!--
+title: Установка ALT-PVE
+description: Альт Виртуализация - Cерверный дистрибутив на базе ядра Linux для предоставления функций виртуализации и контейнеризации в корпоративной инфраструктуре.
+published: true
+date: 2025-03-22T10:01:31.210Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-15T12:21:39.818Z
+-->
+
+<p><strong>Цель работы:</strong> установить и освоить интерфейс ALT-PVE.</p>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p>Альт Виртуализация - Cерверный дистрибутив на базе ядра Linux для предоставления функций виртуализации и контейнеризации в корпоративной инфраструктуре. Продукт «Альт Виртуализация» включен в Единый реестр Минцифры (регистрационный номер ПО 6487).</p>
+<p>ПО основано на международных проектах СПО и выполняет все требования свободных лицензий на используемые компоненты.</p>
+<h2><span class="text-small">Возможности</span></h2>
+<ul>
+  <li>Виртуализация и эмуляция аппаратных ресурсов серверов;</li>
+  <li>Средства контейнеризации и оркестрации;</li>
+  <li>Виртуализация дисковой подсистемы и организация программно-определяемых хранилищ данных;</li>
+  <li>Виртуализация сетевой подсистемы.</li>
+</ul>
+<h2><span class="text-small">Основная функциональность</span></h2>
+<p>Альт Сервер Виртуализации предоставляет 4 основных типа установки:</p>
+<ol>
+  <li>Базовый гипервизор.<br>Включает в себя поддержку виртуализации KVM на уровне ядра Linux, утилиты запуска виртуальных машин qemu и унифицированный интерфейс создания и настройки виртуального окружения libvirt. Устанавливается на отдельно стоящий сервер или группу независимых серверов. Для управления используются интерфейс командной строки virsh или графическое приложение virt-manager на рабочей станции администратора.</li>
+  <li>Кластер серверов виртуализации на основе проекта PVE.<br>Устанавливается на группу серверов (до 32 штук при использовании кластерной ФС ocfs2). Предназначено для управления виртуальным окружением KVM и контейнерами LXC, виртуальным сетевым окружением и хранилищем данных. Для управления используется интерфейс командной строки, а также веб-интерфейс. Возможна интеграция с корпоративными системами аутентификации (AD, LDAP и другие на основе PAM).</li>
+  <li>Облачная виртуализация уровня предприятия на основе проекта OpenNebula.<br>Для использования необходим 1 или 3 и более серверов управления (могут быть виртуальными), и группа серверов для запуска виртуальных окружений KVM или контейнеров LXC. Возможна интеграция с корпоративными системами аутентификации.</li>
+  <li>Контейнерная виртуализация.<br>К использованию предлагаются Docker, Podman или LXC/LXD. Для построения кластера и управления контейнерами возможно использование Kubernetes.</li>
+</ol>
+<h1><br><span class="text-small"><strong>Задания для практической работы:</strong></span></h1>
+<p>Устанавливать ALT-PVE для тестов мы будем поверх другого гипервизора - VMware Workstation PRO.</p>
+<h2><span class="text-small">1. Откройте VMware Workstation PRO:</span></h2>
+<figure class="image"><img src="/ssa/hypervisors/esxi_1.png"></figure>
+<p>Выбираем New Virtual Machine:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_2.png"></figure>
+<p>Появится окно создания виртуальной машины.</p>
+<p>Выбираем Typical:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_3.png"></figure>
+<p>Указываем место хранения образа <strong>alt-server-v</strong>:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt-v_install1.png"></figure>
+<p>Выбираем тип гостевой системы:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt-v_install2.png"></figure>
+<p>Выбираем место установки:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt-v_install3.png"></figure>
+<p>Выделяем место на диске:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_6.png"></figure>
+<p>На завершающем этапе создания ВМ ALT-V переходим в "Customize Hardware" для тонкой настройки системных ресурсов:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_4.png"></figure>
+<p>2. Приведите настройки ВМ к следующему виду и запустите ALT-V:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_5.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/6.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_7.png"></figure>
+<p>Выберете Install ALT Server-V:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_8.png"></figure>
+<h2><span class="text-small">3. Следуйте процессу установки:</span></h2>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_9.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_10.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_11.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_12.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_13.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_14.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_15.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_16.png"></figure>
+<p>Особое внимание нужно уделить процессу настройки сети.</p>
+<p>В качестве IP адреса используйте 10.10.10.100 + номер вашего рабочего места</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_17.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_18.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_19.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_20.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_21.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_22.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_23.png"></figure>
+<p>После установки в терминале будет выведен URL по которому вы сможете подключиться к гипервизору:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alt_24.png"></figure>
+<h1><br><span class="text-small"><strong>Контрольные вопросы:</strong></span></h1>
+<ol>
+  <li>Что такое Альт Виртуализация?</li>
+  <li>Какие типы установки она предоставляет?</li>
+  <li>На основе какого open-source проекта основан ALT-PVE? В чем их отличия?</li>
+</ol>

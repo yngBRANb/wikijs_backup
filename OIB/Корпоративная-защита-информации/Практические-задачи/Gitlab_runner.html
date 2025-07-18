@@ -1,0 +1,55 @@
+<!--
+title: Создание GitLab runner
+description: 
+published: true
+date: 2025-06-11T11:39:40.596Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-06-11T11:20:47.407Z
+-->
+
+<h2>Создание раннера docker</h2>
+<p>Создания раннера для docker. Используется образ <code>docker:dind</code></p>
+<pre><code class="language-plaintext">docker run -d --name gitlab-runner --restart always \
+  -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  gitlab/gitlab-runner:alpine</code></pre>
+<p>После создания раннера нужно его зарегистрировать:</p>
+<pre><code class="language-plaintext">docker run --rm -it \
+   -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+   gitlab/gitlab-runner:alpine register</code></pre>
+<p>&nbsp;</p>
+<figure class="image image_resized" style="width:602px;"><img src="https://lh7-rt.googleusercontent.com/docsz/AD_4nXcdWgUjFVYg8UuefeyjbR8EWUwVrrOrh99BXlgkQnnfMSqFrJqsmWGXlunaTRGaidutiXXe6bwqezclRLI_D21VA0m0PHpboSGeXWB2x2USXjU0nHlVaEHxOLINpkf9dKKxgF_uuw?key=zWRZ_Chp80r4IYWk1ZycdQ">
+  <figcaption>Копирование токена регистрации</figcaption>
+</figure>
+<p>Весь процесс будет выглядеть вот так.</p>
+<pre><code class="language-plaintext">Runtime platform                                    arch=amd64 os=linux pid=6 revision=4d7093e1 version=18.0.2
+Running in system-mode.
+
+Created missing unique system ID                    system_id=r_PwB6d0VAnOmR
+Enter the GitLab instance URL (for example, https://gitlab.com/):
+https://git.cyberkal.ru
+Enter the registration token:
+&lt;ВАШ ТОКЕН ЗДЕСЬ&gt;
+Enter a description for the runner:
+[d0d6c3c8ab60]:
+Enter tags for the runner (comma-separated):
+
+Enter optional maintenance note for the runner:
+
+WARNING: Support for registration tokens and runner parameters in the 'register' command has been deprecated in GitLab Runner 15.6 and will be replaced with support for authentication tokens. For more information, see https://docs.gitlab.com/ci/runners/new_creation_workflow/
+Registering runner... succeeded                     runner=GR1348941FDCzLZss
+Enter an executor: custom, parallels, docker, docker-windows, docker+machine, shell, ssh, virtualbox, kubernetes, docker-autoscaler, instance:
+docker
+ERROR: Invalid executor specified
+Enter an executor: shell, ssh, virtualbox, kubernetes, docker-autoscaler, instance, custom, parallels, docker, docker-windows, docker+machine:
+[вщdocker]: docker
+Enter the default Docker image (for example, ruby:2.7):
+docker:dind 
+Runner registered successfully. Feel free to start it, but if it's running already the config should be automatically reloaded!
+
+Configuration (with the authentication token) was saved in "/etc/gitlab-runner/config.toml"</code></pre>
+<p>После этого нужно открыть конфиг и внести изменения в одной строке volumes:</p>
+<pre><code class="language-plaintext">nano /srv/gitlab-runner2/config/config.toml
+#нужно заменить строчку конфигурации volumes на ту которую я написал ниже:
+volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]</code></pre>

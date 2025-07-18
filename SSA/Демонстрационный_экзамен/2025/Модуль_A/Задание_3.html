@@ -1,0 +1,29 @@
+<!--
+title: Создание локальных учетных записей
+description: 
+published: true
+date: 2025-03-07T05:50:25.885Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-18T11:01:34.104Z
+-->
+
+<h1><span class="text-small"><strong>Создайте пользователя sshuser на серверах HQ-SRV и BR-SRV&nbsp;</strong></span></h1>
+<p>Для создания пользователя sshuser с паролем P@ssw0rd и идентификатором 1010 используйте следующие команды:</p>
+<pre><code class="language-plaintext">useradd sshuser -u 1010&nbsp;
+passwd sshuser</code></pre>
+<p>Чтобы он мог выполнять sudo без ввода пароля, необходимо отредактировать файл sudoers или создать новый в директории /etc/sudoers.d:</p>
+<pre><code class="language-plaintext">vim /etc/sudoers.d/sshuser</code></pre>
+<p>Введите в этот файл:</p>
+<pre><code class="language-plaintext">sshuser ALL=(ALL) NOPASSWD: ALL</code></pre>
+<p>После этого добавьте пользователя sshuser в группу суперпользователей - wheel:</p>
+<pre><code class="language-plaintext">usermod -aG wheel sshuser</code></pre>
+<h1><span class="text-small"><strong>Создайте пользователя net_admin на маршрутизаторах HQ-RTR и BR-RTR:</strong></span></h1>
+<p>Создайте пользователя net_admin с помощью следующих команд:</p>
+<pre><code class="language-plaintext">vesr# config
+vesr(config)# username net_admin
+vesr(config-user)# password P@$$word
+vesr(config-user)# privilege 15
+vesr(config-user)# end
+vesr# commit
+vesr# confirm</code></pre>

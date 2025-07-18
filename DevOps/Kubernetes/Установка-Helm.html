@@ -1,0 +1,57 @@
+<!--
+title: Установка Helm в Kubernetes
+description: 
+published: true
+date: 2025-07-18T08:49:04.213Z
+tags: devops, kubernetes, helm
+editor: ckeditor
+dateCreated: 2025-07-13T19:15:09.038Z
+-->
+
+<h1>Установка Helm</h1>
+<p>Инструкция по установке с <a href="https://helm.sh/docs/intro/install/">официального сайта</a>:</p>
+<pre><code class="language-plaintext">sudo dnf install git
+
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+sudo ./get_helm.sh</code></pre>
+<h2>Команды Helm</h2>
+<pre><code class="language-plaintext"># Вывод текущих задеплоеных чартов в default ns
+helm list
+
+# Деплой локального Helm-чарта
+helm install &lt;name&gt; &lt;directory&gt;/
+helm install App App-HelmChart/ -f prod_values.yaml
+helm install &lt;name&gt; &lt;directory&gt;/ --set container.image=adv4000/k8sphp:version2
+helm install &lt;name&gt; &lt;directory&gt;/ -f &lt;file_var.yaml&gt; --setReplicaCount=3
+
+# Обновление чарта
+helm upgrade app1 My-test-Chart/ --set container.image=adv4000/k8sphp:version1 --set replicaCount=4
+
+# Упаковка чарта в архив
+helm package My-test-Chart/
+# Установка чарта из архива
+helm install &lt;name&gt; App-HelmChart-0.1.0.tgz
+
+# Удаление чарта
+helm delete &lt;name&gt;</code></pre>
+<h2>Пример структуры Helm-чарта</h2>
+<pre><code class="language-plaintext">│
+└── HelmCharts             # All Helm Charts
+    ├── ChartTest1
+    │   ├── Chart.yaml
+    │   ├── templates             # Manifests
+    │   │   ├── deployment.yaml
+    │   │   └── service.yaml
+    │   ├── values_dev.yaml       # DEV Values
+    │   ├── values_prod.yaml      # PROD Values
+    │   └── values.yaml           # Default Values
+    └── ChartTest2
+        ├── Chart.yaml
+        ├── templates             # Manifests
+        │   ├── deployment.yaml
+        │   └── service.yaml
+        ├── values_dev.yaml       # DEV Values
+        ├── values_prod.yaml      # PROD Values
+        └── values.yaml           # Default Values</code></pre>
+<p>https://github.com/adv4000/argocd/blob/main/</p>

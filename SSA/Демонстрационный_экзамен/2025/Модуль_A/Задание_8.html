@@ -1,0 +1,38 @@
+<!--
+title: Между офисами HQ и BR необходимо сконфигурировать ip туннель
+description: Настройка GRE туннеля на Eltex vESR
+published: true
+date: 2025-03-07T02:52:28.059Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-18T11:15:04.504Z
+-->
+
+<h1><span class="text-small"><strong>На выбор технологии GRE или IP in IP</strong></span></h1>
+<p>Наш выбор - GRE, его проще настроить и в дальнейшем его основе можно создать защищенное соединение GRE over IPsec</p>
+<p>HQ-RTR:</p>
+<pre><code class="language-plaintext">hq-rtr(config)# tunnel gre 1
+hq-rtr(config-gre)# description to-br-rtr
+hq-rtr(config-gre)# ip firewall disable
+hq-rtr(config-gre)# local address 172.16.4.2
+hq-rtr(config-gre)# remote address 172.16.5.2
+hq-rtr(config-gre)# ip address 100.10.10.1/30
+hq-rtr(config-gre)# ttl 16
+hq-rtr(config-gre)# enable
+hq-rtr(config-gre)# exit</code></pre>
+<p>BR-RTR:</p>
+<pre><code class="language-plaintext">br-rtr(config)# tunnel gre 1
+br-rtr(config-gre)# description to-hq-rtr
+br-rtr(config-gre)# ip firewall disable
+br-rtr(config-gre)# local address 172.16.5.2
+br-rtr(config-gre)# remote address 172.16.4.2
+br-rtr(config-gre)# ip address 100.10.10.2/30
+br-rtr(config-gre)# ttl 16
+br-rtr(config-gre)# enable
+br-rtr(config-gre)# exit</code></pre>
+<p>Добавляем статические маршруты до офисов (они не нужны если вы уверены, что настроили туннели правильно и можете сразу сделать Динамическую маршрутизацию):</p>
+<p>HQ-RTR:</p>
+<pre><code class="language-plaintext">hq-rtr(config)# ip route 192.168.20.0/24 tunnel gre 1</code></pre>
+<p>BR-RTR:</p>
+<pre><code class="language-plaintext">br-rtr(config)# ip route 192.168.10.0/24 tunnel gre 1</code></pre>
+<p>Проверьте что вы сделали все верно, запустив ping с HQ-SRV на BR-SRV</p>

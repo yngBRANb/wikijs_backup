@@ -1,0 +1,84 @@
+<!--
+title: На маршрутизаторах сконфигурируйте статическую трансляцию портов
+description: 
+published: true
+date: 2025-02-27T20:40:32.657Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-18T11:36:45.855Z
+-->
+
+<h2><span class="text-small">Пробросьте порт 80 в порт 8080 на BR-SRV на маршрутизаторе BR-RTR, для обеспечения работы сервиса wiki</span></h2>
+<h2><span class="text-small">Пробросьте порт 2024 в порт 2024 на BR-SRV на маршрутизаторе BR-RTR</span></h2>
+<pre><code class="language-plaintext">esr(config)# object-group service HTTP
+esr(config-object-group-service)# port-range 80                     //Внешний порт с которого будем пробрасывать
+esr(config-object-group-service)# exit
+
+esr(config)# object-group service SSH
+esr(config-object-group-service)# port-range 2024
+esr(config-object-group-service)# exit
+
+esr(config)# object-group network UPLINK
+esr(config-object-group-network)# ip address-range 192.168.20.1     //Адрес с которого будем пробрасывать
+esr(config-object-group-network)# exit
+
+esr(config)# nat destination
+esr(config-dnat)# pool BR_SRV_HTTP                                  
+esr(config-dnat-pool)# ip address 192.168.20.2                      //ВМ на которую будем пробрасывать
+esr(config-dnat-pool)# ip port 8080
+esr(config-dnat-pool)# exit
+esr(config-dnat)# pool BR_SRV_SSH
+esr(config-dnat-pool)# ip address 192.168.20.2
+esr(config-dnat-pool)# ip port 2024
+esr(config-dnat-pool)# exit
+
+esr(config-dnat)# ruleset DNAT
+esr(config-dnat-ruleset)# from default
+esr(config-dnat-ruleset)# rule 1
+esr(config-dnat-rule)# match protocol tcp
+esr(config-dnat-rule)# match destination-address UPLINK
+esr(config-dnat-rule)# match destination-port HTTP
+esr(config-dnat-rule)# action destination-nat pool BR_SRV_HTTP
+esr(config-dnat-rule)# enable
+esr(config-dnat-rule)# exit
+esr(config-dnat-ruleset)# rule 2
+esr(config-dnat-rule)# match protocol tcp
+esr(config-dnat-rule)# match destination-address UPLINK
+esr(config-dnat-rule)# match destination-port SSH
+esr(config-dnat-rule)# action destination-nat pool BR_SRV_SSH
+esr(config-dnat-rule)# enable
+esr(config-dnat-rule)# end
+
+esr# commit
+esr# confirm</code></pre>
+<p>Для проверки подключитесь к адресу 192.168.20.1 по SSH. Вы должны попасть на BR-SRV.</p>
+<pre><code class="language-plaintext">ssh sshuser@192.168.20.1 -p 2024</code></pre>
+<h2><span class="text-small">Пробросьте порт 2024 в порт 2024 на HQ-SRV на маршрутизаторе HQ-RTR</span></h2>
+<pre><code class="language-plaintext">esr(config)# object-group service SSH
+esr(config-object-group-service)# port-range 2024
+esr(config-object-group-service)# exit
+
+esr(config)# object-group network UPLINK
+esr(config-object-group-network)# ip address-range 192.168.10.1     //Адрес с которого будем пробрасывать
+esr(config-object-group-network)# exit
+
+esr(config)# nat destination
+esr(config-dnat)# pool HQ_SRV_SSH
+esr(config-dnat-pool)# ip address 192.168.10.2
+esr(config-dnat-pool)# ip port 2024
+esr(config-dnat-pool)# exit
+
+esr(config-dnat)# ruleset DNAT
+esr(config-dnat-ruleset)# from default
+esr(config-dnat-ruleset)# rule 1
+esr(config-dnat-rule)# match protocol tcp
+esr(config-dnat-rule)# match destination-address UPLINK
+esr(config-dnat-rule)# match destination-port SSH
+esr(config-dnat-rule)# action destination-nat pool HQ_SRV_SSH
+esr(config-dnat-rule)# enable
+esr(config-dnat-rule)# end
+
+esr# commit
+esr# confirm</code></pre>
+<p>Для проверки подключитесь к адресу 192.168.10.1 по SSH. Вы должны попасть на HQ-SRV.</p>
+<pre><code class="language-plaintext">ssh sshuser@192.168.10.1 -p 2024</code></pre>

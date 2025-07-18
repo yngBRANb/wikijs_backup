@@ -1,0 +1,76 @@
+<!--
+title: Организация NFS-хранилища для Kubernetes
+description: 
+published: true
+date: 2025-07-16T04:25:34.709Z
+tags: devops, kubernetes, nfs
+editor: ckeditor
+dateCreated: 2025-07-16T04:07:16.285Z
+-->
+
+<h1><strong>Введение</strong></h1>
+<p>NFS (Network File System) — это простое и надежное решение для предоставления общего файлового хранилища в Kubernetes. В этой статье мы рассмотрим, как развернуть NFS-сервер на <strong>RHEL 10.0</strong> и подключить его к кластеру Kubernetes с помощью <strong>динамического выделения PV (Persistent Volumes)</strong> через <code>nfs-subdir-external-provisioner</code>.</p>
+<h2><strong>1. Настройка NFS-сервера на RHEL 10.0</strong></h2>
+<h3><strong>1.1. Установка и настройка NFS</strong></h3>
+<pre><code class="language-plaintext"># Обновление системы
+sudo dnf update -y
+
+# Установка NFS-сервера
+sudo dnf install -y nfs-utils
+
+# Создание директории для экспорта (желательно чтобы она была на выделенном диске)
+mkdir /data
+chmod 777 /data  # (Настройте права в соответствии с политиками безопасности)
+
+# Настройка экспорта в /etc/exports
+cat &lt;&lt;EOF &gt;&gt; /etc/exports
+/data 172.16.1.111(rw,sync,no_root_squash,no_subtree_check)
+/data 172.16.0.112(rw,sync,no_root_squash,no_subtree_check)
+/data 172.16.0.113(rw,sync,no_root_squash,no_subtree_check)
+EOF
+
+# Включение и запуск сервисов
+sudo systemctl enable --now nfs-server rpcbind
+sudo systemctl restart nfs-server
+
+# Применение экспорта
+sudo exportfs -ar</code></pre>
+<p>Проверка доступности:</p>
+<pre><code class="language-plaintext">showmount -e localhost</code></pre>
+<p>Вывод должен содержать <code>/data</code> с указанными IP-адресами.</p>
+<h2><strong>2. Настройка NFS на рабочих узлах (worker nodes)</strong></h2>
+<p>На каждом узле Kubernetes, который будет подключаться к NFS, выполните:</p>
+<pre><code class="language-plaintext">sudo dnf install -y nfs-utils</code></pre>
+<h2><strong>3. Подключение NFS к Kubernetes</strong></h2>
+<h3><strong>3.1. Установка NFS Provisioner (Helm)</strong></h3>
+<p>Для динамического создания Persistent Volumes (PV) используем <strong>nfs-subdir-external-provisioner:</strong></p>
+<pre><code class="language-plaintext"># Добавление Helm-репозитория
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+
+# Установка provisioner
+helm install nfs-subdir-external-provisioner \
+  nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+  --create-namespace \
+  --namespace nfs-provisioner \
+  --set nfs.server=172.16.0.121 \  # IP или hostname NFS-сервера
+  --set nfs.path=/data \
+  --set storageClass.defaultClass=true  # Сделать StorageClass по умолчанию</code></pre>
+<p>Проверка storageclass:</p>
+<pre><code class="language-plaintext">kubectl get storageclass</code></pre>
+<p>Проверка создания PVC:</p>
+<pre><code class="language-plaintext">cat &lt;&lt;EOF | kubectl apply -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc
+spec:
+  storageClassName: nfs-client  # Имя StorageClass из Helm
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+EOF</code></pre>
+<p>Проверка состояния PVC:</p>
+<pre><code class="language-plaintext">kubectl get pvc</code></pre>
+<p>&nbsp;</p>

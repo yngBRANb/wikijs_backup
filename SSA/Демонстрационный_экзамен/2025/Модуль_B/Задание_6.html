@@ -1,0 +1,44 @@
+<!--
+title: Настройте веб-сервер nginx как обратный прокси-сервер на HQ-RTR
+description: 
+published: true
+date: 2025-03-06T05:33:59.674Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-26T21:57:32.779Z
+-->
+
+<p>Веб сервер мы будет реализовывать на BR-SRV, а не на HQ-RTR, так как на Eltex его банально не поставишь.</p>
+<p>Установите nginx на BR-SRV:</p>
+<pre><code class="language-plaintext">apt-get install nginx
+systemctl enable --now nginx</code></pre>
+<p>Откройте <strong>/etc/nginx/sites-available.d/default.conf</strong>, сотрите дефолтный конфиг и заполните его так:</p>
+<pre><code class="language-plaintext">upstream moodle.au-team.irpo {
+  server 192.168.10.2;
+}
+
+upstream wiki.au-team.irpo {
+  server 192.168.20.2:8080;
+}
+
+server {
+  listen 80; 
+  server_name moodle.au-team.irpo;
+
+  location / {
+    proxy_pass http://moodle.au-team.irpo;
+  }
+}
+
+server {
+  listen 80;
+  server_name wiki.au-team.irpo;
+
+  location / {
+    proxy_pass http://wiki.au-team.irpo;
+  }
+}</code></pre>
+<p>Далее указываем путь на этот конфиг:</p>
+<pre><code class="language-plaintext">cd /etc/nginx/sites-enabled.d/
+ln -s ../sites-available.d/default.conf default.conf
+systemctl restart nginx</code></pre>

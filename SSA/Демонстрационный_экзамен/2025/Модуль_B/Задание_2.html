@@ -1,0 +1,64 @@
+<!--
+title: Сконфигурируйте файловое хранилище
+description: 
+published: true
+date: 2025-03-03T03:19:38.278Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-18T11:33:45.186Z
+-->
+
+<h1><span class="text-small"><strong>При помощи трёх дополнительных дисков, размером 1Гб каждый, на HQ-SRV сконфигурируйте дисковый массив уровня 5</strong></span></h1>
+<p>Определите имена дисков которые вы будете использовать под RAID:</p>
+<pre><code class="language-plaintext">lsblk</code></pre>
+<p>Создайте RAID:</p>
+<pre><code class="language-plaintext">mdadm --create --verbose /dev/md0 -l 5 -n 3 /dev/sd{b,c,d}</code></pre>
+<p>где:</p>
+<ul>
+  <li><strong>/dev/md0</strong> — устройство RAID, которое появится после сборки;</li>
+  <li><strong>-l 5</strong> — уровень RAID;</li>
+  <li><strong>/dev/sd{b,c,d}</strong> — сборка выполняется из дисков sdb, sdc и sdd.</li>
+</ul>
+<p>Проверьте что массив создан:</p>
+<pre><code class="language-plaintext">lsblk</code></pre>
+<h2><span class="text-small">&nbsp;Имя устройства – md0, конфигурация массива размещается в файле /etc/mdadm.conf</span></h2>
+<p>mdadm в альте имеет проблему - если не создать конфиг mdadm.conf, то имя рейда (в нашем случае md0) после перезагрузки пропадет.</p>
+<p>В файле mdadm.conf находится информация о RAID-массивах и компонентах, которые в них входят. Для его создания выполняем следующие команды:</p>
+<pre><code class="language-plaintext">echo "DEVICE partitions" &gt; /etc/mdadm.conf
+mdadm --detail --scan --verbose | awk '/ARRAY/ {print}' &gt;&gt; /etc/mdadm.conf</code></pre>
+<h2><span class="text-small">Создайте раздел, отформатируйте раздел, в качестве файловой системы используйте ext4</span></h2>
+<p>Создадим таблицу разделов и раздел через fdisk:</p>
+<figure class="image"><img src="/ssa/demo2025/module_b/filestor_1.png"></figure>
+<p>Далее создадим файловую систему ext4:</p>
+<pre><code class="language-plaintext">mkfs.ext4 /dev/md0p1</code></pre>
+<h2><span class="text-small">Обеспечьте автоматическое монтирование в папку /raid5</span></h2>
+<p>Создайте директорию /raid5:</p>
+<pre><code class="language-plaintext">mkdir /raid5</code></pre>
+<p>В файл <strong>/etc/fstab</strong> добавьте строку:</p>
+<pre><code class="language-plaintext">/dev/md0p1       /raid5    ext4    defaults 0 0</code></pre>
+<p>Проверьте монтирование:</p>
+<pre><code class="language-plaintext">mount -a</code></pre>
+<p>Должно получится так:</p>
+<figure class="image"><img src="/ssa/demo2025/module_b/filestor_2.png"></figure>
+<h2><span class="text-small"><strong>Настройте сервер сетевой файловой системы(nfs), в качестве папки общего доступа выберите /raid5/nfs, доступ для чтения и записи для всей сети в сторону HQ-CLI</strong></span></h2>
+<p>Установим пакет nfs-server:</p>
+<pre><code class="language-plaintext">apt-get install nfs-server -y
+systemctl enable --now nfs-server</code></pre>
+<p>Создадим директорию и зададим на нее права:</p>
+<pre><code class="language-plaintext">mkdir /raid5/nfs
+chmod 777 /raid5/nfs</code></pre>
+<p>Переходим к настройке</p>
+<p>Отройте файл /etc/exports, удалите всё его содержимое и допишите:</p>
+<pre><code class="language-plaintext">/raid5/nfs       192.168.10.64/28(rw,no_root_squash,no_subtree_check)</code></pre>
+<p>Применим параметры:</p>
+<pre><code class="language-plaintext">systmectl restart nfs-server</code></pre>
+<h2><span class="text-small"><strong>На HQ-CLI настройте автомонтирование в папку /mnt/nfs</strong></span></h2>
+<p>Создадим директорию для монтирования</p>
+<pre><code class="language-plaintext">mkdir /mnt/nfs</code></pre>
+<p>В файл /etc/fstab добавьте:</p>
+<pre><code class="language-plaintext">192.168.10.2:/raid5/nfs        /mnt/nfs    nfs     auto    0 0</code></pre>
+<p>Запустим rpc-statd (очередной прикол альта):</p>
+<pre><code class="language-plaintext">systemctl enable --now rpc-statd</code></pre>
+<p>Проверьте:</p>
+<pre><code class="language-plaintext">mount -a
+mount | grep nfs4</code></pre>

@@ -1,0 +1,145 @@
+<!--
+title: Практическая работа №13-14
+description: 
+published: true
+date: 2025-03-11T05:00:52.784Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-19T10:58:49.379Z
+-->
+
+<h1>Администрирование средств PKI, работа с&nbsp;ruToken(не закончена)</h1>
+<p>&nbsp;</p>
+<h4>Цель работы</h4>
+<p style="text-align:justify;">Целью практической работы является изучение работы с ruToken способов шифрования информации с помощью средств, предоставляемых операционными системами Windows, и применение данных средств на практике на примере шифрованной файловой системы Windows.</p>
+<p style="text-align:justify;">&nbsp;</p>
+<h4>Краткие теоретические сведения</h4>
+<p>Скачать <a href="https://sourceforge.net/projects/openssl/">OpenSSL</a>&nbsp;и добавить в корень C:\, скопировать файл openssl.cnf из C:\OpenSSL\bin в C:\OpenSSL\.</p>
+<p>Системы управления ключевыми носителями и цифровыми сертификатами Рассматриваемые системы обеспечивают централизованное управление ключевыми носителями и хранящимися на них сертификатами на протяжении всего их жизненного цикла.&nbsp;</p>
+<p>Основными функциями таких систем являются: централизованное управление жизненным циклом ключевых носителей; автоматизация процессов управления сертификатами пользователей; выпуск сертификатов с использованием внешних удостоверяющих центров; резервное копирование ключевой информации; журналирование и аудит действий администраторов и пользователей в рамках системы; функционал самообслуживания для сотрудников.&nbsp;</p>
+<p>Как правило, система реализуется с помощью следующих компонентов: серверная часть — осуществляет централизованное управление смарт-картами, токенами, различными политиками и т. д.; база данных системы — обеспечивает централизованное хранение информации об учетных записях пользователей, ключевых носителях, политиках, настройках и т. д.; консоль управления сервером — консоль администратора, позволяющая администраторам регистрировать пользователей, выполнять операции с ключевыми носителями пользователей, настраивать различные политики и т. д.;&nbsp;</p>
+<p>клиентская часть — устанавливается на стороне пользователя и позволяет выполнять функцию синхронизации содержимого ключевого носителя с данными на сервере, а также позволяет пользователю выполнять ряд операций с ключевыми носителями; коннекторы к целевым системам и удостоверяющим центрам.</p>
+<p>Работает эта система вот так:</p>
+<figure class="image"><img src="/снимок_экрана_2025-01-19_155725.png"></figure>
+<p>Выпустим собственный ЦС. Центр сертификации - это центр который выдает удостоверения всем участникам сетевого домена, входящего в зону действия данного ЦС.</p>
+<p>Откроем приложение PowerShell от имени администратора.</p>
+<figure class="image"><img src="/снимок_экрана_2025-01-19_155824.png"></figure>
+<p>Заходим по данному пути C:\OpenSSL\bin с помощью команды cd.</p>
+<p>Вводим команду &nbsp;<code>.\openssl.exe</code> , чтобы запустить openssl.</p>
+<p>После наша строчка выглядит вот так.</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image006.png"></figure>
+<p>1) Введем команду, чтобы выпустить собственный ЦС сертификат и получим private-ключ для нашего ЦСсертификата.</p>
+<pre><code class="language-plaintext">Openssl&gt; genrsa -out «ИМЯКЛЮЧАЦС».key 2048</code></pre>
+<p>2048 - длина ключа в битах, можно выбрать 4096;</p>
+<p><code>«ИМЯКЛЮЧАЦС».key </code>- имя файла ключа.</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image008.png"></figure>
+<p>2) Создадим ЦС сертификат, выполнив команду:</p>
+<pre><code class="language-plaintext">Openssl&gt; req -x509 -new -key «ИМЯКЛЮЧАЦС».key -days 10000 -out «ИМЯСЕРТЦС».crt</code></pre>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image010.png"></figure>
+<p><code>- C - country, двухбуквенный код страны, например, RU или US.</code></p>
+<p><code>- ST - state, обычно это регион, область, район и т.д.</code></p>
+<p><code>- L - locality, обычно это город.</code></p>
+<p><code>- O- organization, название организации.</code></p>
+<p><code>- OU - organization&nbsp;unit, отдел в организации.</code></p>
+<p><code>- CN - common&nbsp;name, обычно это адрес веб-сайта.</code></p>
+<p>Ключ:</p>
+<p><code>- days 30 </code>— это количество дней от текущего дня, в течение этого срока сертификат будет</p>
+<p>считаться действующим.</p>
+<p><code>- «ИМЯКЛЮЧАЦС».key</code> — имя файла с закрытым ключом, созданным на предыдущем шаге.</p>
+<p><code>- «ИМЯСЕРТЦС».crt </code>— имя файла, в который будет записан созданный сертификат ЦС.</p>
+<p>3) Выполним выпуск дочернего сертификата, для этого создадим ключ:</p>
+<pre><code class="language-plaintext">Openssl&gt; genrsa –out «ИМЯКЛЮЧАДОЧЕРНЕГОСЕРТ».key 2048</code></pre>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image012.png"></figure>
+<p><code>ИМЯКЛЮЧАДОЧЕРНЕГОСЕРТ».key - имя файла ключа дочернего сертификата.&nbsp;</code></p>
+<p>4) Создадим дочерний сертификат, выполнив команду:</p>
+<pre><code class="language-plaintext">Openssl&gt;&nbsp; req -new -key «ИМЯКЛЮЧАДОЧЕРНЕГОСЕРТ».key –out «ИМЯДОЧЕРНЕГОСЕРТ».csr</code></pre>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image014.png"></figure>
+<p><code>- C - country, двухбуквенный код страны, например, RU или US.</code></p>
+<p><code>- ST - state, обычно это регион, область, район и т.д.</code></p>
+<p><code>- L - locality, обычно это город.</code></p>
+<p><code>- O- organization, название организации.</code></p>
+<p><code>- OU - organization&nbsp;unit, отдел в организации.</code></p>
+<p><code>- CN - common&nbsp;name, обычно это адрес веб-сайта.</code></p>
+<p><code>- A&nbsp;challenge – вызов пароля.</code></p>
+<p><code>-An - не обязательное название компании.</code></p>
+<p>5) Подпишем наш сертификат, выполнив команду:</p>
+<pre><code class="language-plaintext">Openssl&gt;&nbsp; x509 -req -in «ИМЯДОЧЕРНЕГОСЕРТ».csr -CA «ИМЯСЕРТЦС».crt -CAkey
+«ИМЯКЛЮЧАЦС».key –CAcreateserial -out «ИМЯДОЧЕРНЕГОСЕРТ».crt -days 5000</code></pre>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image015.png"></figure>
+<p>&nbsp;</p>
+<p style="text-align:center;">Работа с сертификатами.</p>
+<p style="text-align:center;">&nbsp;</p>
+<p>1) Просмотр содержимого key можно выполнив команду:</p>
+<pre><code class="language-plaintext">Openssl req -noout -text -in C:\OpenSSL\bin\«ИМЯДОЧЕРНЕГОСЕРТ».key</code></pre>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image017.png"></figure>
+<p>2) Проверка секретного ключа и подписанного сертификата сравнением вывода,который должен быть одинаковый, задействовав прошлую команду:</p>
+<pre><code class="language-plaintext">Openssl&gt; rsa -noout -modulus -in C:\OpenSSL\bin\«ИМЯКЛЮЧАДОЧЕРНЕГОСЕРТ».key
+Openssl&gt; x509 -noout -modulus -in C:\OpenSSL\bin\«ИМЯДОЧЕРНЕГОСЕРТ».crt</code></pre>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image019.png"></figure>
+<p>3) Просмотреть отпечатки сертификата, можно с помощью команды:</p>
+<pre><code class="language-plaintext">Openssl&gt; x509 -fingerprint -noout -in C:\OpenSSL\bin\«ИМЯДОЧЕРНЕГОСЕРТ».crt</code></pre>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image020.png"></figure>
+<p>4) Отобразить информацию о сертификате в формате PEM, можно с помощью команды:</p>
+<pre><code class="language-plaintext">Openssl&gt; x509 -text -in C:\OpenSSL\bin\«ИМЯДОЧЕРНЕГОСЕРТ».crt</code></pre>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image022.png"></figure>
+<p>5) Просмотреть отпечатки сертификата, можно с помощью команды:</p>
+<pre><code class="language-plaintext">Openssl&gt; x509 -fingerprint -noout -in C:\OpenSSL\bin\«ИМЯДОЧЕРНЕГОСЕРТ».crt</code></pre>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image020.png"></figure>
+<p>6) Для защиты пользователя ПК, так же можно установить сертификат.</p>
+<p>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image024.png"></figure>
+<p>7) Мы можем добавить сертификат в браузер, для защиты HTTPS&nbsp;трафика:</p>
+<p>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image026.png"></figure>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p style="text-align:center;">Рутокен S</p>
+<p>&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image028.png"></figure>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p style="text-align:center;">Что такое Рутокен S.</p>
+<p style="text-align:center;">&nbsp;</p>
+<p>Электронный идентификатор (токен) Рутокен S&nbsp;— это компактное USB-устройство, предназначенное для&nbsp;защищенного хранения ключей шифрования и&nbsp;ключей электронной подписи, а&nbsp;также цифровых сертификатов и&nbsp;иной информации. Рутокен S чаще всего применяется в&nbsp;качестве носителя закрытого ключа электронной подписи для&nbsp;доступа к&nbsp;различным ресурсам, для&nbsp;электронного документооборота и&nbsp;для&nbsp;дистанционного банковского обслуживания.&nbsp;</p>
+<p>Рутокен S выступает удачной альтернативой традиционным «хранилищам» ключевой информации, таким как&nbsp;Flash-диски или&nbsp;реестр компьютера. В&nbsp;отличие от&nbsp;них пароли и&nbsp;сертификаты пользователя хранятся на&nbsp;Рутокен S в&nbsp;защищенной внутренней памяти устройства. Доступ к&nbsp;этим данным возможен только по&nbsp;предъявлению PIN-кода.</p>
+<p style="text-align:center;">Вот так выглядит Рутокен S.</p>
+<p style="text-align:center;">&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image030.jpg"></figure>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p style="text-align:center;">Настройка Рутокен S.</p>
+<p style="text-align:center;">&nbsp;</p>
+<p style="text-align:justify;">1) Для того чтобы наш Рутокен смог нормально работать и настраиваться, надо установить драйвера Рутокен с официального сайта.&nbsp;</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image032.jpg" alt="https://sun3.ufanet.userapi.com/BaJ7pgubYw4F-btn2pC8akStAzzcfK8JNjq9fQ/v5ykKmR1kVg.jpg"></figure>
+<p style="text-align:justify;">2) После установки заходим в приложение.</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image033.jpg" alt="https://sun3.ufanet.userapi.com/BRm6ZYWKHVRL4XQ00u4EbSl5DSwLnKLNRhAWug/M-6N88hEWtQ.jpg"></figure>
+<p style="text-align:justify;">3) Для того чтобы установить сертификат на наш Рутокен надо установить программу КРИПТО-ПРО CSP с помощью неё мы сможем сохранить сертификат на наш диск.</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image035.png"></figure>
+<p>4) Форматируем наш Рутокен S&nbsp;в программе драйвера Рутокен.</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image037.jpg"></figure>
+<p>Создаем стандартный PIN-код 12345678 для администратора.</p>
+<p>5) Через КриптоПро Мастер экспорта сертификатов сохраняем наш сертификат на диск.</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image039.jpg" alt="https://sun1.ufanet.userapi.com/QflQbW6VDgx7A-cOfHIqb46lMEs6pJqH2ox6nw/sajSZwnqobM.jpg"></figure>
+<p>6) После того как мы отформатировали Рутокен переносим наш сертификат на него.</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image041.jpg" alt="https://sun3.ufanet.userapi.com/Pe71mHTwlSMuH1iBa9g2KxuU6zzd8lBm8MwCSw/nKkwDBPMKN4.jpg"></figure>
+<p style="text-align:center;">Работа с Рутокен S.</p>
+<p style="text-align:center;">&nbsp;</p>
+<p>С помощью программы КриптоПро АРМ и устройства Рутокен S мы можем зашифровать файл.&nbsp;</p>
+<p>1) Устанавливаем программу КриптоПро АРМ.</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image042.png"></figure>
+<p>2) Вставляем наш Рутокен S в компьютер и открываем программу, которую мы установили в прошлом шаге.</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image044.png"></figure>
+<p>3) Шифруем наш файл с помощью Рутокена S.</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image045.png"></figure>
+<p>4) На выходе получится зашифрованный файл с помощью Рутокена S, в котором есть сертификат ранее созданный.</p>
+<figure class="image"><img src="file:///C:/Users/yngBRANb/AppData/Local/Temp/msohtmlclip1/01/clip_image047.png"></figure>
+<h4>Контрольные вопросы:</h4>
+<ol>
+  <li>В каких выпусках операционных систем Windows присутствует шифрованная файловая&nbsp;система?</li>
+  <li>Опишите алгоритм работы шифрованной файловой системы&nbsp;Windows.</li>
+  <li>Для каких файловых систем применима шифрованная файловая&nbsp;система?</li>
+  <li>Для чего нужно архивировать закрытый ключ и сертификат&nbsp;пользователя?</li>
+  <li>Какие действия необходимо выполнить, чтобы включить шифрование файла/папки?</li>
+</ol>
+<p>&nbsp;</p>

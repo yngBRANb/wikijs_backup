@@ -1,0 +1,140 @@
+<!--
+title: RAID
+description: 
+published: true
+date: 2025-06-04T07:44:59.940Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-15T12:00:26.078Z
+-->
+
+<h1><span class="text-small"><strong>Введение в RAID массивы</strong></span></h1>
+<p>RAID расшифровывается как Redundant Array of Independent Disks или «избыточный массив независимых дисков». Это технология виртуализации, которая позволяет объединять несколько дисков в логический массив. RAID используют для увеличения отказоустойчивости и производительности сервера. Некоторые типы RAID отличаются надежностью, другие скоростью, а некоторые совмещают в себе эти качества.</p>
+<h2><span class="text-small"><strong>Уровни RAID</strong></span></h2>
+<ul>
+  <li><strong>RAID 0</strong></li>
+</ul>
+<figure class="image"><img src="/ssa/windows/theoretical/raid_1.png"></figure>
+<p>RAID 0 работает по принципу <strong>поблочного чередования</strong> (striping). Все диски объединяются в массив, а данные разбиваются на одинаковые блоки, которые по очереди равномерно записываются на все накопители. Благодаря этому производительность возрастает пропорционально количеству дисков.</p>
+<p>Итоговая производительность массива определяется по самому медленному из дисков, поэтому лучше использовать устройства с одинаковой скоростью</p>
+<p>Высокая скорость и объем, однако, достигаются ценой отказоустойчивости. На этом уровне не используется резервирование, поэтому при отказе одного из дисков, все данные массива теряются, а восстановить их крайне трудно. Поэтому RAID 0 не рекомендуется использовать на серверах с критически важными данными.</p>
+<p>RAID 0 проявляет себя лучше всего при работе в приложениях для быстрого обмена данными или в хранилищах временных файлов, например, кэша.</p>
+<ul>
+  <li><strong>RAID 1</strong></li>
+</ul>
+<figure class="image"><img src="/ssa/windows/theoretical/raid_2.png"></figure>
+<p>RAID 1 работает по принципу зеркалирования (mirroring). Массив собирается из двух и более дисков, которые дублируют друг друга. Таким образом создаются пары накопителей с идентичными данными, что помогает решить проблему с отказоустойчивостью — если один из дисков выйдет из строя, данные останутся на его точной копии. При высокой отказоустойчивости RAID 1 уступает в емкости и производительности. Данные необходимо записывать одновременно на каждую пару дисков, а часть общего объема памяти уходит на резервирование.</p>
+<p>RAID 1 подойдет, если нужно сделать хранение данных на сервере более надежным.</p>
+<ul>
+  <li><strong>RAID 5</strong></li>
+</ul>
+<figure class="image"><img src="/ssa/windows/theoretical/raid_3.png"></figure>
+<p>RAID 5 использует принцип чередования с распределенной контрольной суммой. Для создания массива нужно как минимум три диска. Данные разбиваются на блоки и равномерно распределяются между дисками, как и в RAID 0. Однако в этом случае в каждом блоке выделяется диск четности. Благодаря распределению четности между блоками, высокая отказоустойчивость достигается без больших потерь в скорости чтения и записи. Важно отметить, что скорость записи в этой конфигурации сильно зависит от используемого RAID-контроллера.</p>
+<ul>
+  <li><strong>RAID 6</strong></li>
+</ul>
+<figure class="image"><img src="/ssa/windows/theoretical/raid_4.png"></figure>
+<p>RAID 6 развивает идеи, заложенные в RAID 5 и использует принцип чередования с двумя контрольными суммами. Для создания такого массива потребуется как минимум четыре диска, два из которых отводятся для записи четности. Такой массив обладает наивысшей отказоустойчивостью и допускает отказ сразу двух дисков. Однако при этом RAID 6 отличается очень низкой скоростью записи, что ограничивает сферы его применения.</p>
+<p>RAID 6 используется в системах, где нужно наиболее надежное хранение информации, например, в архивах или системах безопасности.</p>
+<ul>
+  <li><strong>RAID 10</strong></li>
+</ul>
+<figure class="image"><img src="/ssa/windows/theoretical/raid_5.png"></figure>
+<p>RAID 10 сочетает в себе принципы RAID 1 (зеркалирование) и RAID 0 (чередование). Для его создания нужно как минимум четыре диска, причем их количество всегда должно быть четным. Из них собирается несколько массивов RAID 1, которые впоследствии объединяются в массив RAID 0. При такой конфигурации даже если один или несколько дисков выйдут из строя, все данные сохранятся. При этом, как и в случае с RAID 1, часть общего объема памяти уходит на резервирование.</p>
+<p>RAID 10 — гибкое решение, которое сочетает отказоустойчивость с высокой скоростью чтения и записи.&nbsp;</p>
+<h2><span class="text-small"><strong>Сравнение уровней RAID</strong></span></h2>
+<figure class="table" style="width:1080px;">
+  <table style="background-color:rgb(0, 0, 0);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);">
+    <tbody>
+      <tr>
+        <th style="background-color:rgb(44, 47, 51);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">Уровень RAID</th>
+        <th style="background-color:rgb(44, 47, 51);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">Принцип работы</th>
+        <th style="background-color:rgb(44, 47, 51);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">Количество дисков</th>
+        <th style="background-color:rgb(44, 47, 51);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">Описание</th>
+        <th style="background-color:rgb(44, 47, 51);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">Преимущества</th>
+        <th style="background-color:rgb(44, 47, 51);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">Недостатки</th>
+        <th style="background-color:rgb(44, 47, 51);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">Восстановление</th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(114, 137, 218);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">RAID 0</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Чередование</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">от 2</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Данные равномерно распределяются между всеми дисками</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Использует 100% дискового пространства; высокая скорость чтения и записи</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Нулевая отказоустойчивость</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Если хотя бы один диск выходит из строя - ломается весь массив</th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(114, 137, 218);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">RAID 1</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Зеркалирование</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">от 2</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Пара дисков с идентичными данными</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Высокая отказоустойчивость</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Использует часть дискового пространства для резервирования; скорость и объем ограничены самым медленным и маленьким диском</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Для восстановления понадобится только один диск</th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(114, 137, 218);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">RAID 5</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Чередование с распределенной четностью</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">от 3</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Данные и блок четности равномерно распределяются между всеми дисками</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Больший объем высокая скорость и отказоустойчивость</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Блок четности занимает часть дискового пространства</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Если один из дисков откажет, его можно восстановить</th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(114, 137, 218);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">RAID 6</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Чередование с двойной четностью</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">от 4</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Данные равномерно распределяются между всеми дисками и двумя блоками четности</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Очень высокая отказоустойчивость</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Низкая скорость записи</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Выдерживает отказ двух дисков</th>
+      </tr>
+      <tr>
+        <th style="background-color:rgb(114, 137, 218);border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">RAID 10</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Чередование + зеркалирование</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);text-align:center;">от 4</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Два зеркальных массива RAID 1, объединенные в массив RAID 0</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Больший объем и скорость, чем у RAID 1 при высокой отказоустойчивости</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Нет блока четности</th>
+        <th style="border-bottom:0px solid var(--border-color-base);border-left:0px solid var(--border-color-base);border-right:0px solid var(--border-color-base);border-top:0px solid var(--border-color-base);padding:var(--space-xs) var(--space-sm);">Допускается отказ одного диска в каждом зеркальном массиве</th>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<h1><br><span class="text-small"><strong>RAID-контроллеры</strong></span></h1>
+<p>RAID-контроллер — это тип компонента хранения, который управляет дисками в инфраструктуре RAID, а также повышает производительность сервера и надежность хранения данных.</p>
+<p>Существует две реализации контроллера RAID:</p>
+<h2><span class="text-small">1. <strong>Аппаратный RAID-контроллер</strong></span></h2>
+<p>Может представлять собой отдельное устройство с собственным процессором, которое устанавливается на сервер или входит в состав внешней дисковой подсистемы. Также может быть интегрирован в материнскую плату ПК или сервера в виде микроконтроллера.</p>
+<p>Аппаратный контроллер позволяет собрать физический массив RAID, настроить виртуальные диски и подготовить их к работе. Также он проверяет целостность данных и распределяет их между накопителями. Если один из дисков выходит из строя, контроллер отвечает за восстановление.</p>
+<p>Благодаря своей автономности, аппаратный контроллер управляет массивами RAID не нагружая ОС. Также у него есть возможность использовать несколько конфигураций RAID параллельно.</p>
+<p>Преимущества:</p>
+<ul>
+  <li>Не использует CPU системы</li>
+  <li>Высокая скорость обработки данных</li>
+  <li>Простая замена дисков</li>
+</ul>
+<p>Недостатки:</p>
+<ul>
+  <li>Расходы на отдельное устройство</li>
+  <li>При выходе контроллера из строя сложно восстановить данные</li>
+  <li>Производительность может снижаться при использовании SSD</li>
+</ul>
+<h2><span class="text-small">2. <strong>Программный RAID-контроллер</strong></span></h2>
+<p>Для реализации программного контроллера не нужны дополнительные устройства, поэтому такое решение гораздо дешевле.</p>
+<p>Алгоритм RAID может быть запущен как в BIOS (если нет аппаратной поддержки), так и в самой ОС (если она поддерживает) на которой установлены диски массива. Дополнительная нагрузка на процессор сказывается на общей производительности массива, но в современных системах эта разница не столь значительна.</p>
+<p>Операционная система должна быть совместима с программным RAID: Windows — программный RAID 1 Windows Server — программные RAID 0, RAID 1, RAID 5 Linux — программные RAID 0, RAID 1, RAID 5 и RAID 10</p>
+<p>Преимущества:</p>
+<ul>
+  <li>Бесплатный</li>
+  <li>Простая настройка и управление массивами</li>
+  <li>Удобный механизм восстановления данных</li>
+</ul>
+<p>Недостатки:</p>
+<ul>
+  <li>Дополнительная нагрузка на процессор</li>
+  <li>Возможно снижение производительности при сборке массива и его проверках</li>
+  <li>Перед заменой диска необходимо вручную его остановить</li>
+</ul>

@@ -1,0 +1,132 @@
+<!--
+title: Структура и типы файловых систем в Linux
+description: 
+published: true
+date: 2025-03-16T14:12:30.286Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-03-08T06:42:39.813Z
+-->
+
+<p><strong>Файловая система Linux</strong> — древовидная (tree-shared) сложная структура, начинающаяся с корня. Она состоит из каталогов (директорий - directory), подкаталогов (subdirectory). Каждый файл и файловая система взаимосвязаны между собой. Эта структура соответствует типичной схеме, предложенной FHS — стандарт, поддерживаемый System Linux Foundation.</p>
+<h1><span class="text-small"><strong>Особенности файловых систем</strong></span></h1>
+<p><strong>Файловая система</strong> — это способ, которым файлы именуются, хранятся, извлекаются, а также обновляются на диске или в разделе хранилища. Структура файловой системы должна иметь предопределенный формат, понятный операционной системе.</p>
+<p><strong>Организация файловой системы</strong> — это форматирование, разметка и способ хранения организованных структур данных на жестком (гибком) диске. Разделена такая системная оболочка на два сегмента: meta-данные (имя файла, дата создания, размер) и пользовательские данные. Ваш компьютер использует эту файловую систему для определения расположения файлов в вашем хранилище.</p>
+<p>К примеру, основные файловые системы Windows: файловая система NTFS, файловая система FAT и FAT32. В файловой системе NTFS поддерживаются три типа ссылок на файлы: жесткие связи, точки соединения и символьные ссылки (NTFS Links). Структура NTFS — одна из самых удачных и сложных на данный момент. Каждый кластер на носителе имеет запись в таблице FAT. Записи указывают на назначение частей файла кластеру. Каждая запись файла конкатенируется с другими записями файла, начиная с первого кластера. Поскольку первая система распределения FAT могла обрабатывать только восьмибуквенные имена файлов, существовали некоторые ограничения, которые были сняты в FAT16, а затем в FAT32.</p>
+<h1><span class="text-small"><strong>Какие существуют типы файловых систем Linux?</strong></span></h1>
+<p>Виды файловых систем, предлагаемых при установке ОС на базе Linux:</p>
+<h2><span class="text-small">Ext</span></h2>
+<p><strong>Ext</strong>&nbsp;— extended (расширенная) file system.&nbsp;Она была предложена в 1992 году и считается одной из первых.</p>
+<p>Ее функциональность была разработана частично на основе файловой системы UNIX. Начальная цель — выйти за рамки файловой системы, использовавшейся до нее (MINIX), и преодолеть ее ограничения. Сегодня практически не используется.</p>
+<h2><span class="text-small">Ext2</span></h2>
+<p><strong>Ext2&nbsp;</strong>— «вторая расширенная система». Известна с 1993 года. Она была разработана как аналог предыдущей файловой системы.</p>
+<p>В ней были реализованы инновации в рамках объема памяти, изменена общая производительность. Она позволяет хранить до 2 ТБ данных. Как и ext, она малоперспективная, поэтому ее следует избегать.</p>
+<h2><span class="text-small">Ext3</span></h2>
+<p><strong>Ext3&nbsp;</strong>— третья расширенная файловая система. Ее предложили в 2001 году. Превосходит предыдущую тем, что является журналируемой. Журналируемая (journaling) ФС — это система, которая записывает в отдельный журнал изменения (обновления) файлов и данных до того, как эти действия были завершены.</p>
+<p>В этой файловой системе используется алгоритм, позволяющий восстановить файлы после перезагрузки.</p>
+<h2><span class="text-small">Ext4</span></h2>
+<p><strong>Ext4 </strong>—&nbsp;fourth extended system (четвертая версия расширенных систем). Ее создали в 2006 году. Она преодолела многочисленные ограничения, которые были в третьей версии. И сегодня широко используется, и является файловой системой по умолчанию в большинстве дистрибутивов Linux.</p>
+<p>Хотя она, возможно, не самая передовая, она достаточно надежна и стабильна, поэтому находит повсеместное применение среди обширного&nbsp;списка Unix систем.</p>
+<p>Поэтому, если вам не очень хочется ломать голову над плюсами и минусами всех многочисленных файловых систем, которые вы можете выбрать, специалисты рекомендуют остановиться на этой системе.</p>
+<h2><span class="text-small">JFS</span></h2>
+<p><strong>JFS</strong>&nbsp;— была создана компанией IBM в 1990 году. Название JFS — акроним, означающий Journaling File System. Она легко восстанавливает данные после сбоя питания и довольно надежна. Более того, она потребляет меньше процессорной мощности, чем другие файловые системы.</p>
+<h2><span class="text-small">XFS</span></h2>
+<p><strong>XFS</strong> — высокопроизводительная файловая система. Она была создана компанией&nbsp;Silicon&nbsp;Graphics. Изначально предназначалась для их ОС «IRIX», но позже была передана&nbsp;Linux.&nbsp;Сегодня также встречается XFS Windows.</p>
+<p>Созданная в 1990 году, XFS — это 64-битная высокопроизводительная журналируемая (journaling) системная оболочка. Она хорошо работает с файлами большого объема, но не особенно с файлами меньшего размера.</p>
+<h2><span class="text-small">Btrfs</span></h2>
+<p><strong>Btrfs</strong> — альтернативная файловая система, предложенная фирмой&nbsp;Oracle в 2009 году. Она считается конкурирующей файловой системой с Ext4, хотя, по общему мнению, последняя представляет собой лучшую версию (быстрее передает данные, обеспечивает большую стабильность). Однако в&nbsp;Btrfs есть несколько уникальных преимуществ.&nbsp;В целом она обладает отличной производительностью.</p>
+<h3><span class="text-small"><strong>Swap</strong></span></h3>
+<h1><span class="text-small"><strong>Типы файлов&nbsp;Linux</strong></span></h1>
+<p>Выделяют такие типы файлов Linux:</p>
+<ul>
+  <li>обычные (regular file);</li>
+  <li>именованный канал (named pipe);</li>
+  <li>файл для туннелей, устройств (device&nbsp;file);</li>
+  <li>soft link (символическая ссылка);</li>
+  <li>директории (каталоги);</li>
+  <li>сокет (socket);</li>
+  <li>дверь (door).</li>
+</ul>
+<figure class="table" style="width:488.7pt;">
+  <table style="border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:36.65pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;"><strong>Типы файлов</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:36.65pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;"><strong>Обозначение</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:36.65pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;"><strong>Назначение</strong></p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:36.65pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">Обычные файлы</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:36.65pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">–</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:36.65pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">Хранение символьных и двоичных данных</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:36.65pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">Каталоги</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:36.65pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">d</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:36.65pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">Организация доступа к файлам</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:149.75pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">Символьные ссылки</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:149.75pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">l</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:149.75pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">Предоставление доступа к файлам, расположенных на любых носителях</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:70.4pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">Блочные устройства</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:70.4pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">b</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:70.4pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;" rowspan="2">Предоставление интерфейса для взаимодействия с аппаратным обеспечением компьютера</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:63.5pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">Символьные устройства</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:63.5pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">c</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:46.15pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">Каналы</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:46.15pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">p</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:46.15pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;" rowspan="2">Организация взаимодействия процессов в операционной системе</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:36.65pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">Сокеты</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:36.65pt;padding:0cm 5.4pt;vertical-align:top;width:162.9pt;">
+          <p style="text-align:center;">s</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Каталог (directory) — файл, содержащий другие организованные структуры данных (директории), который обеспечивает указатели на них. Играет роль папки в картотеке (группирует связанные файлы). Но если папки содержат только файлы, то директории могут содержать дополнительные каталоги (subdirectories).</p>
+<p>Символическая (мягкая, soft) ссылка указывает на имя и местоположение отдельного файла. Когда пользователь копирует, перемещает или другим образом указывает на ссылку, операция проводится над файлом, на который ссылаются.</p>
+<p>Отдельно создают жесткие ссылки. Жесткая (hard) ссылка указывает на фактические данные в файле аналогично, как и в regular file. Помимо имени, нет никакой разницы между оригинальным файлом и жесткой ссылкой, указывающей на те же данные. Оба файла представляют собой обычные файлы. Отличить жесткую ссылку от любого другого обычного файла можно только по количеству ссылок, которые есть у каждого из них. Количество ссылок отображается во втором поле листинга ls -l. Если это число &gt;1, то значит, что существуют дополнительные жесткие ссылки на данные.</p>
+<p>Все физические устройства, которые использует Linux, представлены файлами устройств. Файлы устройств (device file) классифицируют как специальные символы или специальные блоки. Специальные символьные файлы представляют устройства, которые взаимодействуют с Linux посимвольно. Принтеры — пример такого устройства. Файлы block-special — это жесткие и гибкие диски, а также CD-ROM, взаимодействующие с ОС, используя блоки данных.</p>
+<p>Device file чрезвычайно мощны, поскольку они позволяют пользователям получать доступ к аппаратным устройствам, таким как дисководы, модемы и принтеры, как если бы они были файлами данных. Их легко можно перемещать, копировать и передавать данные между устройствами, часто без использования специальных команд или синтаксиса.</p>

@@ -1,0 +1,45 @@
+<!--
+title: Настройте службу сетевого времени на базе сервиса chrony
+description: 
+published: true
+date: 2025-02-27T20:38:45.116Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-18T11:34:30.589Z
+-->
+
+<h1><span class="text-small">В качестве сервера выступает HQ-RTR. На HQ-RTR настройте сервер chrony, выберите стратум 5</span></h1>
+<p>Настроить chrony на Eltex невозможно (так как это пакет Linux), так что настроим ntp как получится.</p>
+<pre><code class="language-plaintext">hq-rtr(config)# no ntp broadcast-client enable
+hq-rtr(config)# ntp server 46.146.231.187
+hq-rtr(config-ntp)# minpoll 1
+hq-rtr(config-ntp)# maxpoll 4
+hq-rtr(config-ntp)# end
+hq-rtr# commit</code></pre>
+<p>Настроить вручную стратум на Eltex не представляется возможным.</p>
+<h2><span class="text-small">В качестве клиентов настройте HQ-SRV, HQ-CLI, BR-RTR, BR-SRV</span></h2>
+<p><strong>Настройка Linux-клиентов:</strong></p>
+<p>Откройте файл <strong>/etc/chrony.conf</strong>, удалите из него строку:</p>
+<pre><code class="language-plaintext">pool pool.ntp.org iburst</code></pre>
+<p>И вместо неё напишите:</p>
+<pre><code class="language-plaintext">server 172.16.4.2 iburst</code></pre>
+<p>Затем перезагрузите сервис времени и проверьте синхронизацию (перед проверкой нужно немного подождать):</p>
+<pre><code class="language-plaintext">systemctl restart chronyd
+chronyc sources             //Проверка</code></pre>
+<p>Должно получится так:</p>
+<figure class="image"><img src="/ssa/demo2025/module_b/time_1.png"></figure>
+<h2><span class="text-small">Настройка Eltex-клиента:</span></h2>
+<pre><code class="language-plaintext">br-rtr(config)# no ntp broadcast-client enable
+br-rtr(config)# ntp server 172.16.4.2
+br-rtr(config-ntp)# minpoll 1
+br-rtr(config-ntp)# maxpoll 4
+br-rtr(config-ntp)# end
+br-rtr# commit
+br-rtr# confirm
+</code></pre>
+<p>Команды для проверки на Eltex:</p>
+<pre><code class="language-plaintext">br-rtr# show ntp configuration
+br-rtr# show ntp peers
+</code></pre>
+<p>Вывод должен быть следующий:</p>
+<figure class="image"><img src="/ssa/demo2025/module_b/time_2.png"></figure>

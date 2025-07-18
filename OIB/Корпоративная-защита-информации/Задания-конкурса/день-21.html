@@ -1,0 +1,193 @@
+<!--
+title: День 2 | Часть первая
+description: Модуль Б.  Исследование (аудит) организации с целью защиты от угроз информационной безопасности
+published: true
+date: 2025-03-11T05:12:55.218Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-02T19:16:52.082Z
+-->
+
+<h1 style="text-align:center;"><strong>Модуль Б.&nbsp; Исследование (аудит) организации с целью защиты от угроз информационной безопасности</strong></h1>
+<p>Вам, как специалисту, поручено <strong>разработать&nbsp; концепцию политики защиты данных</strong> с целью реализации мер по обеспечению безопасности персональных данных&nbsp; (152-ФЗ, ПП1119, Приказ ФСТЭК России №21 и другие документы). В процессе проведения аудита и формирования политики защиты персональных данных Вы должны решить следующие задачи:</p>
+<ol>
+  <li>В соответствии с&nbsp; Постановлением Правительства РФ от 1 ноября 2012 г. N 1119 "Об утверждении требований к защите персональных данных при их обработке в информационных системах персональных данных" <strong>определить уровень защищенности персональных данных</strong> при их обработке в информационной системе организации. Решение обосновать.</li>
+  <li>В соответствии с Приказом ФСТЭК России N 21 "Об утверждении Состава и содержания организационных и технических мер по обеспечению безопасности персональных данных при их обработке в информационных системах персональных данных" <strong>определить содержание мер по обеспечению безопасности персональных данных</strong>, адаптируя базовый набор мер под требования решения задач <i>обеспечения целостности информационной системы и персональных данных (ОЦЛ).</i></li>
+  <li>Для реализации мер <i>обеспечения целостности информационной системы и персональных данных</i>&nbsp;необходимо сформировать <u>концепцию политики защиты данных</u> (в соответствии с шаблоном, представленном в приложении), описав:</li>
+</ol>
+<ul>
+  <li>используемые технологии анализа,</li>
+  <li>объекты защиты,</li>
+  <li>списки отправителей/получателей,</li>
+  <li>политики защиты данных,</li>
+  <li>правила агентского мониторинга.</li>
+</ul>
+<p>Концепция политики защиты данных, должна предусматривать:&nbsp;</p>
+<ul>
+  <li>выявление фактов неправомерной передачи защищаемой информации из информационной системы через различные типы сетевых соединений, включая сети связи общего пользования и реагирование на них;</li>
+  <li>выявление фактов неправомерной записи защищаемой информации на неучтенные съемные машинные носители информации и реагирование на них;</li>
+  <li>выявление фактов неправомерного вывода на печать документов, содержащих защищаемую информацию и реагирование на них;</li>
+  <li>выявление фактов неправомерного копирования защищаемой информации в прикладное программное обеспечение из буфера обмена и реагирование на них;</li>
+  <li>контроль хранения защищаемой информации на серверах и автоматизированных рабочих местах;</li>
+  <li>выявление фактов хранения информации на общих сетевых ресурсах (общие папки, системы документооборота, базы данных, почтовые архивы и иные ресурсы).</li>
+</ul>
+<p><strong>Исходные данные</strong></p>
+<p>Научно-исследовательская компания «Демо Лаб» (далее - Оператор) занимается контрактной разработкой и продажей перспективных электронных систем в интересах государственных и коммерческих организаций.&nbsp;</p>
+<p>Компания&nbsp;обладает&nbsp;значительной&nbsp;клиентской&nbsp;базой,&nbsp;детальной&nbsp;информацией&nbsp;о партнёрах, заказчиках, клиентах&nbsp;за&nbsp;10&nbsp;лет&nbsp;работы. Клиентская база (около 2000 клиентов) составляет основу для деятельности по направлению продаж электронных компонент, но не оказывает влияния на направление системных разработок.&nbsp;</p>
+<p>С точки&nbsp;зрения&nbsp;кадрового, бухгалтерского&nbsp;и финансового&nbsp;документооборота&nbsp;компания&nbsp;является типовой&nbsp;для&nbsp;Российской&nbsp;федерации.</p>
+<p>Сотрудники (300 человек)&nbsp;могут обмениваться&nbsp;информацией&nbsp;посредством&nbsp;Почты/Email,&nbsp;мессенджеров/WhatsApp.&nbsp;Также&nbsp;у ряда сотрудников&nbsp;есть&nbsp;корпоративные&nbsp;сотовые&nbsp;телефоны, через&nbsp;которые&nbsp;также проходит&nbsp;обмен&nbsp;информацией.</p>
+<p>ИСПДн Оператора (клиентская часть приложения, реализующая интерфейс пользователя) функционирует на базе АРМ под управлением ОС&nbsp;MS&nbsp;Windows 10 и состоит из следующих программных компонентов:</p>
+<ul>
+  <li>СУБД Microsoft SQL Server 2016;</li>
+  <li>1С Предприятие: Бухгалтерия (версия 8);</li>
+  <li>1С Зарплата и управление персоналом (версия 8);</li>
+  <li>-СБиС.</li>
+</ul>
+<p>ИСПДн предназначены для автоматизации обработки информации:&nbsp;</p>
+<ul>
+  <li>ПДн лиц, которые являются клиентами компании;</li>
+  <li>ПДн сотрудников Оператора.</li>
+</ul>
+<p>В ИСПДн одновременно обрабатываются персональные данные менее чем 100000 субъектов персональных данных. Все информационные системы Оператора, кроме ИСПДн Сбис, являются локальными информационными системами, поскольку входящие в ее состав технические средства обработки информации размещены в пределах одного здания.&nbsp; В качестве среды передачи данных используется локальная сеть Оператора.&nbsp;</p>
+<p>Информационная система персональных данных Оператора, функционирующая на базе АРМ специалистов кадровой службы, бухгалтерии обрабатывает следующую информацию о сотрудниках:</p>
+<ol>
+  <li>биографические сведения гражданина;</li>
+  <li>национальность;</li>
+  <li>религиозную принадлежность;</li>
+  <li>образование;</li>
+  <li>специальность;</li>
+  <li>занимаемую должность;</li>
+  <li>наличие судимостей;</li>
+  <li>адрес места жительства, домашний телефон;</li>
+  <li>состав семьи;</li>
+  <li>место работы;</li>
+  <li>размер заработной платы;</li>
+  <li>содержание трудового договора (контракта).</li>
+</ol>
+<h1 style="text-align:center;"><i>Концепция Политики защиты данных</i></h1>
+<ul>
+  <li>Используемые технологии анализа</li>
+  <li>Объекты защиты</li>
+</ul>
+<figure class="table" style="width:446.3pt;">
+  <table style="border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <thead>
+      <tr>
+        <th style="height:15.6pt;padding:0cm 5.4pt;width:77.75pt;">
+          <p style="text-align:center;">№ п/п&nbsp;</p>
+        </th>
+        <th style="height:15.6pt;padding:0cm 5.4pt;width:148.8pt;">
+          <p style="text-align:center;">Название Объекта защиты</p>
+        </th>
+        <th style="border-bottom:1.0pt windowtext;border-left:1.0pt windowtext;border-right:1.0pt windowtext;border-top:1.0pt windowtext;height:15.6pt;padding:0cm 5.4pt;vertical-align:top;width:219.75pt;">
+          <p style="text-align:center;">&nbsp;Состав объекта защиты</p>
+        </th>
+      </tr>
+      <tr>
+        <th style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:33.0pt;padding:0cm 5.4pt;vertical-align:top;width:77.75pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </th>
+        <th style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:33.0pt;padding:0cm 5.4pt;vertical-align:top;width:148.8pt;">&nbsp;</th>
+        <th style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:33.0pt;padding:0cm 5.4pt;vertical-align:top;width:219.75pt;">&nbsp;</th>
+      </tr>
+    </thead>
+  </table>
+</figure>
+<ul>
+  <li>Списки отправителей/получателей</li>
+</ul>
+<figure class="table">
+  <table style="border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <thead>
+      <tr>
+        <th style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:12.3pt;padding:0cm 5.4pt;vertical-align:top;width:77.75pt;">
+          <p style="text-align:center;">№ п/п</p>
+        </th>
+        <th style="border-bottom:1.0pt;border-left:1.0pt;border-right:1.0pt;border-top:1.0pt;height:12.3pt;padding:0cm 5.4pt;width:5.0cm;">
+          <p style="text-align:center;">Название периметра</p>
+        </th>
+        <th style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:12.3pt;padding:0cm 5.4pt;width:8.0cm;">
+          <p style="text-align:center;">Список&nbsp;</p>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:35.65pt;padding:0cm 5.4pt;vertical-align:top;width:77.75pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:35.65pt;padding:0cm 5.4pt;vertical-align:top;width:5.0cm;">&nbsp;</td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:35.65pt;padding:0cm 5.4pt;vertical-align:top;width:8.0cm;">&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<ul>
+  <li>Политики защиты данных</li>
+</ul>
+<figure class="table" style="width:18.0cm;">
+  <table style="border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <thead>
+      <tr>
+        <th style="border-bottom:1.0pt solid;border-left:1.0pt solid;border-right:1.0pt solid;border-top:1.0pt solid;height:38.4pt;padding:0cm 5.4pt;width:2.0cm;">
+          <p style="text-align:center;">№ п/п</p>
+        </th>
+        <th style="border-bottom:1.0pt windowtext;border-left:1.0pt windowtext;border-right:1.0pt windowtext;border-top:1.0pt windowtext;height:38.4pt;padding:0cm 5.4pt;width:132.6pt;">
+          <p style="text-align:center;">Название Политики</p>
+        </th>
+        <th style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:38.4pt;padding:0cm 5.4pt;width:115.5pt;">
+          <p style="text-align:center;">Тип политики (Политика защиты данных, Политика защиты данных на агентах)</p>
+        </th>
+        <th style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:38.4pt;padding:0cm 5.4pt;width:92.1pt;">
+          <p style="text-align:center;">Объекты защиты</p>
+        </th>
+        <th style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:38.4pt;padding:0cm 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">Правила срабатывания</p>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:31.45pt;padding:0cm 5.4pt;vertical-align:top;width:2.0cm;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:31.45pt;padding:0cm 5.4pt;vertical-align:top;width:132.6pt;">&nbsp;</td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:31.45pt;padding:0cm 5.4pt;vertical-align:top;width:115.5pt;">&nbsp;</td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:31.45pt;padding:0cm 5.4pt;vertical-align:top;width:92.1pt;">&nbsp;</td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:31.45pt;padding:0cm 5.4pt;vertical-align:top;width:4.0cm;">&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<ul>
+  <li>Правила агентского мониторинга</li>
+</ul>
+<figure class="table">
+  <table style="border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <thead>
+      <tr>
+        <th style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:12.3pt;padding:0cm 5.4pt;vertical-align:top;width:70.9pt;">
+          <p style="text-align:center;">№ п/п</p>
+        </th>
+        <th style="border-bottom:1.0pt;border-left:1.0pt;border-right:1.0pt;border-top:1.0pt;height:12.3pt;padding:0cm 5.4pt;width:163.0pt;">
+          <p style="text-align:center;">Правило</p>
+        </th>
+        <th style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:12.3pt;padding:0cm 5.4pt;width:276.4pt;">
+          <p style="text-align:center;">Описание правила&nbsp;</p>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:56.8pt;padding:0cm 5.4pt;vertical-align:top;width:70.9pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:56.8pt;padding:0cm 5.4pt;vertical-align:top;width:163.0pt;">&nbsp;</td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:56.8pt;padding:0cm 5.4pt;vertical-align:top;width:276.4pt;">&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>

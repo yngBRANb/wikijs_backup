@@ -1,0 +1,124 @@
+<!--
+title: Установка виртуальной машины Windows Server 2025
+description: 
+published: true
+date: 2025-03-11T04:18:00.817Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-15T11:57:11.642Z
+-->
+
+<p><strong>Цель работы:</strong> изучить процесс установки Windows Server 2025.</p>
+<figure class="image"><img src="/ssa/windows/pract/windows_server2025_logo.jpeg"></figure>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p>Windows Server — представляет собой группу операционных систем, разработанных корпорацией Майкрософт. Windows Server сосредоточен на управлении сетевыми ресурсами, безопасности и серверных функциях. Включает средства для виртуализации (Hyper-V), Active Directory для управления пользователями и ресурсами, интеграция с Azure AD, и мощные инструменты для обеспечения безопасности и управления данными.</p>
+<p>Windows Server 2025 — это новая версия серверной операционной системы от Microsoft, которая предлагает множество усовершенствований и новых возможностей по сравнению с Windows Server 2022.</p>
+<p>Существует несколько ключевых улучшений в Windows Server 2025 в следующих областях:</p>
+<ul>
+  <li>Hotpatching – установка исправлений без перезагрузки</li>
+  <li>Active Directory – новая масштабируемость, уровни функциональности домена и леса</li>
+  <li>Хранилище – улучшение производительности NVMe, добавлены новые функции</li>
+  <li>SMB – QUIC теперь в Standard и Datacenter</li>
+</ul>
+<p>Формы выпуска:</p>
+<ul>
+  <li><strong>Windows Server 2025 Standart</strong> — стандартная версия предназначена для пользователей, которым требуется всего несколько виртуальных машин Windows Server. Помимо установки на физическое оборудование, с серверной лицензией также возможны две виртуальные машины под управлением Windows Server. На виртуальные машины Linux нет ограничений. Почти все функции и роли серверов из Datacentre Edition также включены в стандартную версию.</li>
+  <li><strong>Windows Server 2025 Datacenter</strong> — с выпуском Datacenter пользователи получат максимально возможную гибкость в развертывании серверов и могут реализовывать крупные, быстро меняющиеся рабочие нагрузки. Количество виртуальных машин не ограничено, и программно определяемое хранилище может быть реализовано с помощью Storage Spaces Direct.</li>
+  <li><strong>Windows Server 2025 Essentials</strong> — версия Essentials, рассчитанная на 25 пользователей или 50 устройств, является идеальной серверной ОС для малого бизнеса. Она включает в себя многие функции старших выпусков, таких как Windows Admin Center и System Insights, однако ограничена поддержкой одного процессора с максимум 10 ядрами.</li>
+  <li><strong>Windows Server 2025 Datacenter: Azure Edition</strong> — это специальная версия Windows Server, созданная специально для работы в качестве виртуальной машины Azure IaaS в Azure или в качестве виртуальной машины в кластере Azure Stack HCI .</li>
+</ul>
+<h1><span class="text-small"><strong>Задания для практической работы:</strong></span></h1>
+<h2><span class="text-small">1. Создание виртуальной машины</span></h2>
+<figure class="image"><img src="/1_srvinstall.png"></figure>
+<p>При выборе установочного носителя выберите пункт "I will install the operating system later" (Я установлю операционную систему позже).</p>
+<p>Это может быть полезно для некоторых выпусков Windows Server (2019 и 2016). Эти выпуски имели баг, если при их установке в VMware Workstation сразу выбрать ISO образ, то с достаточно высоким шансом учетная запись администратора не будет иметь прав администратора.</p>
+<figure class="image"><img src="/2_srvinstall.png"></figure>
+<p>Так как на текущий момент Windows Server 2025 еще не вышла, выбираем тип ОС как Windows Server 2022</p>
+<figure class="image"><img src="/3_srvinstall.png"></figure>
+<figure class="image"><img src="/4_srvinstall.png"></figure>
+<figure class="image"><img src="/5_srvinstall.png"></figure>
+<p>Выделите ВМ - 6Gb RAM, 3 vCPU и присвойте сетевой адаптер VMnet8</p>
+<figure class="image"><img src="/6_srvinstall.png"></figure>
+<p>После этого завершите создание ВМ</p>
+<figure class="image"><img src="/ssa/windows/pract/wsinstall_7.png"></figure>
+<p>После того как мы закончили ее создание осталось вручную выбрать ISO образ:</p>
+<figure class="image"><img src="/8_srvinstall.png"></figure>
+<figure class="image"><img src="/9_srvinstall.png"></figure>
+<h2><span class="text-small">2. Установка Windows Server 2025</span></h2>
+<p>После этого запустите ВМ</p>
+<p>У вас появиться сообщение "Press any key to boot from CD or DVD", пока оно горит нужно быстро нажать любую кнопку на клавиатуре, чтобы загрузиться в установщик</p>
+<figure class="image"><img src="/10_srvinstall.png"></figure>
+<figure class="image"><img src="/11_srvinstall.png"></figure>
+<figure class="image"><img src="/12_srvinstall.png"></figure>
+<figure class="image"><img src="/13_srvinstall.png"></figure>
+<p>Далее выбираем выпуск Standart или Datacenter, и режим установки "Возможности рабочего стола" (Desktop Experience) или Server Core (без GUI)</p>
+<figure class="image"><img src="/14_srvinstall.png"></figure>
+<figure class="image"><img src="/15_srvinstall.png"></figure>
+<figure class="image"><img src="/16_srvinstall.png"></figure>
+<figure class="image"><img src="/17_srvinstall.png"></figure>
+<p>Дождитесь установки ОС</p>
+<figure class="image"><img src="/18_srvinstall.png"></figure>
+<h2><span class="text-small">3. Первичная настройка системы</span></h2>
+<p>Сразу после установки система вновь запросит ключ:</p>
+<figure class="image"><img src="/19_srvinstall.png"></figure>
+<p>Далее укажите пароль P@ssw0rd для учетной записи администратора</p>
+<figure class="image"><img src="/20_srvinstall.png"></figure>
+<p>Для разблокировки Windows Server всегда просит сочетание клавиш CTRL + ALT + DELETE, если вы нажмете его на клавиатуре вас выкинет из вашей хостовой системы, чтобы этого избежать, почти во всех нормальных гипервизорах добавили эту опцию в интерфейс:</p>
+<figure class="image"><img src="/21_srvinstall.png"></figure>
+<figure class="image"><img src="/22_srvinstall.png"></figure>
+<p>Как вы можете заметить у нас очень маленькое окно виртуальной машины, это можно решить установив VMware tools:</p>
+<figure class="image"><img src="/ssa/windows/pract/wsinstall_23.png"></figure>
+<p>Откройте проводник и выберите DVD-дисковод, после этого начнется процесс установки</p>
+<figure class="image"><img src="/24_srvinstall.png"></figure>
+<figure class="image"><img src="/ssa/windows/pract/wsinstall_25.png"></figure>
+<figure class="image"><img src="/ssa/windows/pract/wsinstall_26.png"></figure>
+<figure class="image"><img src="/ssa/windows/pract/wsinstall_27.png"></figure>
+<p>После этого перезагрузите ВМ</p>
+<h2><span class="text-small">4. Активация с помощью KMS38</span></h2>
+<p>Откройте Powershell от имени Администратора</p>
+<p>Выполните команду:</p>
+<p>irm https://get.activated.win | iex</p>
+<p>свернуть</p>
+<p>Если при выполнении этой команды произошла ошибка, то используйте ее альтернативу:</p>
+<p>irm https://massgrave.dev/get | iex</p>
+<p>После этого у вас откроется новый терминал:</p>
+<figure class="image"><img src="/28_srvinstall.png"></figure>
+<p>Нажмите цифру <strong>3</strong> на клавиатуре, чтобы выбрать активацию через KMS38</p>
+<p>Затем появится еще одно меню, в нем нужно нажать цифру <strong>1</strong>:</p>
+<figure class="image"><img src="/29_srvinstall.png"></figure>
+<p>Ваш финальный вывод должен выглядеть так:</p>
+<figure class="image"><img src="/30_srvinstall.png"></figure>
+<p>Чтобы проверить активирована ли система, откройте Параметры и перейдите по пути Система - Активация:</p>
+<figure class="image"><img src="/31_srvinstall.png"></figure>
+<p>Сейчас мы произвели активацию Windows Server (конечно же, в ознакомительных целях), если вы снова посмотрите на терминал активатора, то увидите 2 способа активации Windows - HWID и KMS38. Вот немного теории по ним:</p>
+<ul>
+  <li><strong>HWID (Hardware Identification Number)</strong> - аппаратное имя вашего компьютера, уникальный идентификатор вашего "железа". В свое время Майкрософт запустила программу по бесплатному переводу пользователей с младших версий ОС на Windows 10. И теперь эта программа распространилась и на Windows 11. Воспользовавшимся программой безвозмездно выдавалась бессрочная цифровая лицензия, привязанная к "железу". Работает такая лицензия ровно до того момента, пока вы критично не модифицируете свой компьютер. Активатор, при выборе метода HWID, способен вас к этой программе подключить. При этом слепок вашего "железа" сохранится на серверах Майкрософт, и при очередной переустановке системы, для активации большинства редакций Windows 10/11 вам всего лишь нужно будет войти в сеть. Единственный минус этого метода в том, что для его применения требуется доступ в интернет!</li>
+  <li>Метод <strong>KMS38</strong>, напротив, не привязан к сети, и активация по этому методу выполняется локально на вашей машине. В названии метода зашифрован механизм, по которому он производит активацию. Да, это KMS, но не обычный, требующий раз в пол года переактивации, - переактивация потребуется аж в 2038 году! В отличии от HWID, метод KMS38 не отправляет никаких данных на сервера Майкрософт и не предоставляет вам автоматической активации при очередной переустановке системы. Он завязан конкретно на активированную им систему. Как я уже говорил, плюс метода KMS38 в том, что его использование не требует доступа в интернет. Ну а минус в том, что периодически система будет пытаться связаться с несуществующим сервером активации и мусорить в логах системы сообщениями о невозможности произвести эту операцию. Выбор метода за вами!</li>
+</ul>
+<h2><span class="text-small">5. Подготовка использованию WS 2025 в качестве сервера</span></h2>
+<p>Сервер всегда должен иметь статический адрес и понятный hostname (имя устройства, оно также отображается в сети)</p>
+<p>Статический IP-адрес не меняется, что позволяет клиентам и другим серверам всегда находить ваш сервер по одному и тому же адресу. Это особенно важно для веб-серверов, почтовых серверов, доменных контроллеров и других сервисов, к которым нужно подключаться регулярно.</p>
+<p>Hostname и статический адрес важно задать сразу, так как после установки ролей AD и DNS их изменение приведет к неработоспособности этих служб (эти роли в принципе невозможно установить не имея статического адреса).</p>
+<p>Чтобы установить статический IPv4 адрес откройте "Параметры" и перейдите по вкладкам Сеть и интернет -&gt; Дополнительные сетевые параметры и нажмите Изменить:</p>
+<figure class="image"><img src="/32_srvinstall.png"></figure>
+<p>Далее перейдите в "IP версии 4":</p>
+<figure class="image"><img src="/33_srvinstall.png"></figure>
+<p>И в зависимости от того в какой сети находится ваша ВМ, задайте свой ipv4 адрес и адрес шлюза.</p>
+<figure class="image"><img src="/34_srvinstall.png"></figure>
+<p>Проверьте есть ли у вас выход в интернет, если есть, то вы сделали все верно.</p>
+<figure class="image"><img src="/35_srvinstall.png"></figure>
+<p>Чтобы изменить hostname перейдите в "Параметры" на вкладку "Система":</p>
+<figure class="image"><img src="/36_srvinstall.png"></figure>
+<figure class="image"><img src="/37_srvinstall.png"></figure>
+<p>После этого перезагрузите ВМ, чтобы hostname изменился.</p>
+<h1><span class="text-small"><strong>Контрольные вопросы:</strong></span></h1>
+<ol>
+  <li>Что такое Windows Server? Для чего нужен?</li>
+  <li>Какие редакции Windows Server 2025 существуют? Назовите их отличия.</li>
+  <li>Какие существуют версии выпусков Windows Server?</li>
+  <li>Для чего нужен Microsoft Azure?</li>
+  <li>Для чего нужен Active Directory?</li>
+  <li>Какой максимальный объём ОЗУ поддерживает Windows Server 2022?</li>
+  <li>Поддерживает ли Windows Server 2025 веб-службы (IIS)?</li>
+  <li>Чем отличаются режимы установки Server Core и Desktop Experience?</li>
+</ol>

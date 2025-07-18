@@ -1,0 +1,88 @@
+<!--
+title: Установка Ingress Controller в Kubernetes
+description: 
+published: true
+date: 2025-07-17T04:06:24.819Z
+tags: devops, kubernetes, ingress-controller
+editor: ckeditor
+dateCreated: 2025-07-16T05:25:26.226Z
+-->
+
+<h1>Ingress Controller в Kubernetes</h1>
+<p>Ingress Controller в Kubernetes — это компонент, который управляет доступом к сервисам в кластере через HTTP и HTTPS. Он обрабатывает входящие запросы и направляет их к соответствующим сервисам на основе правил, определенных в ресурсах типа Ingress. Ingress Controller позволяет управлять маршрутизацией трафика, обеспечивать SSL-терминацию, а также реализовывать другие функции, такие как аутентификация и ограничение по IP.</p>
+<h2><strong>Зачем нужны Ingress Controller</strong></h2>
+<ol>
+  <li><strong>Управление трафиком</strong>: Позволяет направлять HTTP(S) трафик к различным сервисам в зависимости от URL или других параметров.</li>
+  <li><strong>SSL-терминация</strong>: Обеспечивает возможность использования HTTPS, управляя сертификатами и шифрованием.</li>
+  <li><strong>Балансировка нагрузки</strong>: Распределяет входящий трафик между несколькими экземплярами сервисов.</li>
+  <li><strong>Упрощение конфигурации</strong>: Позволяет централизованно управлять правилами маршрутизации и настройками доступа.</li>
+</ol>
+<h2><strong>Популярные Ingress Controller</strong></h2>
+<ol>
+  <li><strong>NGINX Ingress Controller</strong>: Один из самых популярных контроллеров, поддерживающий множество функций, включая SSL-терминацию, балансировку нагрузки и аутентификацию.</li>
+  <li><strong>Traefik</strong>: Легкий и мощный контроллер, который автоматически обнаруживает сервисы и генерирует маршруты на основе аннотаций.</li>
+  <li><strong>HAProxy Ingress</strong>: Контроллер, основанный на HAProxy, который предлагает высокую производительность и гибкость.</li>
+  <li><strong>Istio</strong>: Хотя это не только Ingress Controller, Istio предоставляет расширенные возможности управления трафиком и безопасности.</li>
+</ol>
+<p>Разные Ingress контроллеры предоставляют разные возможности и преимущества.</p>
+<p>Существует множество таблиц сравнения Ingress Controller, одна из самых известных и полных находится по следующей ссылке: <a href="https://docs.google.com/spreadsheets/d/191WWNpjJ2za6-nbG4ZoUMXMpUK8KlCIosvQB0f-oq3k/edit?gid=907731238#gid=907731238">тык</a></p>
+<p>Если это требуется, в Kubernetes кластер можно установить сразу несколько Ingress контроллеров и написать под каждый свои правила.</p>
+<h1><strong>Установка Ingress Controller</strong></h1>
+<p>В вашем кластере должен быть установлен Helm.</p>
+<p>Ниже приведена установка двух контроллеров (выберите тот, который вам больше нравится).</p>
+<h2><strong>Установка NGINX Ingress Controller</strong></h2>
+<p>Выполните установку из Helm-чарта:</p>
+<pre><code class="language-plaintext">helm upgrade --install ingress-nginx ingress-nginx \
+  --repo https://kubernetes.github.io/ingress-nginx \
+  --namespace ingress-nginx --create-namespace</code></pre>
+<p>Проверьте, что контроллер установлен:</p>
+<pre><code class="language-plaintext">kubectl get service -n ingress-nginx</code></pre>
+<h2>Установка Traefik Ingress Controller:</h2>
+<p>Установите Traefik с помощью Helm:</p>
+<pre><code class="language-plaintext">helm repo add traefik https://helm.traefik.io/traefik
+helm repo update
+
+helm install traefik traefik/traefik \
+  --create-namespace \
+  --namespace ingress-traefik</code></pre>
+<p>Проверьте, что контроллер установлен:</p>
+<pre><code class="language-plaintext">kubectl get service -n ingress-traefik</code></pre>
+<h2>Выбор Ingress Controller по умолчанию</h2>
+<p>Желательно назначить один из контроллеров дефолтным для кластера. Для этого выполните:</p>
+<pre><code class="language-plaintext">kubectl get ingressclass
+kubectl edit ingressclass &lt;ingress_class_name&gt;</code></pre>
+<p>И добавьте аннотацию:</p>
+<pre><code class="language-plaintext">metadata:
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"</code></pre>
+<h1><strong>Пример использования Ingress</strong></h1>
+<p>После установки Ingress Controller, вы можете создать ресурс Ingress для маршрутизации трафика к вашим сервисам.</p>
+<pre><code class="language-plaintext">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  namespace: example
+spec:
+  ingressClassName: "nginx"   # Какой именно Ingress вы используете
+  rules:
+  - host: example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: my-service
+            port:
+              number: 80</code></pre>
+<p>Чтобы вывести под через Ingress, он должен иметь подключенный service типа ClusterIP:</p>
+<pre><code class="language-plaintext">apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: my-app</code></pre>

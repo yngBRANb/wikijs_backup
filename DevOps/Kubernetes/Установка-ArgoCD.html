@@ -1,0 +1,139 @@
+<!--
+title: Установка Argo CD в Kubernetes
+description: 
+published: true
+date: 2025-07-18T20:16:21.824Z
+tags: devops, kubernetes, ci/cd
+editor: ckeditor
+dateCreated: 2025-07-16T23:11:34.008Z
+-->
+
+<h1>Введение в Argo CD и GitOps</h1>
+<p>GitOps — это одна из реализаций Pull-модели, в которой Git является хранилищем всех конфигураций. Источник правды —&nbsp;Git, все изменения в инфраструктуре проходят только через него. Все изменения по Pull-модели проводит специальный агент, который затем поддерживает заданное состояние. То есть если внести в инфраструктуру изменения вручную, агент увидит несоответствие с тем, что есть в Git, и вернёт все к нужному состоянию, идентичному источнику правды.&nbsp;</p>
+<p>Argo CD — один из самых популярных GitOps-инструментов. Он живет внутри Kubernetes и там же развертывает сущности. Argo CD предоставляет удобный RBAC, то есть управление правами и доступами. В интерфейсе можно посмотреть свои действия, управлять приложениями и&nbsp; принудительно синхронизировать их. Argo CD входит в CNCF, что вызывает к нему большое доверие.&nbsp;</p>
+<h2>Основы Argo CD</h2>
+<p>Argo CD может развертывать в кластер:</p>
+<ul>
+  <li>Обычные манифесты</li>
+  <li>Kustomize</li>
+  <li>Jsonnet</li>
+  <li>Helm-чарты</li>
+</ul>
+<p>Эти манифесты можно взять из репозитория Git или Helm. Argo CD разворачивает манифесты только в кластеры Kubernetes, но не только в тот кластер, в котором находится сам: он умеет управлять большим количеством кластеров одновременно.</p>
+<h1>Развертывание Argo CD</h1>
+<p>У вас должен быть запущен кластер K8s, потому что мы собираемся делать это внутри k8s.</p>
+<pre><code class="language-plaintext">kubectl create namespace argocd
+kubectl apply -n argocd -f \
+https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml</code></pre>
+<p>Обратите внимание, что в развертывании по умолчанию сервис работает как тип Cluster IP, и ingress по умолчанию нет. Поэтому, если вы хотите получить доступ к сервису, вам нужно будет либо выполнить переадресацию портов, либо изменить тип сервиса на балансировщик нагрузки, либо создать ingress.</p>
+<p>Ниже приведен способ доступа к сервису через Load Balancer:</p>
+<pre><code class="language-plaintext">kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'</code></pre>
+<p>После чего выведите пароль от учетной записи admin в Argo CD из секрета:</p>
+<pre><code class="language-plaintext">kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d</code></pre>
+<p>Сервис будет доступен на 80-443 портах.</p>
+<p>Argo CD имеет свой CLI, правда его нужно будет установить.</p>
+<h1>Работа с Argo CD</h1>
+<h2>Новые объекты</h2>
+<p>При установке Argo CD в кластер, добавляются новые объекты:</p>
+<ul>
+  <li>Application — это основной объект в Argo CD, который описывает <strong>что, откуда и куда</strong> должно быть развернуто в Kubernetes.</li>
+  <li>ApplicationSet — это деплой одной Application сразу в несколько Clusters. ApplicationSet создаст несколько ArgoCD Application каждый из которых будет задеплоен в другой k8s cluster</li>
+</ul>
+<h2>Пример Application</h2>
+<p>Понятия:</p>
+<ul>
+  <li>Application Name: имя этого приложения.</li>
+  <li>Project: вы можете выбрать «default». Project (проект) — это концепция внутри Argo CD, в рамках которой вы можете создать несколько приложений и связать каждое приложение с проектом</li>
+  <li>Sync policy: вы можете выбрать между Manual и Automatic (что даст вам настоящий GitOps). Обратите внимание, что здесь в пользовательском интерфейсе значение по умолчанию — «Manual».</li>
+</ul>
+<p>Для yaml манифестов:</p>
+<pre><code class="language-plaintext">apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: crispy-train
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: in-cluster
+    namespace: crispy-train
+  source:
+    path: Manifests/
+    targetRevision: HEAD
+    repoURL: git@github.com:firysksta/crispy-train.git
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true</code></pre>
+<p>Для Helm чартов:</p>
+<pre><code class="language-plaintext">apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: crispy-train
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: in-cluster
+    namespace: crispy-train
+  source:
+    path: HelmCharts/MyChart1
+    targetRevision: HEAD
+    repoURL: git@github.com:firysksta/crispy-train.git
+    helm:
+      valueFiles:
+        - dev_values.yaml
+      parameters:
+      - name: container.image
+        value: user1/k8smysql:version1
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true</code></pre>
+<h2>Пример организации проекта</h2>
+<p>Здесь представлен пример Git в котором есть 2 приложения описанных в Helm-чартах, каждое с values под prod и dev.</p>
+<p>Для Argo CD используется App of Apps подход, написаны applications под prod и dev кластеры:</p>
+<pre><code class="language-plaintext">│
+├── HelmCharts                 # All Helm Charts
+│   ├── ChartTest1
+│   │   ├── Chart.yaml
+│   │   ├── templates
+│   │   ├── values_dev.yaml    # DEV Values
+│   │   ├── values_prod.yaml   # PROD Values
+│   │   └── values.yaml        # Default Values
+│   └── ChartTest2
+│       ├── Chart.yaml
+│       ├── templates
+│       ├── values_dev.yaml    # DEV Values
+│       ├── values_prod.yaml   # PROD Values
+│       └── values.yaml        # Default Values
+│   
+├── demo-dev                   # Develop Cluster
+│   ├── applications
+│   │   ├── app1.yaml
+│   │   └── app2.yaml
+│   └── root.yaml              # Root ArgoCD Application (App of Apps)
+└── demo-prod                  # Production Cluster
+    ├── applications
+    │   ├── app1.yaml
+    │   └── app2.yaml
+    └── root.yaml              # Root ArgoCD Application (App of Apps)  </code></pre>
+<p>Хороший пример проекта: https://github.com/adv4000/argocd/tree/main</p>
+<h2>Алгоритм организации интеграции Argo CD с App of Apps&nbsp;</h2>
+<ol>
+  <li>Установить Argo CD</li>
+  <li>Подготовить в Git репозитории по Helm-чарту на каждое приложение</li>
+  <li>Написать Application для каждого чарта c учетом values (dev, test, prod)</li>
+  <li>Написать “root” Application для развертывания этих Applications</li>
+  <li>Развернуть “root” App в кластере (с учетом dev, test, prod)</li>
+  <li>Наслаждаться результатом</li>
+</ol>
+<p>&nbsp;</p>

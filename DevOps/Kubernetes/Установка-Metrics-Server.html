@@ -1,0 +1,50 @@
+<!--
+title: Установка Metrics Server в Kubernetes
+description: 
+published: true
+date: 2025-07-16T23:19:01.405Z
+tags: devops, kubernetes
+editor: ckeditor
+dateCreated: 2025-07-16T05:02:16.859Z
+-->
+
+<h1>Kubernetes Metrics Server</h1>
+<p>Metrics Server в Kubernetes (K8s) — это компонент, который собирает и агрегирует метрики использования ресурсов (таких как CPU и память) от всех подов и узлов в кластере. Он играет важную роль в управлении ресурсами и автоматизации в Kubernetes.</p>
+<p>Официальный репозиторий - <a href="https://github.com/kubernetes-sigs/metrics-server">тут</a></p>
+<h2><strong>Что не будет работать без Metrics Server:</strong></h2>
+<p><strong>Мониторинг и алертинг</strong>:</p>
+<ul>
+  <li>Многие инструменты мониторинга и алертинга, которые полагаются на метрики Kubernetes, не смогут получать данные о состоянии кластера и подов без Metrics Server.</li>
+</ul>
+<p><strong>Vertical Pod Autoscaler (VPA)</strong>:</p>
+<ul>
+  <li>Хотя VPA может работать и без Metrics Server, его возможности по оптимизации ресурсов будут ограничены, так как он не сможет получать актуальные данные о текущем использовании ресурсов.</li>
+</ul>
+<p><strong>Horizontal Pod Autoscaler (HPA)</strong>:</p>
+<ul>
+  <li>Как уже упоминалось, HPA не сможет функционировать без доступа к метрикам, что ограничит возможности автоматического масштабирования приложений.</li>
+</ul>
+<h2>Установка Metrics Server</h2>
+<p>Metrics Server можно установить либо непосредственно из манифеста YAML, либо через официальный <a href="https://artifacthub.io/packages/helm/metrics-server/metrics-server"><u>чарт Helm</u></a>. Чтобы установить последнюю версию Metrics Server с параметром<code>replicas=1</code>, выполните следующую команду:</p>
+<pre><code class="language-plaintext">kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml</code></pre>
+<h3><strong>Высокая доступность</strong></h3>
+<p>Чтобы установить последнюю версию Metrics Server в режиме высокой доступности из манифеста <i>high-availability.yaml</i> , выполните следующую команду.</p>
+<pre><code class="language-plaintext">kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/high-availability-1.21+.yaml</code></pre>
+<h2>Ошибка после установки</h2>
+<p>После установки будет ошибка с TLS, из-за которой поды не смогут получить статус Ready:</p>
+<pre><code class="language-plaintext">NAMESPACE         NAME                                          READY   STATUS    RESTARTS        AGE
+kube-system       metrics-server-7c55755c5-7qsjb                0/1     Running   0               83s
+kube-system       metrics-server-7c55755c5-rlmsf                0/1     Running   0               83s</code></pre>
+<p>Чтобы это исправить нужно отключить обязательное требование TLS при подключении. Для этого выполните:</p>
+<pre><code class="language-plaintext">kubectl edit deploy metrics-server -n kube-system</code></pre>
+<p>И добавьте строку <code>- --kubelet-insecure-tls</code> как показано:</p>
+<pre><code class="language-plaintext">      containers:
+      - args:
+        - --cert-dir=/tmp
+        - --secure-port=10250
+        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+        - --kubelet-insecure-tls   # Это нужно добавить</code></pre>
+<p>И через пару минут поды поднимутся.</p>
+<p>Проверка метрик:</p>
+<pre><code class="language-plaintext">kubectl top nodes
+kubectl top pods -A</code></pre>

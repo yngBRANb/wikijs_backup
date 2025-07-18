@@ -1,0 +1,84 @@
+<!--
+title: Настройка устройств cisco
+description: 
+published: true
+date: 2025-04-12T15:33:11.409Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-03-21T05:22:06.795Z
+-->
+
+<p>Cisco Packet Tracer — это мощный инструмент для моделирования сетей, который позволяет пользователям проектировать, настраивать и тестировать сети Cisco. Вот некоторые основные команды, которые могут быть полезны при настройке устройств Cisco в Packet Tracer:</p>
+<h3><strong>Основные команды для настройки маршрутизаторов и коммутаторов Cisco</strong></h3>
+<p><strong>Вход в режим привилегированного EXEC</strong>:</p>
+<p><code>enable</code></p>
+<p><strong>Вход в режим глобальной конфигурации</strong>:</p>
+<p><code>configure terminal</code></p>
+<p><strong>Настройка имени устройства</strong>:</p>
+<p><code>1hostname &lt;имя_устройства&gt;</code></p>
+<p><strong>Настройка интерфейса</strong>:</p>
+<p><code>interface &lt;тип интерфейса&gt; &lt;номер интерфейса&gt;</code></p>
+<p>Например:</p>
+<p><code>interface gigabitethernet0/0</code></p>
+<p><strong>Настройка IP-адреса на интерфейсе</strong>:</p>
+<p><code>ip address &lt;IP-адрес&gt; &lt;маска_подсети&gt;</code></p>
+<p>Например:</p>
+<p><code>ip address 192.168.1.1 255.255.255.0</code></p>
+<p><strong>Включение интерфейса</strong>:</p>
+<p><code>no shutdown</code></p>
+<p><strong>Настройка маршрута по умолчанию</strong>:</p>
+<p><code>ip route 0.0.0.0 0.0.0.0 &lt;IP-адрес_шлюза&gt;</code></p>
+<p><strong>Настройка VLAN на коммутаторе</strong>:</p>
+<pre><code class="language-plaintext">vlan &lt;номер_VLAN&gt;
+name &lt;имя_VLAN&gt;</code></pre>
+<p><strong>Присвоение порта коммутатора VLAN</strong>:</p>
+<pre><code class="language-plaintext">interface &lt;тип интерфейса&gt; &lt;номер интерфейса&gt;
+switchport mode access
+switchport access vlan &lt;номер_VLAN&gt;</code></pre>
+<p><strong>Настройка интерфейса как транковый</strong>:</p>
+<pre><code class="language-plaintext">interface &lt;тип интерфейса&gt; &lt;номер интерфейса&gt;
+switchport mode trunk</code></pre>
+<p><strong>Сохранение конфигурации</strong>:</p>
+<p><code>copy running-config startup-config</code></p>
+<p>или</p>
+<p><code>write memory</code></p>
+<p><strong>Проверка конфигурации интерфейсов</strong>:</p>
+<p><code>show ip interface brief</code></p>
+<p><strong>Проверка маршрутов</strong>:</p>
+<p><code>show ip route</code></p>
+<p><strong>Проверка VLAN на коммутаторе</strong>:</p>
+<p><code>show vlan brief</code></p>
+<p><strong>Проверка состояния интерфейсов</strong>:</p>
+<p><code>show interfaces</code></p>
+<h3><strong>Пример настройки маршрутизатора</strong></h3>
+<p>Вот пример базовой настройки маршрутизатора:</p>
+<pre><code class="language-plaintext">enable
+configure terminal
+hostname Router1
+interface gigabitethernet0/0
+ip address 192.168.1.1 255.255.255.0
+no shutdown
+exit
+ip route 0.0.0.0 0.0.0.0 192.168.1.254
+write memory</code></pre>
+<h3><strong>Пример настройки коммутатора</strong></h3>
+<p>Вот пример базовой настройки коммутатора:</p>
+<pre><code class="language-plaintext">enable
+configure terminal
+hostname Switch1
+vlan 10
+name Sales
+vlan 20
+name Marketing
+interface gigabitethernet0/1
+switchport mode access
+switchport access vlan 10
+exit
+interface gigabitethernet0/2
+switchport mode access
+switchport access vlan 20
+exit
+interface gigabitethernet0/24
+switchport mode trunk
+write memory</code></pre>
+<p>Эти команды помогут вам начать работу с Cisco Packet Tracer и настроить базовые сетевые устройства.</p>

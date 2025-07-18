@@ -1,0 +1,471 @@
+<!--
+title: Создание хранилища Ceph для Kubernetes (Cephadm)
+description: 
+published: true
+date: 2025-07-18T04:03:12.109Z
+tags: ceph, devops, kubernetes
+editor: ckeditor
+dateCreated: 2025-07-14T17:17:49.667Z
+-->
+
+<h1>Структура кластера Ceph</h1>
+<p>В кластере Ceph есть основные 3 роли которые может иметь узел:</p>
+<ul>
+  <li><strong>MON</strong><br>Монитор — это демон, выполняющий роль координатора, с которого начинается кластер. Как только у нас появляется хотя бы один рабочий монитор, у нас появляется Ceph-кластер. Монитор хранит информацию о здоровье и состоянии кластера, обмениваясь различными картами с другими мониторами. Клиенты обращаются к мониторам, чтобы узнать, на какие OSD писать/читать данные. При разворачивании нового хранилища, первым делом создается монитор (или несколько). Кластер может прожить на одном мониторе, но рекомендуется делать 3 или 5 мониторов, во избежание падения всей системы по причине падения единственного монитора. Главное, чтобы количество оных было нечетным, дабы избежать ситуаций раздвоения сознания (split-brain). Мониторы работают в кворуме, поэтому если упадет больше половины мониторов, кластер заблокируется для предотвращения рассогласованности данных.</li>
+  <li><strong>MGR</strong><br>Менеджер Ceph демон работает вместе с демоном монитора, чтобы обеспечить дополнительный контроль.<br>С версии 12.x демон ceph-mgr стал необходим для нормальной работы.<br>Если демон mgr не запущен, вы увидите предупреждение об этом.</li>
+  <li><strong>OSD (Object Storage Device)</strong><br>OSD — это юнит хранилища, который хранит сами данные и обрабатывает запросы клиентов, обмениваясь данными с другими OSD. Обычно это диск. И обычно за каждый OSD отвечает отдельный OSD-демон, который может запускаться на любой машине, на которой установлен этот диск.</li>
+</ul>
+<p>Так же есть 2 дополнительные роли:</p>
+<ul>
+  <li><strong>RGW (RADOS Gateway)</strong>&nbsp;<br>RGW — это шлюз, предоставляющий доступ к хранилищу Ceph через RESTful API, совместимый с Amazon S3 и OpenStack Swift. Он позволяет использовать Ceph в качестве объектного хранилища для облачных приложений. RGW не является обязательным компонентом для базовой работы Ceph, но необходим, если требуется доступ к данным через S3/Swift-совместимые интерфейсы. В Kubernetes (K8s) RGW может быть полезен, если кластеру нужен объектный storage-класс, например, для работы с приложениями, использующими S3-совместимое хранилище.</li>
+  <li><strong>MDS (Metadata Server)</strong>&nbsp;<br>MDS — это сервер метаданных, используемый в файловой системе CephFS. Он отвечает за хранение иерархии файлов и директорий, а также за управление правами доступа. MDS требуется только при использовании CephFS. Если в Kubernetes планируется развертывание CephFS в качестве PersistentVolume, то MDS необходим. В противном случае (например, при использовании только RBD — блочного устройства) MDS не нужен.</li>
+</ul>
+<p><strong>Нужны ли RGW и MDS для Kubernetes?</strong></p>
+<ul>
+  <li>RGW нужен в Kubernetes, если требуется объектное хранилище (например, для приложений, работающих с S3 API).</li>
+  <li>MDS нужен в Kubernetes только при использовании CephFS в качестве файловой системы для PersistentVolumes. Если Kubernetes использует Ceph только через RBD (блочные устройства), то ни RGW, ни MDS не требуются.</li>
+</ul>
+<h2>Варианты интеграции K8s и Ceph</h2>
+<p>На текущий момент существует 3 подхода (+ RGW для организации S3 хранилища) к их связи:</p>
+<figure class="table">
+  <table>
+    <thead>
+      <tr>
+        <th><strong>Способ</strong></th>
+        <th><strong>Простота</strong></th>
+        <th><strong>Подходит для</strong></th>
+        <th><strong>Нужные компоненты Ceph</strong></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>RBD (вручную)</strong></td>
+        <td>Средняя</td>
+        <td>Блочные диски (аналог EBS)</td>
+        <td>MON, OSD, MGR</td>
+      </tr>
+      <tr>
+        <td><strong>Ceph CSI (RBD)</strong></td>
+        <td>Средняя</td>
+        <td>Автоматическое управление томами</td>
+        <td>MON, OSD, MGR</td>
+      </tr>
+      <tr>
+        <td><strong>CephFS</strong></td>
+        <td>Сложнее</td>
+        <td>Файловое хранилище (аналог NFS)</td>
+        <td>MON, OSD, MGR, <strong>MDS</strong></td>
+      </tr>
+      <tr>
+        <td><strong>RGW (S3)</strong></td>
+        <td>Отдельная тема</td>
+        <td>Объектное хранилище (аналог MinIO)</td>
+        <td>MON, OSD, MGR, <strong>RGW</strong></td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Самый походящий способом связывания сегодня это использование CSI (Container Storage Interface) драйвера, который позволяет динамически управлять хранилищем. Это обеспечивает гибкость и масштабируемость, что делает его лучшей практикой для продакшн-сред.</p>
+<blockquote>
+  <p>НО! Есть нюанс (куда же без них)</p>
+  <p>CSI RBD поддерживает только режим RWO (ReadWriteOnce) для volume, соответственно поддержка RWX отсутствует.</p>
+  <p>Если требуется RWX (ReadWriteMany), то самым предпочтительным вариантом будет использовать внутри одного кластера Ceph два типа хранилищ и RBD и CephFS, и подключить их к K8s.</p>
+  <p>Если RWX в кластере не требуется, то лучше ограничиться только RBD, так как у него выше производительность.</p>
+</blockquote>
+<p>В этой статье в одном кластере Ceph, будут реализованы сразу 2 типа хранилища.</p>
+<h2>Особенности создания сети между K8s и Ceph</h2>
+<p>Для production среды между кластером Kubernetes и кластером Ceph должна быть выделенная сеть с пропускной способностью не менее 10 Гбит/с (Public Network), где будет идти общение между подами в K8s и их volume в Ceph.</p>
+<p>Так же должна быть сеть Cluster Network, предназначенная только для репликации данных между узлами Ceph.</p>
+<p>Но для тестовой среды (которая и описывается в этой статье) подойдет и одна общая сеть.</p>
+<h2>Информация о кластере</h2>
+<p>На каждой машине нашего кластера будут работать все три демона. Соответственно, демоны монитора и менеджера как служебные, и демоны OSD для дисков нашей виртуальной машины. Используемый дистрибутив - Red Hat Enterprise Linux 10.0.</p>
+<p>Развертывание будет осуществляться с помощью официального инструмента Cephadm. Документация расположена <a href="https://docs.ceph.com/en/latest/cephadm/install/">тут</a>.</p>
+<p>Перед началом на каждом сервере должно быть корректное время. Желательно использование одного и того же NTP сервера.</p>
+<blockquote>
+  <p>На каждом узле рекомендуется иметь по 3 диска. 1 - Система, 2 - Хранилище, 3 - Хранилище + Журнал. А лучше вообще иметь под журнал выделенный диск.</p>
+  <p>Если OSD (дисков) в кластере будет меньше 4, то будет использоваться репликация, за место эффективного Erasure Coding.</p>
+</blockquote>
+<p>Актуальную версию Ceph можно узнать на <a href="https://docs.ceph.com/en/latest/releases/">официальном сайте</a>.</p>
+<h2>Требования к узлам-хранилищам</h2>
+<p>Узлы которые будут использоваться с ролью OSD, нужно подготовить к добавлению в кластер Ceph.</p>
+<p>Диски которые будут использоваться в качестве хранилища должны быть подключены к машинам, но не иметь на них данных (ни ФС, ни таблицы разделов). Если на них что-то есть, то данные будут автоматически стерты (я не проверял, но должно быть именно так).</p>
+<h1>Подготовка узлов</h1>
+<p>На всех узлах (ceph-1, ceph-2, ceph-3) выполните:</p>
+<pre><code class="language-plaintext"># Установка зависимостей
+sudo dnf install -y podman lvm2 chrony openssh-server python3 python3-pyyaml
+
+# Настройка времени (если не настроено заранее)
+sudo systemctl enable --now chronyd
+
+# Отключение SELinux (или настройка в permissive mode)
+sudo setenforce 0
+sudo sed -i 's/^SELINUX=.*/SELINUX=permissive/' /etc/selinux/config
+
+# Настройка firewalld (или отключение)
+sudo firewall-cmd --zone=public --add-service=ceph --permanent
+sudo firewall-cmd --zone=public --add-service=ceph-mon --permanent
+sudo firewall-cmd --zone=public --add-service=ceph-mgr --permanent
+
+sudo firewall-cmd --reload</code></pre>
+<p>Установка cephadm на bootstrap-узле (ceph-1):</p>
+<pre><code class="language-plaintext">CEPH_RELEASE=19.2.2  # Замените на желаемый релиз
+curl --silent --remote-name --location https://download.ceph.com/rpm-${CEPH_RELEASE}/el9/noarch/cephadm
+
+chmod +x cephadm
+sudo mv ./cephadm /usr/bin/</code></pre>
+<h2>Инициализация кластера</h2>
+<p>На ceph-1 выполните:</p>
+<pre><code class="language-plaintext">sudo cephadm bootstrap \
+    --mon-ip 172.16.1.121 \
+    --initial-dashboard-user admin \
+    --initial-dashboard-password P@ssw0rd \
+    --allow-fqdn-hostname                    # Если используется fqdn, а не короткое имя</code></pre>
+<blockquote>
+  <p><strong>Пример команды для Production среды с несколькими сетями</strong>:</p>
+  <pre><code class="language-plaintext">sudo cephadm bootstrap \
+    --mon-ip 172.16.1.100 \
+    --initial-dashboard-user admin \
+    --initial-dashboard-password P@ssw0rd \
+    --allow-fqdn-hostname \
+    --public-network 172.16.0.0/23 \
+    --cluster-network 10.10.0.0/24 \
+    # Если вам не нужен встроенный мониторинг и выключен firewalld
+    --skip-monitoring-stack \
+    --skip-firewalld</code></pre>
+</blockquote>
+<p>После этого вы сможете перейти в Web GUI по адресу https://ceph-1.k8s.rhel:8443/</p>
+<h2>Добавление остальных узлов в кластер</h2>
+<p>Для большого количества действий придется использовать утилиту ceph, но я не нашел ее в пакетах RHEL 10.0 (для этого нужен пакет ceph-common). Но как оказалось для исполнений команд ceph можно использовать cephadm:</p>
+<pre><code class="language-plaintext"># Хороший вариант это зайти в оболочку ceph и выполнять команды в ней
+sudo cephadm shell
+# Ну или исполнять каждую команду с этой припиской
+sudo cephadm shell -- ceph &lt;команда&gt;
+
+# Либо попробуйте установить ceph-common через репозиторий, если получится
+sudo cephadm add-repo --release squid
+sudo cephadm install ceph-common</code></pre>
+<p>Подробности по работе с оболочкой можно найти в <a href="https://docs.ceph.com/en/latest/cephadm/install/">документации</a>.&nbsp;</p>
+<p>Сначала получите ключ:</p>
+<pre><code class="language-plaintext">sudo ceph cephadm get-pub-key &gt; ~/ceph.pub</code></pre>
+<p>Затем на каждом узле (ceph-1, ceph-2, ceph-3) добавьте ключ:</p>
+<pre><code class="language-plaintext">sudo ssh-copy-id -f -i ~/ceph.pub root@ceph-1.k8s.rhel
+sudo ssh-copy-id -f -i ~/ceph.pub root@ceph-2.k8s.rhel
+sudo ssh-copy-id -f -i ~/ceph.pub root@ceph-3.k8s.rhel</code></pre>
+<p>Или скриптом:</p>
+<pre><code class="language-plaintext">for host in ceph-1.k8s.rhel ceph-2.k8s.rhel ceph-3.k8s.rhel; do
+  sudo ssh-copy-id -f -i ~/.ssh/ceph.pub root@$host
+done</code></pre>
+<p>Ключи нужно добавлять именно для пользователя root, так как Ceph будет принудительно использовать именно его.&nbsp;</p>
+<p>Добавьте хосты в кластер:</p>
+<pre><code class="language-plaintext">sudo ceph orch host add ceph-2.k8s.rhel
+sudo ceph orch host add ceph-3.k8s.rhel</code></pre>
+<h2>Развертывание сервисов</h2>
+<p>Здесь ничего сложного, если уже знать что требуется от кластера:</p>
+<pre><code class="language-plaintext"># Развертывание мониторов (Обязательно минимум на 3-х узлах, число должно быть нечетное)
+sudo ceph orch apply mon --placement="ceph-1.k8s.rhel,ceph-2.k8s.rhel,ceph-3.k8s.rhel"
+
+# Развертывание менеджеров (Для HA минимум 2)
+sudo ceph orch apply mgr --placement="ceph-1.k8s.rhel,ceph-2.k8s.rhel,ceph-3.k8s.rhel"
+
+# Развертывание MDS на нескольких узлах (для отказоустойчивости) (Если CephFS не нужен, не пишите это):
+ceph orch apply mds cephfs --placement="3"  # По 1 MDS на каждом узле
+
+# Проверка состояния сервисов 
+sudo ceph orch ps</code></pre>
+<p>При проверке состояния все сервисы должны иметь состояние running.</p>
+<p>Перейдем к настройке OSD. Создайте файл osd_spec.yaml:</p>
+<pre><code class="language-plaintext">service_type: osd
+service_id: default_drive_group
+placement:
+  hosts:
+  - ceph-1.k8s.rhel
+  - ceph-2.k8s.rhel
+  - ceph-3.k8s.rhel
+data_devices:
+  paths:
+  - /dev/sdb
+  - /dev/sdc</code></pre>
+<p>Или если у вас диски на нодах называются по разному:</p>
+<pre><code class="language-plaintext">service_type: osd
+service_id: osd_ceph1
+placement:
+  hosts:
+    - ceph-1.k8s.rhel
+data_devices:
+  paths:
+    - /dev/sdb
+    - /dev/sdc
+---
+service_type: osd
+service_id: osd_ceph2
+placement:
+  hosts:
+    - ceph-2.k8s.rhel
+data_devices:
+  paths:
+    - /dev/nvme0n1
+---
+service_type: osd
+service_id: osd_ceph3
+placement:
+  hosts:
+    - ceph-3.k8s.rhel
+data_devices:
+  paths:
+    - /dev/vdb</code></pre>
+<p>Примените конфигурацию:</p>
+<pre><code class="language-plaintext">sudo ceph orch apply osd -i osd_spec.yaml</code></pre>
+<p>Если у вас та же проблема что и у меня с ceph-common, то передать файл в утилиту ceph напрямую не получится, поэтому придется использовать команду с <a href="https://linuxize.com/post/bash-heredoc/">Heredoc</a>:</p>
+<pre><code class="language-plaintext">sudo ceph orch apply osd -i - &lt;&lt;EOF
+service_type: osd
+service_id: default_drive_group
+placement:
+  hosts:
+  - ceph-1.k8s.rhel
+  - ceph-2.k8s.rhel
+  - ceph-3.k8s.rhel
+data_devices:
+  paths:
+  - /dev/sdb
+  - /dev/sdc
+EOF</code></pre>
+<p>После этого перейдите в Web GUI и проверьте что все ноды имеют статус Available и в кластере нет ошибок.</p>
+<p>Grafana доступна по URL - https://ceph-1.k8s.rhel:3000/</p>
+<p>Порты остальных сервисов можно узнать командой <code>sudo ceph orch ps</code></p>
+<h1>Интеграция с Kubernetes</h1>
+<p>На управляющем узле Ceph выполните:</p>
+<pre><code class="language-plaintext"># Пулы для RBD (тут значения стоят для небольшого кластера)
+sudo ceph osd pool create kube_rbd 128 128
+sudo ceph osd pool application enable kube_rbd rbd
+
+# Пулы для CephFS (Если он вам не нужен, то писать это не нужно)
+sudo ceph osd pool create cephfs_data 128 128
+sudo ceph osd pool create cephfs_metadata 32 32
+sudo ceph fs new cephfs cephfs_metadata cephfs_data
+sudo ceph fs subvolumegroup create cephfs csi    # В созданой файловой системе CephFS создаем subvolumegroup
+</code></pre>
+<p>Создайте пользователей для подключения K8s:</p>
+<pre><code class="language-plaintext"># Пользователь для RBD
+sudo ceph auth get-or-create client.kube mon 'profile rbd' osd 'profile rbd pool=kube_rbd' mgr 'profile rbd pool=kube_rbd'
+
+# Пользователь для CephFS (Если он вам не нужен, то писать это не нужно)
+sudo ceph auth get-or-create client.kube_cephfs mon 'allow r' mgr 'allow rw' mds 'allow rws' osd 'allow rw pool=cephfs_data, allow rw pool=cephfs_metadata'</code></pre>
+<p>Ключ (или ключи) который будет выведен сохраните для дальнейшего подключения K8s по ним.</p>
+<p>Если вы их потеряете их можно запросить заново:</p>
+<pre><code class="language-plaintext">ceph auth get-key client.kube
+ceph auth get-key client.kube_cephfs</code></pre>
+<h2>Установка Ceph CSI в Kubernetes</h2>
+<p>Установите Helm (если еще не установлен).</p>
+<h3>CSI RBD</h3>
+<p>Добавьте репозиторий Ceph CSI RBD:</p>
+<pre><code class="language-plaintext">helm repo add ceph-csi https://ceph.github.io/csi-charts
+helm repo update
+
+# Получаем набор переменных чарта ceph-csi-rbd 
+# Переменные можно изменять в файле или применить в терминале к helm через --set
+helm inspect values ceph-csi/ceph-csi-rbd &gt; cephrbd.yml</code></pre>
+<p>Теперь нужно заполнить файл cephrbd.yml. Для этого узнаем ID кластера и IP-адреса мониторов в Ceph:</p>
+<pre><code class="language-plaintext">ceph fsid  # так мы узнаем clusterID
+ceph mon dump  # а так увидим IP-адреса мониторов</code></pre>
+<p>Полученные значения заносим в файл cephrbd.yml. Попутно включаем создание политик PSP (Pod Security Policies):</p>
+<pre><code class="language-plaintext">csiConfig:
+  - clusterID: "130ad1f8-60ed-11f0-81e5-bc24118e2b70"
+    monitors:
+      - "v2:172.16.1.121:3300/0,v1:172.16.1.121:6789/0"
+      - "v2:172.16.1.122:3300/0,v1:172.16.1.122:6789/0"
+      - "v2:172.16.1.123:3300/0,v1:172.16.1.123:6789/0"
+
+nodeplugin:
+  podSecurityPolicy:
+    enabled: true
+
+provisioner:
+  podSecurityPolicy:
+    enabled: true</code></pre>
+<p>Далее всё что нам остаётся — установить чарт в кластер Kubernetes:</p>
+<pre><code class="language-plaintext">helm upgrade -i ceph-csi-rbd ceph-csi/ceph-csi-rbd \
+  -f cephrbd.yml \
+  --create-namespace \
+  --namespace ceph-csi-rbd \
+  --set provisioner.replicaCount=1 # Используйте эту опцию только если хотите выбрать колиство
+  						           # подов для Provisioner (должно быть нечетным) (по умолчанию 3)
+  								   # Оно так же должно быть меньше количества Worker нод
+</code></pre>
+<p>Занесём значения в Secret, нам нужны username и ключ из Ceph:</p>
+<pre><code class="language-plaintext">kubectl create secret generic csi-rbd-secret \
+  --namespace ceph-csi-rbd \
+  --from-literal=userID=kube \
+  --from-literal=userKey=&lt;user-key&gt;</code></pre>
+<p>Далее нам нужен примерно такой манифест StorageClass:</p>
+<pre><code class="language-plaintext">apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+   name: csi-rbd-sc
+provisioner: rbd.csi.ceph.com
+parameters:
+   clusterID: &lt;cluster-id&gt;
+   pool: kube_rbd
+
+   imageFeatures: layering
+
+   # Эти секреты должны содержать данные для авторизации
+   # в ваш пул.
+   csi.storage.k8s.io/provisioner-secret-name: csi-rbd-secret
+   csi.storage.k8s.io/provisioner-secret-namespace: ceph-csi-rbd
+   csi.storage.k8s.io/controller-expand-secret-name: csi-rbd-secret
+   csi.storage.k8s.io/controller-expand-secret-namespace: ceph-csi-rbd
+   csi.storage.k8s.io/node-stage-secret-name: csi-rbd-secret
+   csi.storage.k8s.io/node-stage-secret-namespace: ceph-csi-rbd
+
+   csi.storage.k8s.io/fstype: xfs   # Тут по желанию
+
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+mountOptions:
+  - discard</code></pre>
+<p>Нужно заполнить <strong>clusterID</strong>, который мы уже узнали командой <i>ceph fsid</i>, и применить этот манифест в кластере Kubernetes:</p>
+<pre><code class="language-plaintext">kubectl apply -f storageclass-rbd.yaml</code></pre>
+<p>Теперь проверим правильно ли все настроено. Для этого создадим тестовый PVC:</p>
+<pre><code class="language-plaintext">cat &lt;&lt;EOF | kubectl apply -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rbd-test-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: csi-rbd-sc
+EOF</code></pre>
+<p>И теперь проверим его статус:</p>
+<pre><code class="language-plaintext">kubectl get pvc rbd-test-pvc</code></pre>
+<h3>CSI CephFS</h3>
+<p>Получим значения из нужного нам нового Helm-чарта:</p>
+<pre><code class="language-plaintext">helm inspect values ceph-csi/ceph-csi-cephfs &gt; cephfs.yml</code></pre>
+<p>Снова нужно заполнить файл cephfs.yml. Как и ранее, помогут команды Ceph:<br>&nbsp;</p>
+<pre><code class="language-plaintext">ceph fsid
+ceph mon dump</code></pre>
+<p>Заполняем файл со значениями примерно так:</p>
+<pre><code class="language-plaintext">csiConfig:
+  - clusterID: "130ad1f8-60ed-11f0-81e5-bc24118e2b70"
+    monitors:
+      - "172.16.1.121:6789"
+      - "172.16.1.122:6789"
+      - "172.16.1.123:6789"
+
+nodeplugin:
+  httpMetrics:
+    enabled: true
+    containerPort: 8091
+  podSecurityPolicy:
+    enabled: true
+
+provisioner:
+  replicaCount: 1
+  podSecurityPolicy:
+    enabled: true</code></pre>
+<p>Обратите внимание, что адреса мониторов указываются в простой форме address:port. Для монтирования cephfs на узле эти адреса передаются в модуль ядра, который ещё не умеет работать с протоколом мониторов v2.<br>Порт для httpMetrics (туда будет ходить Prometheus за метриками для мониторинга) мы меняем для того, чтобы он не конфликтовал с nginx-proxy, который устанавливается Kubespray’ем.</p>
+<p>Устанавливаем Helm-чарт в кластер Kubernetes:</p>
+<pre><code class="language-plaintext">helm upgrade -i ceph-csi-cephfs ceph-csi/ceph-csi-cephfs \
+  -f cephfs.yml \
+  --create-namespace \
+  --namespace ceph-csi-cephfs</code></pre>
+<p>Создадим отдельные Secret и StorageClass (не забудьте ввести верный userKey).<br>Ничего нового, мы это уже видели на примере RBD::</p>
+<pre><code class="language-plaintext">kubectl create secret generic csi-cephfs-secret \
+  --namespace ceph-csi-cephfs \
+  --from-literal=userID=kube_cephfs \
+  --from-literal=&lt;user-key&gt;</code></pre>
+<p>А теперь – отдельный StorageClass:</p>
+<pre><code class="language-plaintext">apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: csi-cephfs-sc
+provisioner: cephfs.csi.ceph.com
+parameters:
+  clusterID: &lt;cluster-id&gt;
+
+  # Имя файловой системы CephFS, в которой будет создан том
+  fsName: cephfs
+
+  # Пул Ceph, в котором будут храниться данные тома
+  pool: cephfs_data
+
+  # (необязательно) Разделенные запятыми опции монтирования для Ceph-fuse
+  # например:
+  # fuseMountOptions: debug
+
+  # (необязательно) Разделенные запятыми опции монтирования CephFS для ядра
+  # См. man mount.ceph чтобы узнать список этих опций. Например:
+  # kernelMountOptions: readdir_max_bytes=1048576,norbytes
+
+  # Секреты должны содержать доступы для админа и/или юзера Ceph.
+  csi.storage.k8s.io/provisioner-secret-name: csi-cephfs-secret
+  csi.storage.k8s.io/provisioner-secret-namespace: ceph-csi-cephfs
+  csi.storage.k8s.io/controller-expand-secret-name: csi-cephfs-secret
+  csi.storage.k8s.io/controller-expand-secret-namespace: ceph-csi-cephfs
+  csi.storage.k8s.io/node-stage-secret-name: csi-cephfs-secret
+  csi.storage.k8s.io/node-stage-secret-namespace: ceph-csi-cephfs
+
+  # (необязательно) Драйвер может использовать либо ceph-fuse (fuse), 
+  # либо ceph kernelclient (kernel).
+  # Если не указано, будет использоваться монтирование томов по умолчанию,
+  # это определяется поиском ceph-fuse и mount.ceph
+  # mounter: kernel
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+mountOptions:
+  - debug</code></pre>
+<p>Заполним тут <strong>clusterID</strong> и применим в Kubernetes:</p>
+<pre><code class="language-plaintext">kubectl apply -f storageclass-cephfs.yaml</code></pre>
+<p>Для проверки, как и в прошлом примере, создадим PVC:</p>
+<pre><code class="language-plaintext">cat &lt;&lt;EOF | kubectl apply -f -
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cephfs-test-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: csi-cephfs-sc
+EOF</code></pre>
+<p>И проверим результат:</p>
+<pre><code class="language-plaintext">kubectl get pvc cephfs-test-pvc</code></pre>
+<h2>Если при установке что-то пошло не так</h2>
+<p>Если вдруг потребуется удаление всех установленных компонентов, то начинайте удаление с Helm-чарта, а потом удалите Namespace:</p>
+<pre><code class="language-plaintext">helm uninstall ceph-csi-rbd -n ceph-csi-rbd
+helm uninstall ceph-csi-cephfs -n ceph-csi-cephfs
+
+kubectl delete ns ceph-csi-rbd 
+kubectl delete ns ceph-csi-cephfs</code></pre>
+<p>После такого удаления никаких компонентов не останется.&nbsp;</p>
+<p>Если удалять вручную, то не забудьте про Service Accounts, Cluster Roles, Roles, Cluster Role Bindings, Role Bindings, StorageClass и csidriver.</p>
+<h2>Выбор StorageClass по умолчанию</h2>
+<p>В кластере желательно указать какой из StorageClass будет использоваться по умолчанию:</p>
+<pre><code class="language-plaintext">kubectl patch storageclass &lt;storage-class-name&gt; -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'</code></pre>
+<p>При выборе исходите из того какие приложения будут находится в кластере.</p>
+<h1>Поддержка кластера Ceph</h1>
+<p>Для диагностики проблем и дальнейшей поддержки кластера могут пригодиться команды:</p>
+<pre><code class="language-plaintext"># Проверка состояния кластера
+sudo ceph -s
+
+# Проверка OSD
+sudo ceph osd tree
+
+# Проверка мониторов
+sudo ceph mon stat
+
+# Проверка использования
+sudo ceph df
+
+# Для обновления Ceph до новых версий (обновление возможно так же через Web GUI):
+sudo ceph orch upgrade start --ceph-version &lt;target-version&gt;</code></pre>
+<h2>Полезные ссылки</h2>
+<ul>
+  <li><a href="https://habr.com/ru/companies/slurm/articles/519642/">тык</a> - Хорошо описан процесс интеграции Ceph с K8s (хоть и с упущениями в настройке CephFS)</li>
+</ul>
+<p>&nbsp;</p>

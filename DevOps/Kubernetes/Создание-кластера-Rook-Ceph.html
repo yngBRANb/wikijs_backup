@@ -1,0 +1,206 @@
+<!--
+title: Создание хранилища Ceph для Kubernetes (Rook Ceph)
+description: 
+published: true
+date: 2025-07-14T21:34:01.099Z
+tags: ceph, devops, kubernetes
+editor: ckeditor
+dateCreated: 2025-07-13T18:12:22.743Z
+-->
+
+<h1>Структура кластера Ceph</h1>
+<blockquote>
+  <p>Важно!!!</p>
+  <p>Статья не закончена!</p>
+</blockquote>
+<p>Ceph — это программная платформа хранения данных с открытым исходным кодом. Она реализует объектное хранилище на распределенном компьютерном кластере и предоставляет интерфейс для трех типов хранилищ: блочных, объектных и файловых. Цель Ceph — предоставить бесплатную распределенную платформу хранения данных без единой точки отказа, обладающую высокой масштабируемостью и гарантирующую сохранность ваших данных.</p>
+<p>В этой статье мы рассмотрим архитектуру Ceph, настроим собственный кластер хранения Ceph и обсудим архитектурные решения, которые вам неизбежно придётся принять. Мы развернём Ceph в кластере Kubernetes, используя облачный оркестратор хранения Rook.</p>
+<p>В кластере Ceph есть основные 3 роли которые может иметь узел:</p>
+<ul>
+  <li><strong>MON</strong><br>Монитор — это демон, выполняющий роль координатора, с которого начинается кластер. Как только у нас появляется хотя бы один рабочий монитор, у нас появляется Ceph-кластер. Монитор хранит информацию о здоровье и состоянии кластера, обмениваясь различными картами с другими мониторами. Клиенты обращаются к мониторам, чтобы узнать, на какие OSD писать/читать данные. При разворачивании нового хранилища, первым делом создается монитор (или несколько). Кластер может прожить на одном мониторе, но рекомендуется делать 3 или 5 мониторов, во избежание падения всей системы по причине падения единственного монитора. Главное, чтобы количество оных было нечетным, дабы избежать ситуаций раздвоения сознания (split-brain). Мониторы работают в кворуме, поэтому если упадет больше половины мониторов, кластер заблокируется для предотвращения рассогласованности данных.</li>
+  <li><strong>MGR</strong><br>Менеджер Ceph демон работает вместе с демоном монитора, чтобы обеспечить дополнительный контроль.<br>С версии 12.x демон ceph-mgr стал необходим для нормальной работы.<br>Если демон mgr не запущен, вы увидите предупреждение об этом.</li>
+  <li><strong>OSD (Object Storage Device)</strong><br>OSD — это юнит хранилища, который хранит сами данные и обрабатывает запросы клиентов, обмениваясь данными с другими OSD. Обычно это диск. И обычно за каждый OSD отвечает отдельный OSD-демон, который может запускаться на любой машине, на которой установлен этот диск.</li>
+</ul>
+<p>Так же есть 2 дополнительные роли:</p>
+<ul>
+  <li><strong>RGW (RADOS Gateway)</strong>&nbsp;<br>RGW — это шлюз, предоставляющий доступ к хранилищу Ceph через RESTful API, совместимый с Amazon S3 и OpenStack Swift. Он позволяет использовать Ceph в качестве объектного хранилища для облачных приложений. RGW не является обязательным компонентом для базовой работы Ceph, но необходим, если требуется доступ к данным через S3/Swift-совместимые интерфейсы. В Kubernetes (K8s) RGW может быть полезен, если кластеру нужен объектный storage-класс, например, для работы с приложениями, использующими S3-совместимое хранилище.</li>
+  <li><strong>MDS (Metadata Server)</strong>&nbsp;<br>MDS — это сервер метаданных, используемый в файловой системе CephFS. Он отвечает за хранение иерархии файлов и директорий, а также за управление правами доступа. MDS требуется только при использовании CephFS. Если в Kubernetes планируется развертывание CephFS в качестве PersistentVolume, то MDS необходим. В противном случае (например, при использовании только RBD — блочного устройства) MDS не нужен.</li>
+</ul>
+<p><strong>Нужны ли RGW и MDS для Kubernetes?</strong></p>
+<ul>
+  <li>RGW нужен в Kubernetes, если требуется объектное хранилище (например, для приложений, работающих с S3 API).</li>
+  <li>MDS нужен в Kubernetes только при использовании CephFS в качестве файловой системы для PersistentVolumes. Если Kubernetes использует Ceph только через RBD (блочные устройства), то ни RGW, ни MDS не требуются.</li>
+</ul>
+<h2>Варианты интеграции K8s и Ceph</h2>
+<p>На текущий момент существует 3 подхода (+ RGW для организации S3 хранилища) к их связи:</p>
+<figure class="table">
+  <table>
+    <thead>
+      <tr>
+        <th><strong>Способ</strong></th>
+        <th><strong>Простота</strong></th>
+        <th><strong>Подходит для</strong></th>
+        <th><strong>Нужные компоненты Ceph</strong></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>RBD (вручную)</strong></td>
+        <td>Средняя</td>
+        <td>Блочные диски (аналог EBS)</td>
+        <td>MON, OSD, MGR</td>
+      </tr>
+      <tr>
+        <td><strong>Ceph CSI (RBD)</strong></td>
+        <td>Лучший вариант</td>
+        <td>Автоматическое управление томами</td>
+        <td>MON, OSD, MGR</td>
+      </tr>
+      <tr>
+        <td><strong>CephFS</strong></td>
+        <td>Сложнее</td>
+        <td>Файловое хранилище (аналог NFS)</td>
+        <td>MON, OSD, MGR, <strong>MDS</strong></td>
+      </tr>
+      <tr>
+        <td><strong>RGW (S3)</strong></td>
+        <td>Отдельная тема</td>
+        <td>Объектное хранилище (аналог MinIO)</td>
+        <td>MON, OSD, MGR, <strong>RGW</strong></td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Самый походящий способом связывания сегодня это использование CSI (Container Storage Interface) драйвера, который позволяет динамически управлять хранилищем. Это обеспечивает гибкость и масштабируемость, что делает его лучшей практикой для продакшн-сред. За нас это все настроит Rook.</p>
+<h2>Информация о кластере</h2>
+<p>На каждой машине нашего кластера будут работать все три демона. Соответственно, демоны монитора и менеджера как служебные, и демоны OSD для дисков нашей виртуальной машины. Используемый дистрибутив - Red Hat Enterprise Linux 10.0.</p>
+<p>Развертывание будет осуществляться с помощью Rook. Документация расположена <a href="https://docs.ceph.com/projects/ceph-ansible/en/latest/">тут</a>.</p>
+<p>Перед началом на каждом сервере должно быть корректное время. Желательно использование одного и того же NTP сервера.</p>
+<blockquote>
+  <p>На каждом узле рекомендуется иметь по 3 диска. 1 - Система, 2 - Хранилище, 3 - Хранилище + Журнал</p>
+  <p>К тому же, если OSD (дисков) в кластере будет меньше 4, то будет использоваться репликация, за место эффективного Erasure Coding.</p>
+</blockquote>
+<p>Актуальную версию Ceph можно узнать на <a href="https://docs.ceph.com/en/latest/releases/">официальном сайте</a>.</p>
+<h2>Требования к узлам-хранилищам</h2>
+<p>Узлы которые будут использоваться с ролью OSD, нужно подготовить к добавлению в кластер Ceph.</p>
+<p>Диски которые будут использоваться в качестве хранилища должны быть подключены к машинам, но не иметь на них данных (ни ФС, ни таблицы разделов). Если на них что-то есть, то данные будут автоматически стерты (я не проверял, но должно быть именно так).</p>
+<h2>1. Установка Rook Operator</h2>
+<p>У вас уже должен быть установлен <a href="/DevOps/Kubernetes/Установка-Helm">Helm</a> кластере.</p>
+<p>На любой из Control Plane (или на удаленном узле с kubeconfig) выполните установку Rook Operator:</p>
+<pre><code class="language-plaintext"># Создаем namespace для Rook
+kubectl create namespace rook-ceph
+
+# Добавляем репозиторий Rook (если еще не добавлен)
+helm repo add rook-release https://charts.rook.io/release
+
+# Устанавливаем Rook Operator с помощью Helm
+helm install --create-namespace --namespace rook-ceph rook-ceph rook-release/rook-ceph --version v1.7.4</code></pre>
+<h2>2. Создание Ceph Cluster</h2>
+<p>Создаем файл cluster.yaml:</p>
+<pre><code class="language-plaintext">apiVersion: ceph.rook.io/v1
+kind: CephCluster
+metadata:
+  name: rook-ceph
+  namespace: rook-ceph
+spec:
+  dataDirHostPath: /var/lib/rook
+  mon:
+    count: 3
+    # запрещает размещать несколько MON на одном узле (правильно для production)
+    allowMultiplePerNode: false
+    volumeClaimTemplate:
+      spec:
+        storageClassName: ""
+        resources:
+          requests:
+            storage: 10Gi  # Место под служебные данные мониторов (рассчитываете самостоятельно)
+  cephVersion:
+    image: quay.io/ceph/ceph:v19.2.2
+    allowUnsupported: false
+  dashboard:
+    enabled: true
+    ssl: true
+  monitoring:
+    enabled: true
+  network:
+    provider: host
+  storage:
+    useAllNodes: false
+    useAllDevices: false
+    nodes:
+    - name: "ceph-1.k8s.rhel"
+      devices:
+      - name: "sdb"
+      - name: "sdc"
+      config:
+        osdsPerDevice: "1"  # 1 OSD на устройство
+    - name: "ceph-2.k8s.rhel"
+      devices:
+      - name: "sdb"
+      - name: "sdc"
+      config:
+        osdsPerDevice: "1"
+    - name: "ceph-3.k8s.rhel"
+      devices:
+      - name: "sdb"
+      - name: "sdc"
+      config:
+        osdsPerDevice: "1"
+  mgr:
+    modules:
+    - name: pg_autoscaler
+      enabled: true
+    - name: prometheus  # Для мониторинга
+      enabled: true
+  resources:
+    # Ограничения ресурсов для 4CPU/4RAM нод
+    mon:
+      limits:
+        cpu: "1"
+        memory: "2Gi"
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+    mgr:
+      limits:
+        cpu: "1"
+        memory: "2Gi"
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+    osd:
+      limits:
+        cpu: "2"  # OSD требуют больше CPU
+        memory: "2Gi"
+      requests:
+        cpu: "1"
+        memory: "1Gi"
+  # Для малого кластера стоит уменьшить стандартные тайминиги
+  # (в большом это можно не указывать)
+  healthCheck:
+    daemonHealth:
+      mon:
+        interval: "45s"
+      osd:
+        interval: "60s"
+      status:
+        interval: "60s"
+  disruptionManagement:
+    managePodBudgets: true
+    osdMaintenanceTimeout: 30</code></pre>
+<p>Примените манифест:</p>
+<pre><code class="language-plaintext">kubectl apply -f cluster.yaml</code></pre>
+<p>После чего подождите пару минут.</p>
+<h2>4. Проверка состояния кластера</h2>
+<p>Для проверки можете использовать:</p>
+<pre><code class="language-plaintext"># Проверяем состояние подов
+kubectl -n rook-ceph get pods
+
+# Проверяем состояние кластера Ceph
+kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph status
+
+# Проверяем OSD
+kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph osd status</code></pre>
+<p>Дождитесь пока все поды будут в состоянии Running или Completed.</p>
+<h2>5. Создание StorageClass для Kubernetes</h2>
+<p>&nbsp;</p>

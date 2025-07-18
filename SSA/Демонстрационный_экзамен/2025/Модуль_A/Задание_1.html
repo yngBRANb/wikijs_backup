@@ -1,0 +1,18 @@
+<!--
+title: Настройте на интерфейсе HQ-RTR в сторону офиса HQ виртуальный коммутатор
+description: 
+published: true
+date: 2025-02-27T20:21:36.052Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-18T10:47:31.709Z
+-->
+
+<h1><span class="text-small"><strong>Cегментация сети</strong></span></h1>
+<p>Использовать мы будем виртуальный коммутатор (bridge) vmbr3, на нем уже включен vlan aware для поддержки vlan тэгов. Для реализации сегментации переходим на вкладку <strong>Hardware</strong> каждой ВМ из офиса HQ и вешаем vlan тэги на интерфейсы:</p>
+<p><strong>HQ-RTR:</strong></p>
+<figure class="image"><img src="/demo2025-vlan1.png"></figure>
+<p><strong>HQ-SRV:</strong></p>
+<figure class="image"><img src="/demo2025-vlan2.png"></figure>
+<p><strong>HQ-CLI:</strong></p>
+<figure class="image"><img src="/demo2025-vlan3.png"></figure>

@@ -1,0 +1,64 @@
+<!--
+title: Первый статический сайт на Nginx
+description: 
+published: true
+date: 2025-03-11T05:16:52.993Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-03T17:18:10.191Z
+-->
+
+<h3><strong>Направляем Nginx по умолчанию на свой сайт (страницу)</strong></h3>
+<p>Взглянем на файл /etc/nginx/sites-available/default.</p>
+<pre><code class="language-plaintext">server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name _;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}</code></pre>
+<p>Вероятно, в файле у вас еще присутствуют комментарии (строки начинающиеся с символа решетки <strong>#</strong>), они являются вспомогательным средством, всего лишь справкой. Разберем конфигурационный файл подробнее.</p>
+<p>Это виртуальный веб-сервер, которым управляет nginx, корневой каталог веб-сервера (<strong>root</strong>) находится по адресу <strong>/var/www/html</strong>. Чтобы работать с нашей html-страницей, сначала нам нужно добавить html-файл вашей страницы в корневой каталог веб-сервера, который находится в <strong>/var/www/html</strong>.</p>
+<pre><code class="language-plaintext">&lt;!DOCTYPE html&gt;
+&lt;html lang="ru"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Страница&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Привет мир!&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p>Допустим, это html-контент, который вы хотите использовать, поэтому вставьте его в файл <strong>mypage.html</strong>, который вы только что создали в каталоге <strong>/var/www/html</strong>.</p>
+<p>После этого добавьте следующую строку в файл<strong>/etc/nginx/sites-available/default</strong>:</p>
+<pre><code class="language-plaintext">server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name _;
+
+    location / {
+        index mypage.html; # Добавили эту строку
+        try_files $uri $uri/ =404;
+    }
+}</code></pre>
+<p>Это будет иметь индекс mypage.html если местоположение HTTP-запроса находится в корневом каталоге / (/var/www/html). По умолчанию, когда вы отправляете запрос на URL-адрес, он находится в корневом каталоге. Теперь вы можете проверить, все ли правильно, выполнив:</p>
+<pre><code class="language-plaintext">sudo nginx -t</code></pre>
+<p>Вывод в случае отсутствия ошибок:</p>
+<pre><code class="language-plaintext">nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful</code></pre>
+<p>Если команда выдаст иное, значит есть какие-то ошибки, проверьте, нет ли у вас опечаток в файле /etc/nginx/sites-available/default. После этого вам необходимо перезагрузить nginx, чтобы изменения в файлах конфигурации вступили в силу.</p>
+<pre><code class="language-plaintext">sudo systemctl restart nginx.service</code></pre>
+<p>Теперь при открытии страницы по адресу <strong>localhost</strong> вы увидите надпись <strong>Привет мир!</strong> Если отображается старая страница, то возможно нужно очистить кэш браузера, либо просто открыть адрес в режиме инкогнито вашего браузера.</p>

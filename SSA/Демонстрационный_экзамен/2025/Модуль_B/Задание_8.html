@@ -1,0 +1,69 @@
+<!--
+title: Запустите сервис moodle на сервере HQ-SRV c использованием Apache и mariadb
+description: Установка moodle на ALT Linux 
+published: true
+date: 2025-03-11T04:47:58.269Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-26T22:17:50.793Z
+-->
+
+<h1><span class="text-small"><strong>Запустите сервис moodle на сервере HQ-SRV</strong></span></h1>
+<p>Требования к развертыванию:</p>
+<ul>
+  <li>Используйте веб-сервер apache</li>
+  <li>В качестве системы управления базами данных используйте mariadb</li>
+  <li>Создайте базу данных moodledb</li>
+  <li>Создайте пользователя moodle с паролем P@ssw0rd и предоставьте ему права доступа к этой базе данных</li>
+  <li>У пользователя admin в системе обучения задайте пароль P@ssw0rd</li>
+  <li>На главной странице должен отражаться номер рабочего места в виде арабской цифры, других подписей делать не надо</li>
+</ul>
+<p>Установка компонентов moodle:</p>
+<pre><code class="language-plaintext">apt-get install moodle moodle-apache2 moodle-local-mysql</code></pre>
+<p>Подготовка БД:</p>
+<pre><code class="language-plaintext">systemctl enable --now mysqld</code></pre>
+<p>&nbsp;</p>
+<pre><code class="language-plaintext">[root@hq-srv]# mysql -u root
+MariaDB [(none)]&gt; CREATE DATABASE moodledb DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+MariaDB [(none)]&gt; GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,CREATE TEMPORARY TABLES,DROP,INDEX,ALTER ON moodledb.*
+       TO moodle@localhost IDENTIFIED BY 'P@ssw0rd';
+
+MariaDB [(none)]&gt; quit
+
+[root@hq-srv]# mysqladmin -u root reload</code></pre>
+<p>Загрузка исходников moodle:</p>
+<pre><code class="language-plaintext">cd /opt
+git clone git://git.moodle.org/moodle.git      #moodle уже склонирован
+cd /opt/moodle
+
+git branch --track MOODLE_39_STABLE origin/MOODLE_405_STABLE
+cp -R /opt/moodle /var/www/html/
+
+mkdir /var/moodledata
+
+chown -R apache2:webmaster /var/moodledata
+chmod -R 777 /var/moodledata
+chmod ugoa=rwx /var/moodledata
+chmod -R 0755 /var/www/html/moodle</code></pre>
+<p>Теперь нужно раскомментировать и изменить параметр в /etc/php/8.2/apache2-mod_php/php.ini:</p>
+<pre><code class="language-plaintext">max_input_vars = 10000</code></pre>
+<p>Осталось перезагрузить веб-сервер:</p>
+<pre><code class="language-plaintext">systemctl restart httpd2</code></pre>
+<p>После этого перейдите на веб-интерфейс (<a href="https://moodle.au-team.irpo/moodle/install.php">https://moodle.au-team.irpo/moodle/install.php</a>)</p>
+<p><strong>Важно! Не меняйте язык на русский</strong></p>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_1.png"></figure>
+<p>Проверьте что у вас верные пути:</p>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_2.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_3.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_4.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_5.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_6.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_7.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_8.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_9.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_10.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_11.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_12.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_13.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_14.png"></figure>
+<figure class="image"><img src="/ssa/demo2025/module_b/moodle_15.png"></figure>

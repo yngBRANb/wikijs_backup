@@ -1,0 +1,33 @@
+<!--
+title: Первый контейнер
+description: 
+published: true
+date: 2025-03-11T05:15:29.299Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-03T18:14:43.068Z
+-->
+
+<p><strong>Шаг 1: Установка Docker</strong><br>Перед тем как начать, убедитесь, что Docker установлен на вашем компьютере. Вы можете скачать и установить Docker с официального сайта.</p>
+<p><strong>Шаг 2: Проверка установки Docker</strong><br>После установки проверьте, что Docker работает, выполнив следующую команду в терминале:</p>
+<pre><code class="language-plaintext">docker --version</code></pre>
+<p>Вы должны увидеть версию установленного Docker.</p>
+<p><strong>Шаг 3: Запуск первого контейнера</strong><br>Для создания и запуска первого контейнера используем образ <code><strong>hello-world</strong></code>, который предназначен для проверки установки Docker.</p>
+<p><strong>Шаг 4: Запуск контейнера</strong><br>Выполните следующую команду:</p>
+<pre><code class="language-plaintext">docker run hello-world</code></pre>
+<p><strong>Что происходит?</strong></p>
+<ul>
+  <li>Docker проверит, есть ли у вас локально образ <code><strong>hello-world</strong></code>.</li>
+  <li>Если образ отсутствует, Docker автоматически загрузит его из Docker Hub.</li>
+  <li>После загрузки Docker создаст контейнер и выполнит его, выводя приветственное сообщение.</li>
+</ul>
+<p><strong>Шаг 5: Проверка запущенных контейнеров</strong><br>Чтобы увидеть список запущенных контейнеров, выполните команду:</p>
+<pre><code class="language-plaintext">docker ps</code></pre>
+<p>Если вы хотите увидеть все контейнеры, включая остановленные, используйте:</p>
+<pre><code class="language-plaintext">docker ps -a</code></pre>
+<p><strong>Шаг 6: Остановка и удаление контейнера</strong><br>Если вы хотите остановить контейнер, выполните команду:</p>
+<pre><code class="language-plaintext">docker stop &lt;идентификатор_контейнера&gt;</code></pre>
+<p>Чтобы удалить контейнер, используйте:</p>
+<pre><code class="language-plaintext">docker rm &lt;идентификатор_контейнера&gt;</code></pre>
+<p><strong>Заключение</strong><br>Вы успешно создали и запустили свой первый контейнер в Docker! Теперь вы можете экспериментировать с другими образами и командами Docker.</p>
+<hr>

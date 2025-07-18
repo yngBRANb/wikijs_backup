@@ -1,0 +1,96 @@
+<!--
+title: Перенастройте ip-туннель с базового до уровня туннеля, обеспечивающего шифрование трафика
+description: Настройка GRE over IPsec на Eltex vESR
+published: true
+date: 2025-03-07T02:51:43.560Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-26T22:41:15.700Z
+-->
+
+<h1><span class="text-small"><strong>Настройте защищенный туннель между HQ-RTR и BR-RTR</strong></span></h1>
+<p>GRE туннель у нас уже<a href="/SSA/Демонстрационный_экзамен/2025/Модуль_A/Задание_8"> настроен</a>, но не обеспечивает защищенное соединение, а&nbsp;IPSec туннель не способен передавать мультикастовый трафик – нужно использовать&nbsp;GRE&nbsp;over&nbsp;IPSec туннель (GRE находиться внутри&nbsp;IPSec туннеля). Только этот вид туннеля обеспечит защищенное соединение и возможность передачи мультикастового трафика для протоколов динамической маршрутизации.</p>
+<p style="text-align:justify;">Так же при использовании&nbsp;этого вида туннеля желательно перевести&nbsp;IPSec&nbsp;в транспортный режим, это сэкономит 20 байтов в пакете, но для упрощения конфигурации этого здесь не будет.</p>
+<h2><span class="text-small"><strong>HQ-RTR</strong>:</span></h2>
+<pre><code class="language-plaintext"># Создание профиля определяющего конфигурацию подключения для служебного туннеля
+hq-rtr(config)# security ike proposal ike_prop1
+hq-rtr(config-ike-proposal)# authentication algorithm md5
+hq-rtr(config-ike-proposal)# encryption algorithm aes128
+hq-rtr(config-ike-proposal)# dh-group 2
+hq-rtr(config-ike-proposal)# exit
+
+# Создание политики определяющей профиль и пароль для служебного туннеля
+hq-rtr(config)# security ike policy ike_pol1
+hq-rtr(config-ike-policy)# pre-shared-key ascii-text cisco_forever
+hq-rtr(config-ike-policy)# proposal ike_prop1
+hq-rtr(config-ike-policy)# exit
+
+# Создание шлюза для протокола IKE
+hq-rtr(config)# security ike gateway ike_gw1
+hq-rtr(config-ike-gw)# ike-policy ike_pol1
+hq-rtr(config-ike-gw)# local address 172.16.4.2
+hq-rtr(config-ike-gw)# local network 172.16.4.2/32 protocol gre
+hq-rtr(config-ike-gw)# remote address 172.16.5.2
+hq-rtr(config-ike-gw)# remote network 172.16.5.2/32 protocol gre
+hq-rtr(config-ike-gw)# mode policy-based
+hq-rtr(config-ike-gw)# exit
+
+# Создание профиля определяющего конфигурацию подключения для ipsec туннеля
+hq-rtr(config)# security ipsec proposal ipsec_prop1
+hq-rtr(config-ipsec-proposal)# authentication algorithm md5
+hq-rtr(config-ipsec-proposal)# encryption algorithm aes128
+hq-rtr(config-ipsec-proposal)# pfs dh-group 2
+hq-rtr(config-ipsec-proposal)# exit
+
+# Создание политики для ipsec туннеля
+hq-rtr(config)# security ipsec policy ipsec_pol1
+hq-rtr(config-ipsec-policy)# proposal ipsec_prop1
+hq-rtr(config-ipsec-policy)# exit
+
+# Создание самого IPSec туннеля
+hq-rtr(config)# security ipsec vpn ipsec1
+hq-rtr(config-ipsec-vpn)# ike establish-tunnel immediate
+hq-rtr(config-ipsec-vpn)# ike gateway ike_gw1
+hq-rtr(config-ipsec-vpn)# ike ipsec-policy ipsec_pol1
+hq-rtr(config-ipsec-vpn)# enable
+hq-rtr(config-ipsec-vpn)# exit</code></pre>
+<h2><span class="text-small"><strong>BR-RTR</strong>:&nbsp;</span></h2>
+<pre><code class="language-plaintext">br-rtr(config)# security ike proposal ike_prop1
+br-rtr(config-ike-proposal)# authentication algorithm md5
+br-rtr(config-ike-proposal)# encryption algorithm aes128
+br-rtr(config-ike-proposal)# dh-group 2
+br-rtr(config-ike-proposal)# exit
+
+br-rtr(config)# security ike policy ike_pol1
+br-rtr(config-ike-policy)# pre-shared-key ascii-text cisco_forever
+br-rtr(config-ike-policy)# proposal ike_prop1
+br-rtr(config-ike-policy)# exit
+
+br-rtr(config)# security ike gateway ike_gw1
+br-rtr(config-ike-gw)# ike-policy ike_pol1
+br-rtr(config-ike-gw)# local address 172.16.5.2
+br-rtr(config-ike-gw)# local network 172.16.5.2/32 protocol gre
+br-rtr(config-ike-gw)# remote address 172.16.4.2
+br-rtr(config-ike-gw)# remote network 172.16.4.2/32 protocol gre
+br-rtr(config-ike-gw)# mode policy-based
+br-rtr(config-ike-gw)# exit
+
+br-rtr(config)# security ipsec proposal ipsec_prop1
+br-rtr(config-ipsec-proposal)# authentication algorithm md5
+br-rtr(config-ipsec-proposal)# encryption algorithm aes128
+br-rtr(config-ipsec-proposal)# pfs dh-group 2
+br-rtr(config-ipsec-proposal)# exit
+
+br-rtr(config)# security ipsec policy ipsec_pol1
+br-rtr(config-ipsec-policy)# proposal ipsec_prop1
+br-rtr(config-ipsec-policy)# exit
+
+br-rtr(config)# security ipsec vpn ipsec1
+br-rtr(config-ipsec-vpn)# ike establish-tunnel immediate
+br-rtr(config-ipsec-vpn)# ike gateway ike_gw1
+br-rtr(config-ipsec-vpn)# ike ipsec-policy ipsec_pol1
+br-rtr(config-ipsec-vpn)# enable
+br-rtr(config-ipsec-vpn)# exit</code></pre>
+<p>Проверка работоспособности туннеля:</p>
+<pre><code class="language-plaintext">ESR# show tunnels counters gre
+ESR# show security ipsec vpn status</code></pre>

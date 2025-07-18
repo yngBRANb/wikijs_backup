@@ -1,0 +1,290 @@
+<!--
+title: Реализуйте логирование при помощи rsyslog на устройствах HQ-RTR, BR-RTR, BR-SRV
+description: Rsyslog — это система управления логами для Unix-подобных операционных систем, предназначенная для сбора, хранения и передачи логов от различных приложений и системных компонентов. 
+published: true
+date: 2025-03-25T08:12:47.231Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-26T22:53:36.444Z
+-->
+
+<h1><span class="text-small">Теория</span></h1>
+<p>Rsyslog — это система управления логами для Unix-подобных операционных систем, предназначенная для сбора, хранения и передачи логов от различных приложений и системных компонентов.&nbsp;</p>
+<p>Она позволяет собирать сообщения о событиях из разных источников, таких как системные службы и приложения, и сохранять их в файлы на диске для последующего анализа. Кроме того, rsyslog может отправлять логи на удаленные серверы, что удобно для централизованного управления. Конфигурация осуществляется через специальные файлы, где указываются источники логов и форматы сообщений. Rsyslog также поддерживает фильтрацию и обработку сообщений, а также различные модули, которые расширяют его функциональность. В целом, это мощный инструмент, обеспечивающий гибкость и масштабируемость в управлении логами.</p>
+<p>У syslog имеются категории и уровни логов.</p>
+<h2><span class="text-small">Категории логов</span></h2>
+<p>Система логирования syslog использует различные категории и уровни логов для организации и классификации сообщений.</p>
+<p>Категории логов определяют, откуда поступают сообщения. Основные категории включают в себя системные сообщения, сообщения от приложений, сообщения от служб и устройств. Каждая категория помогает администратору понять, какой компонент системы генерирует лог.</p>
+<p>Вот некоторые из них:</p>
+<figure class="table">
+  <table>
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;"><strong>№</strong></td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;"><strong>Категория</strong></td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;"><strong>Описание</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">0</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">kern</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Сообщения, отправляемые ядром</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">1</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">user</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Пользовательские программы</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">2</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">mail</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Почта</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">3</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">daemon</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Сервисы (демоны)</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">4</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">auth</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Безопасность/вход в систему/аутентификация</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">5</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">syslog</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Сообщения от syslog</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">6</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">lpr</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Логи печати</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">7</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">news</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Новостные группы (usenet)</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">8</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">uucp</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Unix-to-Unix CoPy (копирование файлов между компьютерами)</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<h2><span class="text-small">Уровни логов</span></h2>
+<p>Уровни логов, в свою очередь, указывают на важность или серьезность сообщения. Основные уровни включают:</p>
+<figure class="table">
+  <table>
+    <tbody>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;"><strong>№</strong></td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;"><strong>Уровень</strong></td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;"><strong>Расшифровка</strong></td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">0</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">emerg</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Система не работает (PANIC)</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">1</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">alert</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Серьезная проблема, требующая внимания</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">2</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">crit</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Критическая ошибка</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">3</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">err</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Ошибка (ERROR)</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">4</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">warning</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Предупреждение (WARN)</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">5</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">notice</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Важное информационное сообщение</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">6</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">info</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Информационное сообщение</td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">7</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">debug</td>
+        <td style="border-bottom:1px solid silver;border-left:1px solid silver;border-right:1px solid silver;border-top:1px solid silver;padding:5px;">Отладочная информация</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<h1><span class="text-small">Требования задания</span></h1>
+<ul>
+  <li>Сервер сбора логов расположен на HQ-SRV, убедитесь, что сервер не является клиентом самому себе</li>
+  <li>Приоритет сообщений должен быть не ниже warning</li>
+  <li>Все журналы должны находиться в директории /opt</li>
+  <li>Для каждого устройства должна выделяться своя поддиректория, которая совпадает с именем машины</li>
+  <li>Реализуйте ротацию логов:<ul>
+      <li>ротация производится один раз в неделю</li>
+      <li>логи необходимо сжимать</li>
+      <li>минимальный размер логов для ротации – 10 МБ</li>
+    </ul>
+  </li>
+</ul>
+<h1><span class="text-small">Настройка сервера сбора логов HQ-SRV</span></h1>
+<p>Установите rsyslog:</p>
+<pre><code class="language-plaintext">apt-get install rsyslog -y</code></pre>
+<p>Отройте файл конфигурации /etc/rsyslog.d/00_common.conf, вы увидите следующее:</p>
+<pre><code class="language-plaintext">#### MODULES ####
+
+#module(load="imjournal") # provides support for systemd-journald logging
+#module(load="imuxsock")  # provides support for local system logging (e.g. via logger command)
+#module(load="imklog")    # provides kernel logging support (previously done by rklogd)
+#module(load="immark")    # provides --MARK-- message capability
+
+# Provides UDP syslog reception
+# for parameters see http://www.rsyslog.com/doc/imudp.html
+# module(load="imudp") # needs to be done just once
+# input(type="imudp" port="514")
+
+# Provides TCP syslog reception
+# for parameters see http://www.rsyslog.com/doc/imtcp.html
+# module(load="imtcp") # needs to be done just once
+# input(type="imtcp" port="514")
+
+#### GLOBAL DIRECTIVES ####
+
+# Use default timestamp format
+module(load="builtin:omfile" Template="RSYSLOG_TraditionalFileFormat"
+       DirCreateMode="0755"
+       FileCreateMode="0640"
+       fileOwner="root"
+       fileGroup="adm")
+
+# An "In-Memory Queue" is created for remote logging.
+global(workDirectory="/var/spool/rsyslog") # where to place spool files</code></pre>
+<p>Нужно раскомментировать модули imudp и imtcp чтобы rsyslog мог получать логи с удаленных узлов, и создать шаблон сбора логов с клиентов (мы добавим его в самый низ). Окончательный файл будет выглядеть так:</p>
+<pre><code class="language-python">#### MODULES ####
+
+#module(load="imjournal") # provides support for systemd-journald logging
+#module(load="imuxsock")  # provides support for local system logging (e.g. via logger command)
+#module(load="imklog")    # provides kernel logging support (previously done by rklogd)
+#module(load="immark")    # provides --MARK-- message capability
+
+# Provides UDP syslog reception
+# for parameters see http://www.rsyslog.com/doc/imudp.html
+module(load="imudp") # needs to be done just once
+input(type="imudp" port="514")
+
+# Provides TCP syslog reception
+# for parameters see http://www.rsyslog.com/doc/imtcp.html
+module(load="imtcp") # needs to be done just once
+input(type="imtcp" port="514")
+
+#### GLOBAL DIRECTIVES ####
+
+# Use default timestamp format
+module(load="builtin:omfile" Template="RSYSLOG_TraditionalFileFormat"
+       DirCreateMode="0755"
+       FileCreateMode="0640"
+       fileOwner="root"
+       fileGroup="adm")
+
+# An "In-Memory Queue" is created for remote logging.
+global(workDirectory="/var/spool/rsyslog") # where to place spool files
+
+$template RemoteLogs, "/opt/%HOSTNAME%.log"
+*.* ?RemoteLogs
+&amp; ~</code></pre>
+<p>Запустите rsyslog:</p>
+<pre><code class="language-plaintext">systemctl enable --now rsyslog</code></pre>
+<h1><span class="text-small">Настройка клиентов сбора логов</span></h1>
+<p>На Linux агентом сбора логов будет выступать так же rsyslog, а на Eltex уже реализована поддержка сбора и отправки syslog.</p>
+<h2><span class="text-small">HQ-RTR и BR-RTR</span></h2>
+<pre><code class="language-plaintext">esr# config
+esr(config)# logging syslog configuration
+esr(config)# syslog console
+esr(config-syslog-console)# severity warning
+esr(config-syslog-console)# exit
+
+esr(config)# syslog host server
+esr(config-syslog-host)# remote-address 192.168.10.2
+esr(config-syslog-host)# port 514
+esr(config-syslog-host)# severity warning
+esr(config-syslog-host)# transport tcp
+esr(config-syslog-host)# end
+
+esr# commit
+esr# confirm</code></pre>
+<h2><span class="text-small">BR-SRV</span></h2>
+<p>Установите rsyslog:</p>
+<pre><code class="language-plaintext">apt-get install rsyslog -y</code></pre>
+<p>Отройте файл /etc/rsyslog.d/00_common.conf, раскомментируйте в нем первые четыре модуля (они начнут собирать логи) и добавьте в конец шаблон для отправки логов на сервер:</p>
+<pre><code class="language-python">#### MODULES ####
+
+module(load="imjournal") # provides support for systemd-journald logging
+module(load="imuxsock")  # provides support for local system logging (e.g. via logger command)
+module(load="imklog")    # provides kernel logging support (previously done by rklogd)
+module(load="immark")    # provides --MARK-- message capability
+
+# Provides UDP syslog reception
+# for parameters see http://www.rsyslog.com/doc/imudp.html
+# module(load="imudp") # needs to be done just once
+# input(type="imudp" port="514")
+
+# Provides TCP syslog reception
+# for parameters see http://www.rsyslog.com/doc/imtcp.html
+# module(load="imtcp") # needs to be done just once
+# input(type="imtcp" port="514")
+
+#### GLOBAL DIRECTIVES ####
+
+# Use default timestamp format
+module(load="builtin:omfile" Template="RSYSLOG_TraditionalFileFormat"
+       DirCreateMode="0755"
+       FileCreateMode="0640"
+       fileOwner="root"
+       fileGroup="adm")
+
+# An "In-Memory Queue" is created for remote logging.
+global(workDirectory="/var/spool/rsyslog") # where to place spool files
+
+*.warning @@192.168.10.2:514</code></pre>
+<p>Перезагрузите демон:</p>
+<pre><code class="language-plaintext">systemctl enable --now rsyslog</code></pre>
+<h2><span class="text-small">Проверка на сервере</span></h2>
+<p>У вас на сервере HQ-SRV в директории /opt должны появится логи от 3-х клиентов:</p>
+<pre><code class="language-plaintext">-rw--------  1 root root  860 Mar 12 03:13 _gateway.log                                      #Это HQ-RTR
+-rw--------  1 root root 1215 Mar 12 03:13 br-srv.log
+-rw--------  1 root root 1180 Mar 12 03:11 pool-100-10-10-2.prvdri.fios.verizon.net.log      #Это BR-RTR</code></pre>
+<p>Они могут появится не сразу, так как мы собираем только warning события.</p>
+<h1><span class="text-small">Настройка ротации логов</span></h1>
+<p>Для ротации логов мы будет использовать пакет logrotate, в ALT Server он уже предустановлен.&nbsp;</p>
+<p>Перейдите на сервер сбора логов (HQ-SRV).&nbsp;</p>
+<p>Создайте /etc/logrotate.d/rsyslog:</p>
+<pre><code class="language-plaintext">/opt/*.log {
+    weekly                  # Ротация раз в неделю
+    size 10M                # Минимальный размер логов для ротации – 10 МБ
+    compress                # Сжимать логи после ротации
+    delaycompress           # Откладывать сжатие до следующей ротации
+    missingok               # Не выдавать ошибку, если файл отсутствует
+    notifempty              # Не ротация, если файл пустой
+    create 0640 root root   # Создавать новый файл с указанными правами
+    sharedscripts           # Выполнять скрипты только один раз для всех файлов
+    postrotate
+        /usr/bin/systemctl reload rsyslog &gt; /dev/null 2&gt;&amp;1 || true  # Перезапуск rsyslog после ротации
+    endscript
+}</code></pre>
+<p>Чтобы ротация была автоматической нужно использовать cron, для этого введите команду <strong>EDITOR=vim crontab -e.</strong></p>
+<p>И в открывшийся файл введите:</p>
+<pre><code class="language-plaintext">0 0 * * 0 /usr/sbin/logrotate -f /etc/logrotate.d/rsyslog</code></pre>
+<p>Проверьте ротацию запустив logrotate в режиме отладки:</p>
+<pre><code class="language-plaintext">logrotate -d /etc/logrotate.d/rsyslog</code></pre>
+<p>В выводе будет написано, что для ротации рано, так как логи еще не достигли указанного объема.</p>

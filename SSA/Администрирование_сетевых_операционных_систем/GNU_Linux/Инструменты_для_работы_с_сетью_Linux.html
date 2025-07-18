@@ -1,0 +1,118 @@
+<!--
+title: Инструменты для работы с сетью Linux  (Параметры системы и Network Manager)
+description: 
+published: true
+date: 2025-03-16T17:05:56.753Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-03-16T17:05:48.128Z
+-->
+
+<p><strong>Цель работы:</strong>&nbsp;Знакомство с настройкой сети. Изучение базовых инструментов для работы с сетью&nbsp;Linux.</p>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p>Варианты управления сетевыми настройками интерфейсов в ОС «Альт»:</p>
+<ul>
+  <li><strong>Etcnet&nbsp;</strong>— настройки берутся исключительно из файлов находящихся в каталоге настраиваемого интерфейса&nbsp;<strong>/etc/net/ifaces/&lt;интерфейс&gt;</strong>. Настройки сети могут изменяться либо в&nbsp;ЦУС&nbsp;(модуль&nbsp;Ethernet-интерфейсы), либо напрямую через редактирование файлов&nbsp;<strong>/etc/net/ifaces/&lt;интерфейс&gt;</strong>.</li>
+  <li><strong>Network Manager</strong>&nbsp;— обеспечивает базовые операции с сетевыми интерфейсами. Управлять настройками можно через графический интерфейс (nm-applet) или консольный инструмент&nbsp;<strong>nmcli</strong>. Файлы с настройками находятся в каталоге&nbsp;<strong>/etc/NetworkManager/system-connections</strong>.</li>
+  <li><strong>systemd-networkd</strong>&nbsp;— системная служба для управления сетевыми настройками. Её задачей является обнаружение и настройка сетевых устройств по мере их появления, а также создание виртуальных сетевых устройств. Настройки находятся в каталоге&nbsp;<strong>/etc/systemd/network/</strong>. При стандартной установке ОС «Альт» эта служба (пакет&nbsp;systemd-networkd) не устанавливается.</li>
+</ul>
+<p>В практической рассмотрен вариант настройки сети через инструмент<strong>&nbsp;NetworkManager.</strong></p>
+<p>Для NetworkManager доступно несколько интерфейсов:</p>
+<ul>
+  <li><u>графический интерфейс</u>: апплет и редактор Plasma для управления сетевыми подключениями в KDE (пакет&nbsp;plasma5-nm);</li>
+  <li><u>графический интерфейс</u>: апплет и редактор GTK для управления сетевыми подключениями в MATE/Cinnamon/Xfce (пакет&nbsp;NetworkManager-applet-gtk);</li>
+  <li><u>командная строка</u>:&nbsp;<strong>nmcli</strong>&nbsp;— инструмент командной строки, который позволяет пользователям и сценариям взаимодействовать с NetworkManager;</li>
+  <li><u>текстовый интерфейс</u>&nbsp;(TUI): простой текстовый GUI на основе curses (пакет&nbsp;NetworkManager-tui).</li>
+</ul>
+<p>В версии&nbsp;ALT&nbsp;Workstation&nbsp;при минимальной установке пакет отсутствует, его нужно установить вручную.</p>
+<h1><span class="text-small"><strong>Задания для лабораторной работы:</strong></span></h1>
+<h2><span class="text-small">1. Запустите виртуальные машины&nbsp;ALT&nbsp;Server&nbsp;и&nbsp;ALT&nbsp;Workstation&nbsp;K. Все действия, приведенные в этой практической работе, выполняйте на&nbsp;ALT&nbsp;Workstation&nbsp;K. Сначала мы рассмотрим настройку сети через «Параметры системы» (этот способ возможен только через графический интерфейс), затем познакомимся с пакетом&nbsp;Network&nbsp;Manager.</span></h2>
+<h2><span class="text-small">2. Удостоверьтесь что интерфейс виртуальной машины находиться в&nbsp;VMnet8:</span></h2>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(1).png"></figure>
+<h2><span class="text-small">3. Узнайте адрес сети, в которой вы находитесь (VMnet8):</span></h2>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(2).png"></figure>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(3).png"></figure>
+<p>В <strong><u>моем</u></strong> случае это оказалась сеть 192.168.14.0/24:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(4).png"></figure>
+<h2><span class="text-small">4. При использовании&nbsp;ALT&nbsp;Workstation&nbsp;и&nbsp;ALT&nbsp;Workstation&nbsp;K&nbsp;удобно настраивать сеть через «Параметры системы», это похоже на то, что вы делали в курсе по&nbsp;Windows.&nbsp;</span></h2>
+<p>В ОС&nbsp;ALT&nbsp;Workstation&nbsp;(K) есть нюанс – среда рабочего стола («Параметры системы») берет управление сетью на себя, из-за этого произвести настройку сети через сторонние утилиты (Network&nbsp;Manager&nbsp;и др.) становится сложнее. При этом настройка через&nbsp;Etcnet&nbsp;все также достаточно удобна.&nbsp;</p>
+<p>Давайте ознакомимся с тем, как настроить сеть через «Параметры системы». Для этого в левом нижнем углу выберете значок сети:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(5).png"></figure>
+<p>У вас откроется приложение «Параметры системы» на вкладке с настройкой интерфейса:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(6).png"></figure>
+<p>Здесь нас интересует интерфейс «System&nbsp;ens33» и вкладка «IPv4»:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(7).png"></figure>
+<p>В методе конфигурации выберете «Вручную»:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(8).png"></figure>
+<p>Вот пример конфигурации (Вам это вписывать не нужно, вы будете настраивать сеть через&nbsp;Network&nbsp;Manager):</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(9).png"></figure>
+<p>Вот мы и ознакомились с настройкой сети через «Параметры системы». Теперь перейдем к&nbsp;Network&nbsp;Manager.</p>
+<h2><span class="text-small">5. Для начала нам нужно установить&nbsp;Network&nbsp;Manager. В терминале введите:</span></h2>
+<pre><code class="language-plaintext">#Для выполнения этих команд вам нужны права суперпользователя. Вы можете выдать возможность использования команды&nbsp;sudo&nbsp;пользователю #user_cli1 (этот процесс описан в пункте 7 Лабораторной работы №3), либо работать из-под пользователя&nbsp;root.
+apt-get&nbsp;update
+apt-get&nbsp;install&nbsp;NetworkManager&nbsp;NetworkManager-tui
+#Добавляем сервис в автозагрузку (опция --now моментально запускает #сервис)
+systemctl enable --now NetworkManager
+#Проверяем&nbsp;его&nbsp;работу
+systemctl status NetworkManager&nbsp;</code></pre>
+<h2><span class="text-small">6. Давайте посмотрим текущие настройки сети используя инструмент командной строки&nbsp;nmcli&nbsp;(встроен в&nbsp;NetworkManager). Для этого введите:</span></h2>
+<pre><code class="language-plaintext">nmcli</code></pre>
+<p>Вывод:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(11).png"></figure>
+<p>Как видите эта команда похожа на “ip&nbsp;a”, но имеет более подробный вывод. Здесь вы можете заметить:&nbsp;MAC-адрес и&nbsp;IP-адрес интерфейсов, маршрут по умолчанию, конфигурацию&nbsp;DNS.</p>
+<h2><span class="text-small">7. Теперь преступим к настройке нашего&nbsp;ALT`a. Для начала настроим&nbsp;hostname&nbsp;(имя компьютера). Делать мы это будем не классическим способом изменяя файл /etc/hostname, а используя графическую оболочку&nbsp;NetworkManager. Для этого в терминале вводим:</span></h2>
+<pre><code class="language-plaintext">nmtui</code></pre>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(12).png"></figure>
+<p>Далее выберете «Настроить системное имя хоста» и введите имя:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(14).png"></figure>
+<p>Далее нажмите «ОК»</p>
+<h2><span class="text-small">8. Сразу перейдем к настройке сети. Ваш&nbsp;ALT&nbsp;Server&nbsp;имеет статический адрес 192.168.X.200, давайте установим на&nbsp;ALT&nbsp;Workstation&nbsp;K&nbsp;адрес 192.168.X.100 (Я использую&nbsp;X в адресе из-за того, что ваша сеть может отличаться от моей). Для этого переходим во вкладку «Изменить подключение»:</span></h2>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(15).png"></figure>
+<p>Далее нам нужно добавить интерфейс вручную, так как “System&nbsp;ens33” это интерфейс, созданный графической оболочкой на основе&nbsp;ens33, и мы можем им управлять только через приложение «Параметры системы».<br>Чтобы добавить интерфейс нам нужно знать его&nbsp;MAC-адрес и название.&nbsp;<br>Их можно узнать, выполнив команду&nbsp;nmcli&nbsp;или&nbsp;ip&nbsp;a:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(16).png"></figure>
+<p>В моем случае имя интерфейса –&nbsp;ens33,&nbsp;MAC&nbsp;– 00:0C:29:CC:B9:48. Ваш&nbsp;MAC-адрес будет отличаться от моего.<br>После того как вы узнали имя и&nbsp;MAC&nbsp;вашего интерфейса, приступаем к настройке. Выберете «Добавить»:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(17).png"></figure>
+<p>Далее выберте «Ethernet» и нажмите «Создать»:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(18).png"></figure>
+<p>Перед нами открывается окно следующего вида:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(19).png"></figure>
+<p>В поле Устройство введите имя вашего интерфейса и его&nbsp;MAC, пример:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(20).png"></figure>
+<p>Если в предыдущем шаге вы все выполнили правильно слово «Устройство» будет синим, в обратном случае красным.&nbsp;</p>
+<p>Здесь нас интересует «КОНФИГУРАЦИЯ&nbsp;IPv4». Выбираем параметр «Автоматически»:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(21).png"></figure>
+<p>Затем нажимаем&nbsp;Enter. Перед вами будет выбор метода конфигурации интерфейса:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(22).png"></figure>
+<p>Здесь есть 2 основных варианта – «Автоматически» (получение адреса от&nbsp;DHCP-сервера) и «Вручную» (ручная настройка статического адреса). Выберете «Вручную» и нажмите&nbsp;Enter:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(23).png"></figure>
+<p>Наведитесь на показать и нажмите&nbsp;Enter. Перед вами будет следующая картина:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(24).png"></figure>
+<p>Приведите Конфигурацию&nbsp;IPv4 к следующему виду (учитывайте, что ваша сеть может быть иной):</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(26).png"></figure>
+<p>Нажмите «ОК».</p>
+<h2><span class="text-small">9. Чтобы применить изменения перейдите на вкладку «Активировать подключение»:</span></h2>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(28).png"></figure>
+<p>Выберете «Подключение&nbsp;Ethernet1» и дважды нажмите&nbsp;Enter:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(29).png"></figure>
+<p>У вас должна появиться * возле названия интерфейса. Как вы можете заметить после того, как вы включили интерфейс «Подключение&nbsp;Ethernet 1» выключился&nbsp;System&nbsp;ens33. Это вызвано тем, что это фактически один и тот же интерфейс, просто&nbsp;System&nbsp;ens33 управляется графической оболочкой и мы не можем его изменять через&nbsp;Network&nbsp;Manager.</p>
+<h2><span class="text-small">10 . Чтобы проверить правильно ли вы внесли изменения выполните команду&nbsp;nmcli:</span></h2>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(30).png"></figure>
+<h2><span class="text-small">11. Чтобы убедиться в том, что у вас есть выход в интернет, выполните команду&nbsp;ping:&nbsp;</span></h2>
+<p>Ваш шлюз</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(31).png"></figure>
+<p>ALT&nbsp;Server</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(33).png"></figure>
+<p>DNS-сервер</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(35).png"></figure>
+<p>HTML&nbsp;код страницы&nbsp;google.com</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/netalt__(37).png"></figure>
+<p>Проделайте тоже самое с сайтом колледжа -&nbsp;<a href="https://study.ukrtb.ru">https://study.ukrtb.ru</a> и&nbsp;<a href="https://study.ukrtb.ru/timetable">https://study.ukrtb.ru/timetable</a></p>
+<h1><span class="text-small">Контрольные вопросы:</span></h1>
+<ol>
+  <li>С какими двумя инструментами настройки сети вы познакомились в этой Лабораторной работе?</li>
+  <li>Что такое&nbsp;Network Manager?</li>
+  <li>Что такое&nbsp;nmcli?</li>
+  <li>Какой командой вы вызвали графический интерфейс&nbsp;Network&nbsp;Manager?</li>
+  <li>Что делает команда&nbsp;curl?</li>
+  <li>Назовите команды, с помощью которых можно посмотреть настройки сети (Список интерфейсов, их&nbsp;IP и&nbsp;MAC&nbsp;адреса).</li>
+</ol>

@@ -1,0 +1,55 @@
+<!--
+title: Настройка ISP
+description: 
+published: true
+date: 2025-02-27T20:24:10.718Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-18T11:04:46.756Z
+-->
+
+<h1><span class="text-small"><strong>Интерфейс, подключенный к магистральному провайдеру, получает адрес по DHCP:</strong></span></h1>
+<p>В файле options внешнего интерфейса укажите следующее:</p>
+<pre><code class="language-plaintext">BOOTPROTO=dhcp
+TYPE=eth
+CONFIG_WIRELESS=no
+SYSTEMD_BOOTPROTO=dhcp4
+CONFIG_IPV4=yes
+DISABLED=no
+NM_CONTROLLED=no
+SYSTEMD_CONTROLLED=no</code></pre>
+<h1><span class="text-small"><strong>Интерфейс, к которому подключен HQ-RTR, подключен к сети 172.16.4.0/28</strong></span></h1>
+<p>В файле options интерфейса смотрящего в сторону HQ-RTR укажите:</p>
+<pre><code class="language-plaintext">BOOTPROTO=static
+TYPE=eth
+CONFIG_WIRELESS=no
+SYSTEMD_BOOTPROTO=static
+CONFIG_IPV4=yes
+DISABLED=no
+NM_CONTROLLED=no
+SYSTEMD_CONTROLLED=no</code></pre>
+<p>В файле ipv4address:</p>
+<pre><code class="language-plaintext">172.16.4.1/28</code></pre>
+<h1><span class="text-small"><strong>Интерфейс, к которому подключен BR-RTR, подключен к сети 172.16.5.0/28</strong></span></h1>
+<p>В файле options интерфейса смотрящего в сторону BR-RTR укажите:</p>
+<pre><code class="language-plaintext">BOOTPROTO=static
+TYPE=eth
+CONFIG_WIRELESS=no
+SYSTEMD_BOOTPROTO=static
+CONFIG_IPV4=yes
+DISABLED=no
+NM_CONTROLLED=no
+SYSTEMD_CONTROLLED=no</code></pre>
+<p>В файле ipv4address:</p>
+<pre><code class="language-plaintext">172.16.5.1/28</code></pre>
+<h1><span class="text-small"><strong>На ISP настройте динамическую сетевую трансляцию в сторону HQ-RTR и BR-RTR для доступа к сети Интернет</strong></span></h1>
+<p>Для начала включите ip forwarding, это можно сделать изменив в конфиге <strong>/etc/net/sysctl.conf</strong> значение строки с 0 на 1:</p>
+<pre><code class="language-plaintext">net.ipv4.ip_forward = 1</code></pre>
+<p>Включаем SNAT:</p>
+<pre><code class="language-plaintext">iptables -t nat -A POSTROUTING -o ens19 -j MASQUERADE           //где ens19 ваш внешний интерфейс</code></pre>
+<p>Осталось сохранить конфигурацию iptables, обычно это можно сделать с помощью пакета netfilter-persistent, но в ALT его нет, поэтому будем делать вручную:</p>
+<pre><code class="language-plaintext">iptables-save &gt;&gt; /etc/sysconfig/iptables</code></pre>
+<p>Запускаем iptables и добавляем его в автозагрузку:</p>
+<pre><code class="language-plaintext">systemctl enable --now iptables</code></pre>
+<p>Перезагрузите ISP:</p>
+<pre><code class="language-plaintext">reboot</code></pre>

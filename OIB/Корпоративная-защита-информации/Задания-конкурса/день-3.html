@@ -1,0 +1,537 @@
+<!--
+title: День третий
+description: 
+published: true
+date: 2025-03-11T05:13:40.974Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-02T19:30:07.658Z
+-->
+
+<h1><strong>Модуль Г.&nbsp;Технологии защиты и анализа сетевого трафика</strong></h1>
+<h2>Задание 1: настройка сетевого окружения и компонентов систем</h2>
+<p>С помощью технологии виртуальных машин&nbsp;VMWare&nbsp;Workstation<i>&nbsp;</i>для выполнения задания смоделирована корпоративная сеть организации на 2 филиалах и 1 офисе партнеров.</p>
+<p>Необходимо самостоятельно настроить соединения между виртуальными машинами используя сетевые интерфейсы.</p>
+<p>При выполнении заданий необходимо ключевые настройки (установка паролей, настройки соединения с БД, компрометация, скриншоты работоспособной сети&nbsp;ViPNet и аналогичные) или указанные моменты в задании подтверждать скриншотами. Скриншоты необходимо сохранить на рабочем столе в папке «Модуль&nbsp;InfoTeCS». Формат названия скриншотов:&nbsp;ITCS-1-2-1.jpg (задание 1.2, скриншот 1). Можно добавить комментарий (ITCS-1-2-1-Coordinator).</p>
+<p><strong>Делать лишние скриншоты установки ПО нет необходимости, только скриншоты работоспособности!</strong></p>
+<p>В ходе выполнения данного задания нужно установить основное ПО&nbsp;VipNet на рабочие станции будущей защищенной сети.</p>
+<ul>
+  <li>Доступ на все&nbsp;Windows 10:&nbsp;xxXX1234 или без пароля</li>
+  <li>Все пароли пользователей в сети&nbsp;ViPNet сделать 12344321</li>
+  <li>Все пароли администраторов в сети&nbsp;ViPNet сделать&nbsp;xxXX1234.</li>
+</ul>
+<p><strong>В случае изменения паролей обязательно отразить это в отчете!&nbsp;</strong></p>
+<pre><code class="language-plaintext">Перед установкой ПО ViPNet необходимо настроить сеть в соответствии со схемой. 
+Необходимо записать все IP адреса, логины и пароли в текстовый файл vipnet.txt на рабочем столе хост-компьютера, где развернута сеть 1.
+В связи с особенностями работы системы на различных версиях&nbsp;Windows&nbsp;может потребоваться устанавливать компоненты системы вручную (например БД, сервер ЦУС, клиент ЦУС) используя пакеты&nbsp;MSI в подпапках дистрибутивов.
+При выполнении задания можно пользоваться документацией к ПО, презентациями из папки и справочными ресурсами в интернете.</code></pre>
+<figure class="image image_resized" style="width:43.88%;"><img src="/123/снимок_экрана_2025-02-03_002523.png">
+  <figcaption>Схема сети 1</figcaption>
+</figure>
+<p style="text-align:center;">&nbsp;</p>
+<h2>Задание 1.1. Установка физического HW&nbsp;для Центрального Офиса:</h2>
+<p>Вам предоставлен физический координатор&nbsp;HW&nbsp;для Центрального офиса. Установка и настройка физического координатора будет оцениваться максимальным баллом. Установка и настройка виртуального координатора для Центрального Офиса не считается ошибкой и может быть реализовано, однако, будет оценено меньшим количеством баллов.</p>
+<h2>Задание 1.2. Установка ПО&nbsp;ViPNet&nbsp;Administrator для создания защищённой сети:</h2>
+<p>Если были произведены изменения паролей,&nbsp;IP-адресов и так далее, необходимо отразить это в отчете.</p>
+<ul>
+  <li>Установить базу данных&nbsp;MSSQL на&nbsp;Net1-Open (незащищенный узел)</li>
+  <li>Установить и настроить рабочее место администратора VipNet Certification Authority (на базе виртуальной машины&nbsp;Net1-AdminCA&nbsp;(ЦО)): Центр управления сетью (<strong>серверное приложение ЦУС</strong>), Удостоверяющий и ключевой центр (УКЦ); использовать ранее установленную БД.</li>
+  <li>Установить <strong>клиент ЦУС</strong> на ВМ&nbsp;Net1-Open (незащищенный узел)</li>
+</ul>
+<p>Установка «Все-в-одном» будет считаться некорректным выполнением развертывания, но допустимо для продолжения дальнейшей работы.</p>
+<ul>
+  <li>На компьютере на&nbsp;Net1-AdminCA&nbsp;(ЦО) установить ПО ViPNet Client (Windows), рабочее место администратора;</li>
+  <li>Установить драйверы РуТокен, которые потребуются для дальнейшей аутентификации пользователя.</li>
+</ul>
+<p>Если были произведены изменения паролей, IP-адресов и так далее, необходимо отразить это в отчете.</p>
+<h2>Задание 1.3. Установка центра регистрации, сервиса публикации и сервиса информирования VipNet Certification Authority на соответствующие виртуальные машины:</h2>
+<ul>
+  <li>На компьютере на&nbsp;Net1-OperCA(ЦО) установить ПО ViPNet Client (Windows);</li>
+  <li>На компьютере на&nbsp;Net1-OperCA(ЦО) установить ПО ViPNet Publication Service;</li>
+  <li>На компьютере на&nbsp;Net1-OperCA(ЦО) установить ПО ViPNet Registration Point;</li>
+  <li>На компьютере на&nbsp;Net1-AdminCA (ЦО) установить ПО ViPNet CA Informing;</li>
+</ul>
+<p>Задание 1.4. Установка ПО VipNet для организации сети филиала:</p>
+<ul>
+  <li>На ВМ&nbsp;Net2-Client (филиал) установить ПО ViPNet Client&nbsp;Windows, рабочее место пользователя;</li>
+  <li>На ВМ&nbsp;Net2-Astra-Cli (филиал) установить ПО ViPNet Client&nbsp;Linux, рабочее место пользователя;</li>
+</ul>
+<h2>Задание 2. Защита локально-вычислительной сети предприятия с применением ПО ViPNet</h2>
+<p>Необходимо использовать рабочее место администратора для создания структуры защищенной сети предприятия и настроить необходимые АРМ в соответствии с заданными ролями. В итоге выполнения задания должны быть развернуты и настроены следующие сетевые узлы защищенной сети (см. таблицу).</p>
+<p>Таблица&nbsp;1 Узлы защищенной сети если УКЦ и ЦУС на одной машине.</p>
+<figure class="table">
+  <table style=";">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;"><strong>Вирт. машина</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;"><strong>Название сетевого узла</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;"><strong>ПО&nbsp;VipNet</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;"><strong>ОС&nbsp;сетевого узла</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;"><strong>Имя пользо-вателя узла</strong></p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;padding:1.4pt 5.4pt;">
+          <p style="text-align:center;">Net1-AdminCA&nbsp;(ЦО)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;padding:1.4pt 5.4pt;">
+          <p style="text-align:center;">Главный&nbsp;администратор<br>(VM)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">ViPNet Administrator (ЦУС&nbsp;сервер +&nbsp;УКЦ)<br>ViPNet Client</p>
+          <p style="text-align:center;">ViPNet CA Informing</p>
+        </td>
+        <td style="border-bottom:solid;border-left:none;border-right:solid;border-top:none;padding:1.4pt 5.4pt;">
+          <p style="text-align:center;">ОС Windows 10</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;padding:1.4pt 5.4pt;">
+          <p style="text-align:center;">Admin</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;">Net1-OperCA&nbsp;(ЦО)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;">Оператор УЦ</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">ViPNet Client</p>
+          <p style="text-align:center;">ViPNet Publication Service, ViPNet Registration Point</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;">ОС Windows 10</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;">OperCA</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;">Net1-Open (ЦО)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;">Клиент ЦУС, База данных ЦУС</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">Клиент ЦУС,&nbsp;<br>БД&nbsp;MSSQL</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;">ОС Windows 10</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;">—</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;">Net1-Coord&nbsp; HW (ЦО)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;">Координатор Центр Офис&nbsp;(VM)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">ViPNet Coordinator HW</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;">HW-VA</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;">CoordinatorOffice</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;">Net2-Coord&nbsp; HW (Филиал)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;">Координатор&nbsp;Филиал&nbsp;(VM)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">ViPNet Coordinator HW</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;">HW-VA</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;">CoordinatorSub</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;">Net2-Client (филиал)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;">Пользователь_2 Филиал (VM)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">ViPNet Client</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;">ОС Windows 10</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;">User2</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;">Net2-Astra-Cli (филиал)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;">Пользователь_3 Филиал (VM)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">ViPNet Client</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;">ОС Astra Linux SE</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;">User3</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p><i>Связи между узлами необходимо настроить самостоятельно.</i></p>
+<p>Таблица 2.&nbsp;Схема&nbsp;связей&nbsp;пользователей</p>
+<figure class="table">
+  <table style="border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:90.45pt;">
+          <p style="text-align:center;">Схема&nbsp;связей&nbsp;пользователей</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:66.05pt;">
+          <p style="text-align:center;">Coord Office</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">Admin</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">OperCA</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">Coord Sub</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">User2</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">User3</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:90.45pt;">
+          <p style="text-align:center;">Coord Office</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.05pt;">
+          <p style="text-align:center;">×</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:90.45pt;">
+          <p style="text-align:center;">Admin</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.05pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">×</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:90.45pt;">
+          <p style="text-align:center;">OperCA</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.05pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">×</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:90.45pt;">
+          <p style="text-align:center;">Coord Sub</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.05pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">×</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:90.45pt;">
+          <p style="text-align:center;">User2</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.05pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">×</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:90.45pt;">
+          <p style="text-align:center;">User3</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.05pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>&nbsp;</p>
+<p>Задание 2.1. Создание структуры защищенной сети:</p>
+<ul>
+  <li>ЦУС. Необходимо создать в ЦУС структуру защищенной сети в соответствии с заданной схемой (выгрузить отчет в HTML). Создать пользователей узлов, настроить полномочия пользователей и их связи в соответствии со схемой.<br><strong>Для аутентификации пользователя узла&nbsp;Admin использовать токен (устройство), драйверы есть на «диске»&nbsp;rutoken.iso:&nbsp;&nbsp;&nbsp;&nbsp;</strong><br><strong>Пин-код пользователя: 12345678, администратора: 87654321</strong><br><strong>В случае несовпадения обратитесь к экспертам.</strong></li>
+  <li>УКЦ. Провести инициализацию УКЦ, сохранить контейнер ключей администратора в общей папку (создать подпапку Задание 2.1), поменять тип паролей для пользователей («собственный»). Задать пароли пользователей и сохранить в текстовый файл на рабочем столе. Сформировать дистрибутивы ключей для всех сетевых узлов (сохранить на жесткий диск). Создать группы узлов для центрального офиса (удостоверяющего центра) и филиала, настроить пароль администратора группы сетевых узлов для каждой из групп (проверить, что пароль работает).</li>
+  <li>На всех узлах сети корректно настроить или проверить корректность настройки сетевых интерфейсов в соответствии со схемой, проверить доступность соседних узлов.</li>
+  <li>Разнести DST файлы по АРМ, провести первичную инициализацию узлов защищенной сети (координаторов и клиентов), проверить доступность узлов защищенной сети и <strong>сделать скриншоты работоспособности узлов</strong>.</li>
+  <li>Произвести первичную инициализацию&nbsp;HW<ul>
+      <li>Настроить удаленный доступ через веб интерфейс к&nbsp;HW с открытого узла своей сети</li>
+    </ul>
+  </li>
+</ul>
+<p><strong>Необходимо проверить работоспособность сети с помощью отправки текстовых сообщений между Администратором и пользователем филиала.</strong></p>
+<p><strong>Необходимо проверить работоспособность сети с помощью отправки деловой почты между Администратором и пользователем филиала.</strong></p>
+<p><strong>Отправку и получение сообщений зафиксировать скриншотами.</strong></p>
+<h2>Задание 2.2. Настройка работы удостоверяющего центра в аккредитованном режиме</h2>
+<p>Необходимо перевести УКЦ в режим аккредитованного удостоверяющего центра, настроить параметры издания квалифицированных сертификатов, указав:</p>
+<ul>
+  <li>Сведения о средствах УЦ,</li>
+  <li>Средство электронной подписи издателя: ViPNet CSP</li>
+  <li>Средство удостоверяющего центра: ПК ViPNet УЦ 4</li>
+  <li>Сертификат на средство электронной подписи издателя: Сертификат Demo.lab.crt</li>
+  <li>Сертификат на средство удостоверяющего центра: Сертификат Demo.lab.p7b</li>
+  <li>В настройках средства электронной подписи владельца сертификата ничего менять не требуется.</li>
+  <li>Класс защищенности, которому соответствуют программные средства УЦ,</li>
+</ul>
+<p>После перевода УКЦ в аккредитованный режим необходимо выпустить:</p>
+<ol>
+  <li>Корневой квалифицированный сертификат. Назначить текущим.</li>
+  <li>Квалифицированную электронную подпись для пользователя Admin. Выдать с новым дистрибутивом ключей.</li>
+  <li>Квалифицированную электронную подпись для пользователя Client. Сохранить электронные ключи в файл.</li>
+  <li>При выдаче сертификатов необходимо заполнить следующие поля:</li>
+</ol>
+<ul>
+  <li><strong>Имя: &lt;Имя пользователя или узла&gt;</strong></li>
+  <li><strong>Электронная почта: &lt;Имя пользователя&gt;@demo.lab</strong></li>
+  <li><strong>Город: Санкт-Петербург</strong></li>
+  <li><strong>Область: Ленинградская</strong></li>
+  <li><strong>Страна: RU</strong></li>
+  <li><strong>Организация: ФИРПО</strong></li>
+  <li><strong>Подразделение: Защита информационной безопасности</strong></li>
+  <li><strong>Почтовый индекс: 123123</strong></li>
+</ul>
+<p>Создать квалифицированные ключи ЭП и ключи проверки ЭП для пользователей сети.</p>
+<p>Настроить схему обмена файлами между УКЦ посредством Сервиса Публикации (ViPNet Publication Service).&nbsp;</p>
+<p>Настроить переход в автоматический режим (при бездействии администратора): передачу на публикацию и обновление CRL с периодичностью 1 день.</p>
+<p>Реализовать автоматическую публикацию сертификатов издателей на FTP-сервере.</p>
+<p>Посредством Центра Регистрации (ViPNet Registration Point):&nbsp;</p>
+<ul>
+  <li>зарегистрировать пользователя: User4.&nbsp;</li>
+  <li>Отправить запрос в УКЦ на выпуск сертификата, удовлетворить запрос. Результат выпуска сертификата зафиксировать скриншотом.&nbsp;</li>
+  <li>Отправить запрос в УКЦ на аннулирование ранее выпущенного сертификата, удовлетворить запрос. Результат зафиксировать скриншотом.&nbsp;</li>
+</ul>
+<p>Посредством Сервиса Информирования (ViPNet CA Informing):</p>
+<ul>
+  <li>Сформировать отчет о выданных за текущие сутки сертификатах, предварительно в настройках указав место хранения отчетов (на рабочем столе).</li>
+</ul>
+<h2>Задание 2.3. Сервер установки штампа времени и подписание OCSP.</h2>
+<p>Компании необходим сервер, отвечающий за выдачу штампов времени пользователям. Поэтому в сети филиала на узле с клиентом ViPNet должен быть установлен сервер TSP-OCSP (ПК ViPNet УЦ 4).</p>
+<p>Для функционирования сервера необходимо издать сертификат для TSP сервиса. Поместить контейнер ключей и сертификат необходимо в программу ViPNet CSP. И после указать изданный сертификат для TSP в программе TSP-OCSP Service.</p>
+<p>Также для корректной работы TSP сервера необходимо на работающем сервере УКЦ создать политику применения, которая будет использоваться для выдачи дальнейших сертификатов:&nbsp;</p>
+<ul>
+  <li>Наименование: test TSP Policy</li>
+  <li>Идентификатор: 1.2.643.100.1.2.3</li>
+  <li>Краткое описание: Проверка штампа времени</li>
+</ul>
+<p>Для TSP сервера необходимо задать эту политику применения по умолчанию.</p>
+<p>Перед запуском TSP-OCSP сервера, требуется провести небольшую настройку:</p>
+<ul>
+  <li>Номер порта сервера: 8777</li>
+  <li>Серийный номер: 01 00 00 00 00 00 00 00</li>
+  <li>Параметры OSCP-сервера: отключить все функции.</li>
+</ul>
+<h2>Задание 2.4. Компрометация узла защищенной сети</h2>
+<p>Перед началом выполнения зафиксировать скриншотами имеющуюся структуру сети и окно УКЦ с вариантами персонального ключа компрометируемого пользователя, т. к. в случае неудачной компрометации структура сети может нарушиться.</p>
+<p>Произвести компрометацию ключей и восстановление сетевого взаимодействия средствами УКЦ/ЦУС:&nbsp;</p>
+<ul>
+  <li>скомпрометировать ключи пользователя user 2 на узле Пользователь_2 Филиал&nbsp;</li>
+  <li>произвести смену ключей пользователя и сетевых узлов,&nbsp;</li>
+  <li>отправить обновления и произвести процедуру смены ключа пользователя на узле Пользователь_2 Филиал (фиксировать все шаги),&nbsp;</li>
+  <li>проверить работу защищенной сети после обновления отправив сообщение от пользователя user 2 администратору.</li>
+</ul>
+<p>Восстановление взаимодействия с помощью ручной установки DST засчитано не будет.</p>
+<p>Необходимо зафиксировать процесс настройки скриншотами:</p>
+<ul>
+  <li>Компрометация пользователя.</li>
+  <li>Смена ключей пользователя и сетевых узлов.</li>
+  <li>Процедура смены ключа на клиенте с использованием резервного набора ключей.</li>
+  <li>Скриншот экрана «защищенная сеть» в VipNet Monitor на узле Пользователь_2 Филиал + результат проверки доступности узлов.</li>
+</ul>
+<p><strong>Необходимо делать скриншоты до, после и в процессе компрометации, иначе другие задания могут быть не зачтены в случае неудачной компрометации.&nbsp;</strong></p>
+<h2><strong>Задание 2.5. Policy manager</strong></h2>
+<p>2.2.1 Создать шаблон политики безопасности, т. е. определить сетевой фильтр в соответствии c которым Net2-Astra-Cli должен быть доступен по SSH только с узлов Admin СА и внешней сети (фильтр защищенной сети) для работоспособности соединения с Net3-Open.</p>
+<p>Назначить сформированный шаблон сетевым узлам, отправить политику безопасности на сетевой узел.</p>
+<p>Зафиксировать результат (скриншотами) через журнал отправки и применения политик безопасности, на узлах в Мониторе просмотреть списки сетевых фильтров.</p>
+<p>2.2.2 Создать шаблон политики безопасности для запрета на использование популярных соцсетей vk.com, facebook.com, tiktok.com с узлов пользователей сети (клиенты).&nbsp;</p>
+<p>Применить политику к клиентам.</p>
+<p>Зафиксировать результат (скриншотами) настройки и проверки.</p>
+<p>2.2.3 Создать шаблон политики безопасности для возможности подключения защищенных и незащищенных узлов своей сети по протоколу RDP к AdminCA. Также необходимо включить RDP доступ на данном узле.</p>
+<p>Применить политику к устройствам.</p>
+<p>Зафиксировать результат (скриншотами) настройки и проверки.</p>
+<h2>Задание 3. Межсетевое взаимодействие защищённых сетей</h2>
+<figure class="image"><img src="/123/снимок_экрана_2025-02-03_002906.png">
+  <figcaption>Рисунок 2 Схема межсетевого взаимодействия</figcaption>
+</figure>
+<p>Развернуть на&nbsp;Net3-Admin (Сеть 2 межсеть) на ПК рабочее место Администратора партнёрской сети, создать структуру второй сети:</p>
+<ul>
+  <li>Рабочее место администратора (БД, ЦУС, УКЦ, ViPNet Client)</li>
+  <li>1 координатор&nbsp;HW-VA</li>
+  <li>1 узел Admin и пользователь Admin</li>
+</ul>
+<p>Настроить связи узлов/пользователей администраторов и необходимых для работоспособности узлов.</p>
+<p>Инициализируйте&nbsp;HW-VA: при настройке необходимо включить&nbsp;DHCP сервер</p>
+<p>Все пароли пользователей в сети ViPNet сделать 12344321</p>
+<p>Пароли администраторов сети ViPNet сделать xxXX1234</p>
+<ul>
+  <li>Установить и настроить необходимое ПО</li>
+  <li>Настроить межсетевое взаимодействие с использованием ассиметричных межсетевых ключей между двумя защищёнными сетями, сделать скриншоты всех этапов установки межсетевого взаимодействия.<br><strong>ВНИМАНИЕ!</strong> Настройка межсетевого взаимодействия с использованием симметричных ключей не будет считаться полноценным выполнением задания</li>
+  <li>Проверить взаимодействие узлов, отправив сообщение деловой почты в программе ViPNet Client Monitor с узла Admin (сеть 1) на Admin (сеть 2).</li>
+</ul>
+<p>Необходимо предоставить:</p>
+<ul>
+  <li>Файлы HTML структуры защищенной сети для обеих сетей после выполнения задания.</li>
+</ul>
+<p>Скриншоты:</p>
+<ul>
+  <li>Скриншоты ключевых этапов установки межсетевого взаимодействия и обработки межсетевой информации (в ЦУС и УКЦ обеих сетей).</li>
+  <li>Структура защищенной сети в ЦУС после установления межсетевого взаимодействия (для обеих защищенных сетей) с экраном проверки доступности узлов.</li>
+  <li>Скриншоты деловой почты на отправителе и получателе (при отправке письма).</li>
+  <li>Скриншоты текстового сообщения на отправителе и получателе (при отправке письма).</li>
+</ul>
+<p>&nbsp;</p>
+<h2>Задание 3.1. Настройка правил в сети</h2>
+<ul>
+  <li>Необходимо настроить доступ к&nbsp;SSH по порту 4444 с узла&nbsp;Net3-Open до узла&nbsp;Net2-Astra-Cli</li>
+  <li>Необходимо настроить удаленное подключение по протоколу&nbsp;RDP между узлом&nbsp;Net3-Open и&nbsp;Net2-Client</li>
+  <li>Необходимо настроить правило, разрешающее доступ по протоколам&nbsp;POP3/IMAP и&nbsp;POP3S/IMAPS между сетями «ЦентрОфис» и «Межсеть». Правило должно работать только в рабочие дни (пн-пт), с 8:00 до 18:00. В остальное время трафик указанных протоколов должен блокироваться.</li>
+</ul>
+<p>Предоставить скриншоты создания/настройки правил и скриншоты работоспособности:&nbsp;RDP сессии, Подключения к&nbsp;SSH. Зафиксировать скриншотами создание правила для&nbsp;SMTP и&nbsp;SMTPS.</p>
+<h2><strong>Задание 3.2.&nbsp;</strong></h2>
+<p>Настроить Bond интерфейс(собрать из eth1-eht2) на координаторе для балансировки и резервирования(выбрать подходящий режим)</p>
+<h2>Задание 4. Туннелирование в рамках межсетевого взаимодействия</h2>
+<ul>
+  <li>Подключить незащищенную машину в сети 3</li>
+  <li>Для второй открытой машины использовать узел в сети 1</li>
+  <li>Настроить туннелирование таким образом, чтобы взаимодействие между открытыми узлами из разных сетей осуществлялось по шифрованному каналу. Проверить доступность незащищённых машин друг другу с помощью ICMP (ping); проанализировать журналы IP-пакетов на координаторах.</li>
+</ul>
+<p>Скриншоты:</p>
+<ul>
+  <li>Настройка максимального количества туннелей на координаторах</li>
+  <li>Скриншоты прохождения ICMP пакетов (ping) и любого другого трафика с незащищенного узла</li>
+  <li>Скриншоты журнала прохождения IP-пакетов на веб-интерфейсе с установленным фильтром «Туннелирование» для проверки прохождения ICMP-пакетов и любого другого трафика с помощью туннелирования</li>
+</ul>
+<h2>Задание 5. Кластер горячего резервирования</h2>
+<p>В связи с участившимися случаями «падения» координатора межсети было принято решение добавить дополнительный координатор&nbsp;HW-VA в «Сеть 2 Межсеть» в дополнение к&nbsp;Net3-Coord&nbsp;HW-VA.</p>
+<p>Для настройки необходимо самостоятельно развернуть соответствующий&nbsp;OVA-образ из дистрибутивов в сегмент межсети, настроить горячее резервирования и проверить работоспособность отключением одного из координаторов (система не должна прекращать работать при отключении одного из устройств от сети или питания).</p>
+<p>Выбор&nbsp;IP координаторов и виртуальных адресов выбирается самостоятельно и записывается в отчет на рабочем столе.</p>
+<p>Скриншоты:</p>
+<ul>
+  <li>Развертывание нового координатора и инициализация (достаточно установку ключевой информации)</li>
+  <li>Скриншот изменения конфигурации для кластера горячего резервирования</li>
+</ul>
+<p><strong>Оба координатора необходимо оставить включенными!</strong></p>

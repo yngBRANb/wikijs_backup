@@ -1,0 +1,176 @@
+<!--
+title: Построение офисной сети
+description: 
+published: true
+date: 2025-03-21T03:16:32.792Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-03-21T03:16:25.296Z
+-->
+
+<h1>Построение офисной локальной вычислительно сети</h1>
+<h2><strong>1. Добавление оборудования.</strong></h2>
+<p>Открыть Packet Tracer и создать на рабочем поле:</p>
+<ol>
+  <li>16 компьютеров</li>
+  <li>Сервер</li>
+  <li>3 коммутатора Cisco 2960</li>
+  <li>Маршрутизатор Cisco 1941</li>
+  <li>Роутер Cisco WRT300N</li>
+</ol>
+<p><strong>Итого:</strong></p>
+<p>&nbsp;22 устройства</p>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/dfc/0fd/8d9/dfc0fd8d9f7e524e1731dc72fb1ddb0e.jpg" alt="image"></figure>
+<h2><strong>2. Установка Wi-Fi модуля в ПК.</strong></h2>
+<p>У четырёх компьютеров в третьем отделе заменить LAN разъём на Wi-Fi антенну. Для этого открываем устройство, выключаем его, вынимаем старый модуль, меняем его на Wi-Fi (WMP300N) антенну. Включаем компьютер.</p>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/0b7/a58/b35/0b7a58b358081cd529364724162b1c66.jpg" alt="image"></figure>
+<h2><strong>3. Настройка ПК первого и второго отдела.</strong></h2>
+<p>Каждому компьютеру в первом и втором отделе, а также серверу присвоим значения по формуле: N0.0.0.n, где N – номер отдела, а n – номер устройства (например, 10.0.0.2 – второй компьютер на первом этаже). Сервер, так как он третье устройство на втором этаже будет иметь адрес 20.0.0.3.</p>
+<blockquote>
+  <p>Маску подсети выставим на 255.255.255.0.<br>Default Gateway выставим N0.0.0.254.<br>DNS Server выставляем на 20.0.0.3.</p>
+</blockquote>
+<p>DNS (Domain Name System) — это система, которая отвечает за преобразование доменных имен (например, www.example.com) в IP-адреса (например, 192.0.2.1), которые необходимы для идентификации и связи между устройствами в сети. DNS является важной частью инфраструктуры Интернета, так как позволяет пользователям использовать удобные для запоминания имена вместо числовых адресов.</p>
+<h3><strong>Как работает DNS:</strong></h3>
+<ul>
+  <li><strong>Запрос DNS</strong>: Когда пользователь вводит доменное имя в веб-браузере, браузер сначала проверяет, есть ли уже сохраненный IP-адрес для этого домена в кэше. Если адрес найден, он используется для подключения к серверу. Если нет, начинается процесс разрешения имени.</li>
+  <li><strong>Обращение к DNS-серверу</strong>: Браузер отправляет запрос на DNS-сервер, который обычно предоставляется интернет-провайдером (ISP). Этот сервер может также иметь кэш, и если он уже знает IP-адрес для данного домена, он возвращает его.</li>
+  <li><strong>Рекурсивный запрос</strong>: Если DNS-сервер не знает IP-адреса, он отправляет рекурсивный запрос к другим DNS-серверам. Запрос проходит через несколько уровней DNS-серверов, начиная с корневых серверов.</li>
+  <li><strong>Корневые серверы</strong>: Корневые DNS-серверы содержат информацию о доменных именах верхнего уровня (TLD), таких как .com, .org, .net и т.д. Они направляют запрос к соответствующему TLD-серверу.</li>
+  <li><strong>TLD-серверы</strong>: TLD-серверы содержат информацию о доменах второго уровня (например, example.com) и могут направить запрос к авторитетному DNS-серверу, который хранит информацию о конкретном домене.</li>
+  <li><strong>Авторитетный DNS-сервер</strong>: Этот сервер содержит окончательную информацию о домене, включая его IP-адрес. Он возвращает IP-адрес запрашиваемого домена обратно к DNS-серверу, который изначально получил запрос.</li>
+  <li><strong>Ответ пользователю</strong>: DNS-сервер, получивший IP-адрес, возвращает его браузеру, который затем использует этот адрес для подключения к веб-серверу.</li>
+  <li><strong>Кэширование</strong>: Чтобы ускорить процесс в будущем, DNS-серверы и браузеры кэшируют полученные IP-адреса на определенное время. Это позволяет избежать повторных запросов для часто посещаемых сайтов.&nbsp;</li>
+</ul>
+<p>Вернемся к настройке ПК. Пример правильно настроенного ПК в первом отделе:</p>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/fb0/697/053/fb0697053fb403e7a9088a16811a78ee.jpg" alt="image"></figure>
+<p>Пример правильно настроенного ПК во втором отделе:</p>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/9a3/e36/0f7/9a3e360f7b93d237f8c7c11f633588cb.jpg" alt="image"></figure>
+<p>На сервере выставим такие настройки:</p>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/874/f29/2af/874f292af9f003c3a87a2b55ab73c92f.jpg" alt="image"></figure>
+<h2><strong>4. Настройка третьего отдела.</strong></h2>
+<p>Выставим IP по формуле 30.0.0.10n, где n – номер ПК.</p>
+<p>Пример правильно настроенного ПК в третьем отделе:</p>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/950/d8d/5a0/950d8d5a0680f7784b244b242be9ae87.jpg" alt="image"></figure>
+<p>Продолжим настройку ПК. Первый IP – 30.0.0.101, а последний – 30.0.0.110</p>
+<p><strong>5. Настройка роутера.</strong></p>
+<p>Выставим настройки:</p>
+<pre><code class="language-plaintext">IP - 30.0.0.253
+Маска - 255.255.255.0
+Start IP Address - 30.0.0.1
+Maximum number of Users – 20
+Static DNS 1 - 20.0.0.3
+Network Name - Cisco2107
+SSID Broadcast – Disabled
+Security Mode - WPA2-Personal
+Passphrase - junior17</code></pre>
+<p>Скриншоты всех настраиваемых вкладок роутера:</p>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/655/c7c/e34/655c7ce34be999e5aeefe6234cea5eae.jpg" alt="image"></figure>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/633/a6b/db6/633a6bdb6bbc3bc58bb8ab2ce31c72c6.jpg" alt="image"></figure>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/7cd/530/5d8/7cd5305d8864f61bbcc1679c29f5a0a7.jpg" alt="image"></figure>
+<p>Настройка беспроводных ПК. Задаём имя сети&nbsp;</p>
+<p><strong>Cisco2107</strong></p>
+<p>&nbsp;и WPA2-Personal пароль –&nbsp;</p>
+<p><strong>junior17</strong></p>
+<p>Пример настроек одного из ПК:</p>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/5fe/1af/574/5fe1af5743ad17ce97d017fd1fb1ebae.jpg" alt="image"></figure>
+<h2><strong>6. Подключаем кабели и соединяем отделы.</strong></h2>
+<p>Соединяем ПК витой парой.</p>
+<p>Во всех коммутаторах подключаем кабели к FastEthernet по часовой стрелке. В маршрутизаторе подключимся к гигабитному разъёму, предварительно его включив.</p>
+<p>Настраиваем VLAN на всех коммутаторах. VLAN (Virtual Local Area Network) — это технология, позволяющая создавать виртуальные локальные сети внутри одной физической сети. VLAN позволяет разделять сеть на логические сегменты, что улучшает управление, безопасность и производительность сети, всего их может быть 4096.&nbsp;</p>
+<p>В стандарте IEEE 802.1Q, который определяет VLAN, предусмотрено использование 12-битного идентификатора VLAN (VLAN ID). Это означает, что теоретически можно создать до 4096 различных VLAN, так как 2^12 = 4096.</p>
+<p>Однако на практике количество доступных VLAN может быть меньше, поскольку некоторые идентификаторы зарезервированы для специальных целей. Например:</p>
+<ul>
+  <li>VLAN ID 0 используется для обозначения "неопределенного" VLAN.</li>
+  <li>VLAN ID 1 обычно зарезервирован для управления и протоколов управления.</li>
+  <li>VLAN ID 4095 также зарезервирован.</li>
+</ul>
+<p>Таким образом, в большинстве случаев доступно 1-4094 VLAN для использования в сети. &nbsp;Для настройки VLANов открываем коммутатор в первом отделе. Переходим в интерфейс командной строки и вводим команды:</p>
+<pre><code class="language-plaintext">	Switch&gt;en
+	Switch#conf t
+	Switch(config)#vlan 10
+	Switch(config-vlan)#name Office1
+	Switch(config-vlan)#end</code></pre>
+<p>Рассмотрим все команды.</p>
+<blockquote>
+  <ol>
+    <li>En – enable. Расширенный доступ к конфигурации</li>
+    <li>Conf t – Configuration terminal. Открывает терминал настройки</li>
+    <li>Vlan 10 – создаёт виртуальную сеть с индексом 10</li>
+    <li>Name Office1 – задаётся имя VLAN. Имя – Office1.</li>
+    <li>End – завершения настройки.</li>
+  </ol>
+</blockquote>
+<p>Открываем коммутатор во втором отделе и прописываем следующие команды:</p>
+<pre><code class="language-plaintext">	Switch&gt;en
+	Switch#conf t
+	Switch(config)#vlan 10
+	Switch(config-vlan)#name Office1
+	Switch(config-vlan)#exit
+	Switch(config)#vlan 20
+	Switch(config-vlan)#name Office2
+	Switch(config-vlan)#exit
+	Switch(config)#vlan 30
+	Switch(config-vlan)#name Office3
+	Switch(config-vlan)#exit
+	Switch(config)#end</code></pre>
+<p>Открываем коммутатор в третьем отделе и прописываем следующие команды:</p>
+<pre><code class="language-plaintext">	Switch&gt;en
+	Switch#conf t
+	Switch(config)#vlan 30
+	Switch(config-vlan)#name Office3
+	Switch(config-vlan)#end</code></pre>
+<p>Выставляем на пером коммутаторе VLAN 10 на все порты, к которым есть подключение (Fa0/1-Fa0/5).</p>
+<p>На втором коммутаторе нужно выставить порт, к которому подключен коммутатор из первого отдела VLAN – 10, из третьего VLAN – 30, а 2 ПК и сервер второго отдела VLAN – 20. То есть Fa0/1 – VLAN 10, Fa0/2- Fa0/4 – VLAN 20, Fa0/5 – VLAN 30. Fa0/6, соединяющий коммутатор и маршрутизатор выставляем в Trunk режим.</p>
+<p>На третьем коммутаторе нужно выставить на все порты VLAN 30 (Fa0/1-Fa0/8).</p>
+<p>Затем, производим настроим маршрутизатора для работы с VLAN.</p>
+<p>Также, переходим во вкладку CLI и прописывает там команды:</p>
+<pre><code class="language-plaintext">	Router&gt;en	
+	Router#conf t
+	Router(config)#int gig 0/0.10
+	Router(config-subif)#encapsulation dot1Q 10
+	Router(config-subif)#ip address 10.0.0.254 255.255.255.0
+	Router(config-subif)#exit
+	Router(config)#int gig 0/0.20
+	Router(config-subif)#encapsulation dot1Q 20
+	Router(config-subif)#ip address 20.0.0.254 255.255.255.0
+	Router(config-subif)#exit
+	Router(config)#int gig 0/0.30
+	Router(config-subif)#encapsulation dot1Q 30
+	Router(config-subif)#ip address 30.0.0.254 255.255.255.0
+	Router(config-subif)#end</code></pre>
+<p>Теперь разберём команды:</p>
+<blockquote>
+  <ol>
+    <li>int gig 0/0.10. Команда подключает виртуальный интерфейс для работы с разными VLAN. Цифра после точки – номер VLAN.</li>
+    <li>Encapsulation dot1Q 10. Команда настройки VLAN в sub. Номер после dot1Q – номер VLAN.</li>
+    <li>ip address 10.0.0.254 255.255.255.0. IP адрес выхода пакетов информации.</li>
+  </ol>
+</blockquote>
+<blockquote>
+  <p>Теперь протестируем сеть командой <strong>ping</strong>.</p>
+</blockquote>
+<p>Возьмём любой компьютер в каждом отделе и пропингуем все отделы (в третьем отделе проверим и проводную сеть и беспроводную).</p>
+<p><strong>Первый отдел</strong></p>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/cb8/aa2/03c/cb8aa203c2de0142990e6b538d225043.jpg" alt="image"></figure>
+<p><strong>Второй отдел</strong></p>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/c3e/08f/6cb/c3e08f6cbba1b4d5a4e2ce7be40d1d80.jpg" alt="image"></figure>
+<p><strong>Третий отдел (кабель)</strong></p>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/c70/be3/8cc/c70be38cc8323132f62a06f7b6bf3f61.jpg" alt="image"></figure>
+<p><strong>Третий отдел (Wi-Fi)</strong></p>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/795/62d/fb9/79562dfb9d8f112fd517f52415806029.jpg" alt="image"></figure>
+<p>Добавляем административный VLAN (40 — Management).</p>
+<p><strong>7. Настройка сервера.</strong></p>
+<blockquote>
+  <p>Включаем DNS.<br>Name — <a href="http://www.cisco.com/">www.cisco.com</a>.<br>Address – 20.0.0.3.</p>
+</blockquote>
+<p>Проверим возможность выхода на сайт из любого отдела. Вводим URL имя в браузере и нажимаем Go.</p>
+<figure class="image"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/abf/d82/0e0/abfd820e06774ac90352912826f6f85d.jpg" alt="image"></figure>
+<p>&nbsp;</p>
+<p><strong>Контрольные вопросы:</strong></p>
+<ol>
+  <li>Что такое VLAN и для чего он нужен?</li>
+  <li>Что такое DNS и как он работает&amp;</li>
+  <li>Что такое коммутация и как происходит процесс коммутации?</li>
+  <li>Сколько всего VLANов может быть?</li>
+  <li>Как перейти в режим конфигурирования на сетевом оборудовании cisco?</li>
+</ol>

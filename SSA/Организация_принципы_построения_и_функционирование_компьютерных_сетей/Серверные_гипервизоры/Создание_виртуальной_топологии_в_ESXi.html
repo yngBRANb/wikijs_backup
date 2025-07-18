@@ -1,0 +1,78 @@
+<!--
+title: Создание виртуальной топологии в ESXi
+description: 
+published: true
+date: 2025-03-22T09:47:40.493Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-15T12:20:22.433Z
+-->
+
+<p><strong>Цель работы:</strong> создать виртуальную сетевую топологию в окружении VMware ESXi.</p>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p>Сегодня мы познакомимся с виртуальными сетями в ESXi.</p>
+<p>Основные сетевые компоненты ESXi:</p>
+<ul>
+  <li>Physical NICs (физические интерфейсы)</li>
+  <li>vSwitch (виртуальные коммутаторы)</li>
+  <li>Port Group (группы портов)</li>
+</ul>
+<p>Чтобы было проще понять, представьте физический сервер. На нем есть сетевые порты в ESXi они отображаются на вкладке Networking - Physical NICs, на базе физических интерфейсов создаются виртуальные коммутаторы (vSwitch в ESXi, Linux Bridge или OVS Bridge в PVE), а на vSwitch создаются группы портов куда как раз и подключаются ВМ.</p>
+<p>vSwitch можно создать и без привязки к физическому интерфейсу, чтобы создать внутреннюю сеть между ВМ.</p>
+<p>По умолчанию на одном из физических интерфейсов (у нас он в принципе один) создается vSwitch0, а на нем 2 группы портов — VM Network (через эту группу портов выводят ВМ во внешку) и Management Network (через эту сеть мы подключаемся к ESXi, ее удалять нельзя)</p>
+<p>На одном vSwitch можно создать разные группы портов, мы к примеру будем использовать группу портов VM Network с VLAN тегом 0 для вывода ВМ во внешнюю сеть, затем создадим группу local network с VLAN тегом 0 для локальной связи ВМ.</p>
+<h1><span class="text-small"><strong>Задания для практической работы:</strong></span></h1>
+<h2><span class="text-small">1. Создание виртуальной сети.</span></h2>
+<p>Перейдите на вкладку Networking - Physical NICs:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxitop_1.png"></figure>
+<p>На этой вкладке вы заметите физический интерфейс гипервизора - vmnic0, его MAC и пропускную способность.</p>
+<p>Перейдите на вкладку Networking - Virtual switches:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxitop_2.png"></figure>
+<p>Здесь вы увидите стандартный виртуальный коммутатор vSwitch0.</p>
+<p>Нажмите на него, чтобы увидеть подробности:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxitop_3.png"></figure>
+<p>Здесь вы можете увидеть физические интерфейсы гипервизора к которым подключен коммутатор (справа) и группы портов созданные на vSwitch (слева).</p>
+<p>Так же здесь видно что к группе VM Network подключена ВМ ALT Server 1.</p>
+<p>Давайте перейдем на вкладку Port groups:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxitop_4.png"></figure>
+<p>Здесь вы можете создавать и управлять группами портов.</p>
+<p>Теперь давайте создадим полностью внутреннюю сеть в ESXi.</p>
+<p>Для этого перейдите на вкладку Virtual switches и создайте новый vSwitch:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxitop_5.png"></figure>
+<p>Так как мы хотим создать внутреннюю сеть для общения между ВМ, мы удалям физический интерфейс.</p>
+<p>Осталось создать Группу портов.</p>
+<p>Перейдите на вкладку Port groups и создайте новую группу:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxitop_6.png"></figure>
+<p>Если вы откроете новый vSwitch1, то увидите что он не подключен к физическому интерфейсу:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxitop_7.png"></figure>
+<h2><span class="text-small">2. Подключение ВМ к группе портов.</span></h2>
+<p>Перейдите на вкладку Virtual Machines - ALT Server 1.</p>
+<p>Нажмите Edit.</p>
+<p>Добавьте виртуальный сетевой интерфейс:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxitop_8.png"></figure>
+<p>Новый интерфейс должен быть подключен к группе портов <strong>local network</strong>:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxitop_9.png"></figure>
+<p>Нажмите Save.</p>
+<p>Проверьте появился ли в системе второй сетевой интерфейс:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxitop_10.png"></figure>
+<p>Проделайте ту же процедуру с ALT Server 2.</p>
+<h2><span class="text-small">3. Настройка сети на ALT Linux.</span></h2>
+<p>После этого вам осталось настроить адресацию на внутренних интерфейсах, чтобы проверить сетевую связность.</p>
+<p>Установите адресацию следующим образом:</p>
+<ul>
+  <li>ALT Server 1 - 192.168.1.1/24</li>
+  <li>ALT Server 2 - 192.168.1.2/24</li>
+</ul>
+<p>Устанавливать Gateway и DNS на внутренних интерфейсах не нужно.</p>
+<h2><span class="text-small">4. Проверка.</span></h2>
+<p>Проверьте что ping идет как во внутреннюю сеть, так и во внешнюю (интернет):</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxitop_11.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxitop_12.png"></figure>
+<h1><br><span class="text-small"><strong>Контрольные вопросы:</strong></span></h1>
+<ol>
+  <li>C какими сетевыми компонентами мы сегодня ознакомились?</li>
+  <li>Какие группы портов создаются автоматически? За что отвечает каждая из них?</li>
+  <li>Можно ли создать vSwitch без привязки к физическому интерфейсу?</li>
+  <li>Можно ли сегментировать внутреннюю сеть ESXi с помощью VLAN?</li>
+  <li>Можно ли настроить Firewall правила в ESXi?</li>
+</ol>

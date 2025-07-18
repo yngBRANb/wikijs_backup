@@ -1,0 +1,103 @@
+<!--
+title: Создание виртуальной топологии в ALT-PVE
+description: 
+published: true
+date: 2025-03-11T04:43:19.802Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-15T12:23:20.946Z
+-->
+
+<p><strong>Цель работы:</strong> построить небольшую сетевую топологию в ALT-PVE.&nbsp;</p>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p>Сегодня мы познакомимся с виртуальными сетями в ALT-PVE.</p>
+<p>Основные сетевые компоненты PVE:</p>
+<ul>
+  <li>Физические интерфейсы (в системе называются наподобие: ens33, enp0s3)</li>
+  <li>Виртуальные коммутаторы (Linux Bridge, OVS Bridge. В системе называются наподобие vmbr0) - нужны для объединения ВМ в один широковещательный домен</li>
+  <li>Объединённые сетевые интерфейсы (Linux Bond, OVS Bond) - используются для объединения двух физических интерфейсов в один логический</li>
+</ul>
+<p>Сетевые компоненты в PVE можно создавать с помощью 2-х инструментов:</p>
+<ul>
+  <li>Linux - под этим понятием подразумеваются внутренние инструменты Linux для создания сетевых компонентов. Для этого используются пакеты iproute2 и bridge.</li>
+  <li>OVS (Open vSwitch) - сторонний пакет, используется для удобного создания продвинутых коммутаторов на базе Linux.</li>
+</ul>
+<p>Бридж (англ. bridge, мост) — это способ соединения двух сегментов Ethernet на канальном уровне, т.е. без использования протоколов более высокого уровня, таких как IP. Пакеты передаются на основе Ethernet-адресов, а не IP-адресов (как в маршрутизаторе). Поскольку передача выполняется на канальном уровне (уровень 2 модели OSI), все протоколы более высокого уровня прозрачно проходят через мост. Термины коммутатор, мост и бридж могут использоваться на данной странице как взаимозаменяемые.</p>
+<p>Виртуальные коммутаторы можно создать как на физическом интерфейсе (чтобы ВМ подключенные к нему имели выход в глобальную сеть) так и без привязки к нему.</p>
+<p>В отличие от ESXi в PVE нет групп портов, ВМ подключаются к самим коммутаторам.</p>
+<h1><span class="text-small"><strong>Задания для практической работы:</strong></span></h1>
+<h2><span class="text-small">1. Обзор сетевых параметров.</span></h2>
+<p>Чтобы перейти к настройке сети выберите сервер, а затем в подменю нажмите на вкладку сеть:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_1.png"></figure>
+<p>На этой вкладке вы увидите ваши сетевые интерфейсы и мосты (bridge):</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_2.png"></figure>
+<p>Как вы можете заметить у нас есть 2 сетевых элемента.</p>
+<p>Чтобы понять чем они отличаются взгляните на поле <strong>Тип</strong>, там вы заметите что ens33 - Сетевое устройство (физический порт сервера), а vmbr0 - Linux Bridge (виртуальный коммутатор).</p>
+<p>Если присмотреться станет понятно, что на ens33 нет IP-адреса, адрес есть только у моста vmbr0, при этом сам vmbr0 использует ens33 в качестве своего физического порта.</p>
+<p>Это нужно чтобы созданные вами ВМ могли выходить во внешнюю сеть (к обычному сетевому интерфейсу ens33 нельзя подключать интерфейсы ВМ, а вот к коммутатору можно)</p>
+<p>Что вы не запутались добавьте комментарий к интерфейсу vmbr0:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_3.png"></figure>
+<p>и сохраните изменения:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_4.png"></figure>
+<h2><span class="text-small">2. Планирование сети.</span></h2>
+<p>Сегодня мы создадим вот такую сеть:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_5.png"></figure>
+<p>ALT Server1 будет выступать в качестве маршрутизатора с трансляцией адресов (NAT), а ALT Server2 локальный сервер.</p>
+<p>Предварительные требования к сети:</p>
+<ul>
+  <li>alt-server1 подключен к коммутаторам vmbr0 и vmbr1</li>
+  <li>Внешний интерфейс alt-server1 получает адрес по DHCP</li>
+  <li>В локальной сети между alt-server1 и alt-server2 используется сеть 172.16.0.0/30</li>
+</ul>
+<h2><span class="text-small">3. Создание локальной сети.</span></h2>
+<p>На вкладке <strong>Сеть</strong> создайте Linux Bridge vmbr1:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_6.png"></figure>
+<p>Не забудьте применить конфигурацию!</p>
+<p>После этого нужно настроить сетевые интерфейсы ВМ.</p>
+<p>Выберите виртуальную машину и перейдите в подменю на вкладку <strong>Оборудование</strong>:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_7.png"></figure>
+<p>alt-server1 должен быть подключен к обоим бриджам.</p>
+<p>Как мы видим он уже подключен к vmbr0, осталось добавить vmbr1.</p>
+<p>Для этого нажмите Добавить - Сетевое устройство:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_8.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_9.png"></figure>
+<p>Теперь нужно переподключить сетевое устройство alt-server2:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_10.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_11.png"></figure>
+<h2><span class="text-small">4. Настройка сетевых интерфейсов ALT Linux.</span></h2>
+<p>На alt-server1 внешний интерфейс должен получить адрес по DHCP (в моем случае он получил 192.168.0.125/24),</p>
+<p>а внутренний интерфейс должен иметь статический адрес 172.16.0.1/30:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_12.png"></figure>
+<p>alt-server2 имеет только один интерфейс, на нем должен быть установлен статический адрес 172.16.0.2/30,</p>
+<p>также нужно указать маршрут по умолчанию через 172.16.0.1:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_13.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_14.png"></figure>
+<p>Проверьте дойдет ли ping c alt-server2 до alt-server1:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_15.png"></figure>
+<h2><span class="text-small">5. Настройка NAT.</span></h2>
+<p>Переходим к alt-server1.</p>
+<p>Перед настройкой NAT на необходимо включить форвардинг пакетов.</p>
+<p>По умолчанию на большинстве дистрибутивов он выключен, нам его нужно включить чтобы alt-server1 передавал (а не отбрасывал) пакеты с внутреннего интерфейса от alt-server2 на внешний, направленный в глобальную сеть.</p>
+<p>Откройте файл конфигурации sysctl.conf:</p>
+<pre><code class="language-plaintext">vim /etc/net/sysctl.conf</code></pre>
+<p>Найдите в этом файле строку net.ipv4.ip_forward = 0, и измените 0 на 1.</p>
+<p>Чтобы применить изменения выполните:</p>
+<pre><code class="language-plaintext">sysctl -p</code></pre>
+<p>Затем включаем NAT:</p>
+<pre><code class="language-plaintext">iptables -t nat -A POSTROUTING -o ens19 -j MASQUERADE</code></pre>
+<p>Где ens19 название вашего интерфейса через который выходите в интернет.</p>
+<p>Сохраняем настройки iptables:</p>
+<pre><code class="language-plaintext">iptables-save &gt;&gt; /etc/sysconfig/iptables</code></pre>
+<p>Запускаем iptables:</p>
+<pre><code class="language-plaintext">systemctl enable --now iptables</code></pre>
+<p>После этого проверьте доступ к глобальной сети с alt-server2:</p>
+<figure class="image"><img src="/ssa/hypervisors/alt/alttop_16.png"></figure>
+<p>Если его нет, вы где-то допустили ошибку.</p>
+<h1><br><span class="text-small"><strong>Контрольные вопросы:</strong></span></h1>
+<ol>
+  <li>Что такое Bridge?</li>
+  <li>С помощью каких инструментов можно создать Bridge в ALT-PVE?</li>
+  <li>Назовите основные сетевые компоненты ALT-PVE.</li>
+  <li>Что такое NAT? С помощью какой утилиты вы его настраивали?</li>
+  <li>Что такое IP Forwarding в Linux? Для чего мы его включали?</li>
+</ol>

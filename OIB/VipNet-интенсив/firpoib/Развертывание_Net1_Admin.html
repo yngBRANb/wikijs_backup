@@ -1,0 +1,172 @@
+<!--
+title: Развертывание Net1-Admin
+description: 
+published: true
+date: 2025-04-23T17:19:43.814Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-04-23T17:19:35.886Z
+-->
+
+<h1>Развертывание Net1-Admin</h1>
+<p>Пункты задания:</p>
+<ol>
+  <li>Установить базу данных на ВМ V-1-Open (незащищенный узел);</li>
+  <li>Установить и настроить рабочее место администратора (ВМ V-1-Adm (ЦО)): Центр управления сетью (серверное приложение ЦУС), Удостоверяющий и ключевой центр (УКЦ); использовать ранее установленную БД;</li>
+  <li>Установить клиент ЦУС на ВМ V-1-DB.</li>
+</ol>
+<blockquote>
+  <p>ВНИМАНИЕ: ЦУС клиент будет установлен на Net1-Admin-</p>
+</blockquote>
+<h3>Часть 1. Установка БД на V-1-DB</h3>
+<p>Для установки БД необходимо создать отдельную директорию:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/8.png" alt="ScreenShot"></figure>
+<p>Далее выбираем в качестве пути для установки папку, которую мы создали:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/9.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/10.png" alt="ScreenShot"></figure>
+<p>Необходимо выбрать установку нового SQL-сервера:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/11.png" alt="ScreenShot"></figure>
+<p>Принимаем лицензионное соглашение:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/12.png" alt="ScreenShot"></figure>
+<p>Пункты, связанные с обновлениями, пропускаем:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/13.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/14.png" alt="ScreenShot"></figure>
+<p>Раздел с дополнениями оставляем без изменений:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/15.png" alt="ScreenShot"></figure>
+<p>В разделе конфигурации стоит указать имя <strong>WINNCCSQL</strong>, чтобы потом не указывать новое имя БД, а использовать значение по умолчанию (увидим далее в ЦУС):</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/16.png" alt="ScreenShot"></figure>
+<p>Для сервиса <strong>SQL Server Browser</strong> устанавливаем параметр <strong>Startup Type</strong> в значение <strong>Automatic</strong>:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/17.png" alt="ScreenShot"></figure>
+<p>В разделе <strong>Authentication Mode</strong> выбираем <strong>Mixed Mode</strong> и указываем пароль:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/18.png" alt="ScreenShot"></figure>
+<blockquote>
+  <p>Пароль - 1234</p>
+</blockquote>
+<p>Настраиваем самый главный параметр - <strong>FILESTREAM</strong> по примеру ниже:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/19.png" alt="ScreenShot"></figure>
+<p>Процесс установки:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/20.png" alt="ScreenShot"></figure>
+<p>Завершение установки:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/21.png" alt="ScreenShot"></figure>
+<p>После установки находим <strong>SQL Server 2014 Configuration Management</strong> в меню <strong>Пуск</strong>:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/22.png" alt="ScreenShot"></figure>
+<p>Включаем <strong>TCP/IP</strong> и <strong>Named Pipes</strong> (последнее - опционально, в прошлой лабораторной работе и без этого было все нормально):</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/23.png" alt="ScreenShot"></figure>
+<p>И перезапускаем <strong>SQL Server</strong>:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/24.png" alt="ScreenShot"></figure>
+<p>На этом установка SQL-сервера завершена</p>
+<h3>Часть 2. Установка серверного приложения ЦУС и УКЦ на V-1-Adm, настройка службы NccService</h3>
+<p>Теперь включаем вторую ВМ V-1-Adm и настраиваем ее, как описано в разделе "Подготовка" (далее подразумевается, что все машины на базе Windows 10 настраиваются аналогично). После этого находим <strong>установщик серверной части ЦУС</strong>:</p>
+<blockquote>
+  <p>\\vmware-host\Shared Folders\ViPNet\ViPNet Administrator.zip\Soft\Центр управления сетью\Server Install\Setup.exe</p>
+</blockquote>
+<blockquote>
+  <p>Обязательно учитываем, что установщик может требовать зависимости, поэтому рекомендуется сначала извлекать полностью папку, а далее устанавливать. Например, для установки серверной части ЦУС, необходимо распаковать папку Server Install. Далее это упоминаться не будет</p>
+</blockquote>
+<p>На данный момент у нас включено и настроено 2 ВМ - <strong>V-1-Adm</strong> и <strong>V-1-DB</strong>. Обязательно проверяем доступность ВМ друг для друга:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/25.png" alt="ScreenShot"></figure>
+<p>Запускаем установщик ЦУС (серверная часть) на V-1-Adm:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/26.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/27.png" alt="ScreenShot"></figure>
+<p>Выбираем язык установки:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/28.png" alt="ScreenShot"></figure>
+<p>Принимаем лицензионное соглашение:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/29.png" alt="ScreenShot"></figure>
+<p>Далее нам необходимо проверить связь с БД, как показано на скриншоте ниже:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/30.png" alt="ScreenShot"></figure>
+<p>Если проверка прошла успешно, переходим к установке:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/31.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/32.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/33.png" alt="ScreenShot"></figure>
+<p>На этом установка серверной части ЦУС на V-1-Adm закончена. Теперь нам необходимо сделать запуск службы <strong>NccService</strong> (для дальнейшей возможности подключения (и поддержания подключения) ЦУС сервер и ЦУС клиент между собой) все также на <strong>V-1-Adm</strong></p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/fix-1.png" alt="ScreenShot"></figure>
+<blockquote>
+  <p>Win + R =&gt; services.msc</p>
+</blockquote>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/fix-2.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/fix-3.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/fix-4.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/fix-5.png" alt="ScreenShot"></figure>
+<blockquote>
+  <p>Данный этап крайне важен, иначе будут проблемы с ЦУС, которые решаются только сносом до исходного состояния ВМ</p>
+</blockquote>
+<p>Далее необходимо <strong>установить УКЦ на V-1-Adm</strong>:</p>
+<blockquote>
+  <p>\\vmware-host\Shared Folders\ViPNet\ViPNet Administrator.zip\Soft\Удостоверяющий и ключевой центр\Setup.exe</p>
+</blockquote>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/34.png" alt="ScreenShot"></figure>
+<p>Принимаем лицензионное соглашение:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/35.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/36.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/37.png" alt="ScreenShot"></figure>
+<p>Запускаем УКЦ. Нам необходимо настроить новую БД:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/38.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/39.png" alt="ScreenShot"></figure>
+<p>Процесс инициализации (следуйте указаниям в сообщении):</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/40.png" alt="ScreenShot"></figure>
+<p>Подключаемся к БД:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/41.png" alt="ScreenShot"></figure>
+<p>Имя и пароль пользователя <strong>не меняем</strong>:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/42.png" alt="ScreenShot"></figure>
+<p>И тут мы получаем ошибку:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/43.png" alt="ScreenShot"></figure>
+<p>Происходит это ввиду того, что мы <strong>не активировали ЦУС через клиентскую часть с помощью лицензии</strong> для сети. <strong>Перейдите к части 3</strong>, установите клиентскую часть ЦУС и установите лицензию <strong>и продолжите установку УКЦ</strong></p>
+<p>Продолжаем (<strong>после проделанных в части 3 работ</strong>):</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/44.png" alt="ScreenShot"></figure>
+<p>Ошибки возникнуть после выполнения части 3 не должно и мы можем продолжить настройку УКЦ:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/45.png" alt="ScreenShot"></figure>
+<p>Сведения о владельце сертификата на данный момент не заполняем (позже мы будем устанавливать новый сертификат):</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/46.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/47.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/48.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/49.png" alt="ScreenShot"></figure>
+<p>В параметрах ключа ЭП значения также оставляем по умолчанию:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/50.png" alt="ScreenShot"></figure>
+<p>Место хранения в "<strong>В файле</strong>":</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/51.png" alt="ScreenShot"></figure>
+<p>Срок действия сертификата, сведения о точках распространения, программные средства также не меняем:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/52.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/53.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/54.png" alt="ScreenShot"></figure>
+<blockquote>
+  <p>Аккредитованный режим настроим отдельно, это отдельная задача, рассматриваемая далее в гайде</p>
+</blockquote>
+<p>Сделаем время до перехода в автоматический режим максимальное - 30 минут</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/55.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/56.png" alt="ScreenShot"></figure>
+<p>Обязательно выбираем "<strong>Собственный пароль</strong>":</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/57.png" alt="ScreenShot"></figure>
+<p>Путь для хранения:</p>
+<blockquote>
+  <p>C:\ProgramData\InfoTeCS\ViPNet Administrator\KC\Export\Autentification Users</p>
+</blockquote>
+<p>Устанавливаем пароль администратора сети ViPNet - <strong>xxXX2244</strong></p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/58.png" alt="ScreenShot"></figure>
+<p>Завершаем первичную инициализацию:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/59.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/60.png" alt="ScreenShot"></figure>
+<p>УКЦ установлен:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/61.png" alt="ScreenShot"></figure>
+<h3>Часть 3. Установка клиентского приложения ЦУС на V-1-Adm</h3>
+<p>Расположение установщика <strong>клиентской части ЦУС</strong>:</p>
+<blockquote>
+  <p>\\vmware-host\Shared Folders\ViPNet\ViPNet Administrator.zip\Soft\Центр управления сетью\Client Install\Setup.exe</p>
+</blockquote>
+<p>Устанавливаем аналогично предыдущим пунктам задания, рассмотренных ранее:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/62.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/63.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/64.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/65.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/66.png" alt="ScreenShot"></figure>
+<p>Включаем ЦУС (клиент), первичный логин/пароль - <strong>Administrator:Administrator</strong></p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/67.png" alt="ScreenShot"></figure>
+<p>Меняем пароль на - <strong>xxXX2244</strong></p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/68.png" alt="ScreenShot"></figure>
+<p>Устанавливаем лицензию для сети:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/69.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/70.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/71.png" alt="ScreenShot"></figure>
+<p>После применения лицензии откроется сам ЦУС:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/72.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/73.png" alt="ScreenShot"></figure>
+<p>На этом установка БД, ЦУС (клиентская и серверная части) и УКЦ завершена</p>

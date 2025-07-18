@@ -1,0 +1,91 @@
+<!--
+title: Установка ESXi
+description: VMware ESXi — это гипервизор 1-ого типа, работающий на собственном ядре — без предварительного запуска операционных систем, вроде Windows или Linux. Кстати, старый ESX сначала запускал ядро Linux.
+published: true
+date: 2025-03-22T09:43:32.425Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-15T12:18:28.550Z
+-->
+
+<p><strong>Цель работы:</strong> установить и освоить интерфейс VMware ESXi.&nbsp;</p>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p>VMware ESXi — это гипервизор 1-ого типа, работающий на собственном ядре — без предварительного запуска операционных систем, вроде Windows или Linux. Кстати, старый ESX сначала запускал ядро Linux. В английском языке гипервизоры 1-ого типа называют “Bare Metal”, что буквально переводится как “голый металл”.</p>
+<p>ESXi довольно сложный программный продукт, состоящий из многих компонентов. Он может работать как самостоятельно так и в составе платформы VMware vSphere, которая даёт централизованный контроль и управление над всей вашей виртуальной инфраструктурой.</p>
+<p>Платформа vSphere, помимо ESXi, включает в себя vCenter Server, vSphere Client (интерфейс для управления), vSphere Update Manager, vSphere Management Assistant (vMA) и другие инструменты и функции.</p>
+<p>Малый бизнес или базовые тестовые среды могут обойтись без vSphere, но для более сложных сценариев, для управления большим количеством хостов виртуализации лучше использовать полный стек vSphere.</p>
+<p>Уникальность ESXi заключается в том, что он написан практически с нуля, размер дистрибутива 348 Мб, большая часть из которых составляют драйверы для многочисленных операционных систем (VMware tools). В самом гипервизоре нет ничего лишнего, все что есть направлено на выполнение задач серверной виртуализации. А когда нет ничего лишнего вероятность поломки значительно уменьшается. Простота администрирования продукта, позволяет даже не очень опытным администраторам разобраться и начать использовать виртуализацию в своей компании.&nbsp;</p>
+<h1><span class="text-small"><strong>Задания для практической работы:</strong></span></h1>
+<h2><span class="text-small">1. Откройте VMware Workstation PRO:</span></h2>
+<figure class="image"><img src="/ssa/hypervisors/esxi_1.png"></figure>
+<p>Выбираем New Virtual Machine:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_2.png"></figure>
+<p>Появится окно создания виртуальной машины.</p>
+<p>Выбираем Typical:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_3.png"></figure>
+<p>Указываем место хранения образа <strong>VMware-VMvisor-Installer</strong>:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_4.png"></figure>
+<p>Выбираем место установки:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_5.png"></figure>
+<p>Выделяем место на диске:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_6.png"></figure>
+<p>На завершающем этапе создания ВМ переходим в "Customize Hardware" для тонкой настройки системных ресурсов:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_7.png"></figure>
+<h2><span class="text-small">2. Приведите настройки ВМ к следующему виду:</span></h2>
+<figure class="image"><img src="/ssa/hypervisors/esxi_8.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/esxi_9.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/esxi_10.png"></figure>
+<h2><span class="text-small">3. Установка ESXi</span></h2>
+<p>Сразу после запуска ESXi вам нужно <strong>быстро</strong> нажать сочетание клавиш <strong>Shift + O</strong></p>
+<p>(eсли вы не успели перезагрузите ВМ ESXi), чтобы в левом нижнем угла появилась строка ввода:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_11.png"></figure>
+<p>Это нужно сделать чтобы в процессе установки сократить системный раздел VMFSL (по умолчанию он равен 140Gb):</p>
+<p>Вот параметры которые можно установить:</p>
+<ul>
+  <li><strong>min </strong>— 33GB, для однодисковых или встроенных серверов;</li>
+  <li><strong>small</strong> — 69GB, для серверов с оперативной памятью не менее 512 ГБ;</li>
+  <li><strong>max</strong> — все доступное пространство, для многотерабайтных серверов.</li>
+</ul>
+<p>Мы установим параметр min, для этого в строку ввода добавьте <strong>systemMediaSize=min</strong></p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_12.png"></figure>
+<p>Чтобы применить установочный параметр нажмите Enter и дождитесь загрузки системы.</p>
+<p>У вас должно появиться окно приветствия:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_13.png"></figure>
+<p>Нажмите Enter и следуйте процедуре установки:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_14.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/esxi_15.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/esxi_16.png"></figure>
+<p>Введите пароль P@ssw0rd и нажмите Enter:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_17.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/esxi_18.png"></figure>
+<p>После окончания установки перезагрузите ESXi нажатием Enter:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_19.png"></figure>
+<h2><span class="text-small">4. Настройка ESXi.</span></h2>
+<p>Сразу после загрузки у вас будет стоять IP-адрес полученный по DHCP:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_20.png"></figure>
+<p>Давайте его поменяем на статический IP 10.10.10.100 + номер вашего рабочего места.</p>
+<p>Для этого нажмите F2 и авторизуйтесь:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_21.png"></figure>
+<p>Выберите пункт <strong>Configure Management Network</strong>:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_22.png"></figure>
+<p>Далее выберите <strong>IPv4 Configuration</strong>:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_23.png"></figure>
+<p>В появившемся меню наведитесь на <strong>Set static IPv4 address and network configuration</strong> и нажмите пробел, после этого заполните сетевые настройки (IPv4 10.10.10.100 + номер вашего рабочего места).</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_24.png"></figure>
+<p>Так же давайте сменим hostname, для этого выберите <strong>DNS Configuration</strong>:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_25.png"></figure>
+<p>Введите ваш hostname:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_26.png"></figure>
+<p>Чтобы сохранить нажмите Enter, а затем Esc, после этого подтвердите сохранение:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_27.png"></figure>
+<p>Выйдите на главный экран и проверьте правильно ли установился IP-адрес.</p>
+<p>Если все хорошо вы можете подключиться к ESXi введя в браузере свой IP-адрес:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi_install19.png"></figure>
+<h1><br><span class="text-small"><strong>Контрольные вопросы</strong></span></h1>
+<ol>
+  <li>Что такое гипервизор?</li>
+  <li>Какие типы гипервизоров вы знаете? Чем они отличаются? Назовите примеры.</li>
+  <li>Что такое ESXi?</li>
+  <li>Что такое vSphere? Для чего она нужна?</li>
+  <li>Какие компоненты входят в платформу vSphere?</li>
+</ol>

@@ -1,0 +1,349 @@
+<!--
+title: Создание Kubernetes кластера с помощью kubespray
+description: 
+published: true
+date: 2025-07-13T15:21:22.426Z
+tags: devops, kubernetes
+editor: ckeditor
+dateCreated: 2025-07-11T21:21:54.630Z
+-->
+
+<h1><span class="text-small">Введение</span></h1>
+<p>Kubernetes (K8s) - это система оркестрации с открытым исходным кодом, разработанная для автоматизации развертывания, масштабирования и управления контейнеризованными приложениями. Она позволяет упростить работу с контейнерами, обеспечивая автоматическое управление жизненным циклом приложений, балансировку нагрузки и масштабирование.</p>
+<p>В Kubernetes узлы (Nodes) делятся на два основных типа: главные узлы (Master Nodes или Control Plane) и рабочие узлы (Worker Nodes). Главные узлы отвечают за управление кластером Kubernetes, в то время как рабочие узлы выполняют фактическую работу, запуская контейнеры с приложениями.</p>
+<p>Так как эта статья может устареть, перед установкой лучше узнать актуальную информацию в официальных репозиториях или на сайте kubespray:</p>
+<ul>
+  <li><a href="https://kubespray.io/#/">Официальный сайт</a></li>
+  <li><a href="https://github.com/kubernetes-sigs/kubespray?tab=readme-ov-file">GitHub kubespray</a></li>
+  <li><a href="https://gitlab.com/kargo-ci/kubernetes-sigs-kubespray">GitLab kubespray</a></li>
+</ul>
+<h2><span class="text-small">Возможности и требования kubespray</span></h2>
+<p>В отличие от kubeadm, в котором дополнительные компоненты приходится ставить вручную, kubespray позволяет их добавить в кластер при установке автоматически. Поэтому кластер созданный с помощью kubespray, уже с самого начала может не быть “голым” и подходить для использования в production среде.</p>
+<p>Так же kubespray дает возможность установить кластер с несколькими Control Plane для отказоустойчивости. Но при использовании kubespray не все параметры k8s узлов выставляются автоматически, вот что делает сам kubespray, помимо установки компонентов k8s:</p>
+<ul>
+  <li>Добавляет модули в <code>/etc/modules-load.d/k8s.conf</code>.</li>
+  <li>Применяет <code>modprobe br_netfilter overlay</code>.</li>
+  <li>Настраивает <code>sysctl</code> параметры (например, <code>net.ipv4.ip_forward=1</code>).</li>
+  <li>Настраивает NTP (параметры указываются в group_vars/all/all.yml).</li>
+</ul>
+<p>А вот что нужно будет сделать вручную на узлах перед использованием kubespray:</p>
+<ul>
+  <li>Отключить SWAP.</li>
+  <li>Открыть порты Firewall (есть он есть и работает).</li>
+  <li>Отключить SELinux.</li>
+  <li>Обеспечить связность узлов по доменным именам.</li>
+</ul>
+<h2><span class="text-small">Характеристики будущего кластера</span></h2>
+<ul>
+  <li>Устанавливаемая версия K8s - 1.33.2</li>
+  <li>Создание кластера - kubespay</li>
+  <li>Дистрибутив - RHEL 10.0</li>
+  <li>CRI - Containerd</li>
+  <li>Количество узлов:<ul>
+      <li>Master - 3 шт.</li>
+      <li>Worker - 2 шт.</li>
+      <li>Storage - 3 шт. (в статье по Ceph)</li>
+    </ul>
+  </li>
+</ul>
+<p>Каждый узел Kubernetes должен иметь соответствующую DNS запись, чтобы узлы могли обращаться к друг другу по именам.</p>
+<h2><span class="text-small">Подготовка узлов к вводу в K8s</span></h2>
+<p>Для начала обновите дистрибутив и отключите файл подкачки (SWAP):</p>
+<pre><code class="language-plaintext">sudo dnf update
+
+# Отключение файла подкачки
+sudo swapoff -a
+sudo sed -i '/ swap / s/^/#/' /etc/fstab
+</code></pre>
+<p>Так же для корректной работы требуется отключить SELinux:</p>
+<pre><code class="language-plaintext">sudo setenforce 0
+sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+</code></pre>
+<p>Открытие портов на Master Node:</p>
+<pre><code class="language-plaintext"># Добавляем основные порты для Master Node
+sudo firewall-cmd --permanent --zone=public --add-port=443/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=6443/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=2379-2380/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=10250/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=10259/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=10257/tcp
+
+# Если используется CNI Calico (BGP)
+sudo firewall-cmd --permanent --zone=public --add-protocol=ipip
+sudo firewall-cmd --permanent --zone=public --add-port=9099/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=5473/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=179/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=4789/udp
+
+## Разрешить весь трафик через интерфейсы Calico
+sudo firewall-cmd --permanent --direct --add-rule ipv4 filter INPUT 0 -i cali+ -j ACCEPT
+sudo firewall-cmd --permanent --direct --add-rule ipv4 filter FORWARD 0 -i cali+ -j ACCEPT
+sudo firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -o cali+ -j ACCEPT
+
+## Разрешить весь трафик между подами
+sudo firewall-cmd --permanent --add-rich-rule='rule family=ipv4 source address=10.233.0.0/18 destination address=10.233.0.0/18 accept'
+
+# Опционально: открываем NodePort диапазон
+sudo firewall-cmd --permanent --zone=public --add-port=30000-32767/tcp
+
+# Перезагружаем firewalld
+sudo firewall-cmd --reload
+
+# Проверяем открытые порты
+sudo firewall-cmd --zone=public --list-ports
+</code></pre>
+<p>Открытие портов на Worker Node:</p>
+<pre><code class="language-plaintext"># Добавляем порты для Worker Node
+sudo firewall-cmd --permanent --zone=public --add-port=443/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=10250/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=30000-32767/tcp
+
+# Если используется CNI Calico (BGP)
+sudo firewall-cmd --permanent --zone=public --add-protocol=ipip
+sudo firewall-cmd --permanent --zone=public --add-port=9099/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=5473/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=179/tcp
+sudo firewall-cmd --permanent --zone=public --add-port=4789/udp
+
+## Разрешить весь трафик через интерфейсы Calico
+sudo firewall-cmd --permanent --direct --add-rule ipv4 filter INPUT 0 -i cali+ -j ACCEPT
+sudo firewall-cmd --permanent --direct --add-rule ipv4 filter FORWARD 0 -i cali+ -j ACCEPT
+sudo firewall-cmd --permanent --direct --add-rule ipv4 filter OUTPUT 0 -o cali+ -j ACCEPT
+
+## Разрешить весь трафик между подами
+sudo firewall-cmd --permanent --add-rich-rule='rule family=ipv4 source address=10.233.0.0/18 destination address=10.233.0.0/18 accept'
+
+# Для CoreDNS (если поды используют DNS)
+sudo firewall-cmd --permanent --zone=public --add-port=53/udp
+sudo firewall-cmd --permanent --zone=public --add-port=53/tcp
+
+# Перезагружаем firewalld
+sudo firewall-cmd --reload
+
+# Проверяем открытые порты
+sudo firewall-cmd --zone=public --list-ports
+</code></pre>
+<h2><span class="text-small">Подготовка управляющего узла с kubespray</span></h2>
+<p>Помимо узлов самого K8s кластера, нам будет еще нужен узел с которого мы будем управлять созданием кластера посредством kubespray.</p>
+<p>На нем нужно подготовить среду для работы python-venv :</p>
+<pre><code class="language-plaintext">sudo dnf makecache &amp;&amp; sudo dnf update -y
+sudo dnf install python3 python3-devel python3-pip git
+</code></pre>
+<p>После чего, нужно с kubespray узла обеспечить доступ по ssh без ввода пароля до всех k8s нод</p>
+<pre><code class="language-plaintext">ssh-keygen -t ed25519 -f ~/.ssh/kubespray
+ssh-copy-id -i ~/.ssh/kubespray.pub service@master-1.k8s.rhel
+ssh-copy-id -i ~/.ssh/kubespray.pub service@master-2.k8s.rhel
+ssh-copy-id -i ~/.ssh/kubespray.pub service@master-3.k8s.rhel
+ssh-copy-id -i ~/.ssh/kubespray.pub service@worker-1.k8s.rhel
+ssh-copy-id -i ~/.ssh/kubespray.pub service@worker-2.k8s.rhel
+</code></pre>
+<p>Клонируем репозиторий Kubespray:</p>
+<pre><code class="language-plaintext">cd
+git clone https://github.com/kubernetes-sigs/kubespray.git
+cd kubespray
+</code></pre>
+<p>Создадим виртуальное окружение Python в каталоге kubespray-venv:</p>
+<pre><code class="language-plaintext">python3 -m venv kubespray-venv
+source ~/kubespray/kubespray-venv/bin/activate
+</code></pre>
+<p>Установка необходимых зависимостей для проекта, перечисленных в файле requirements.txt:</p>
+<pre><code class="language-plaintext">pip install -U -r requirements.txt
+</code></pre>
+<p>Перейдём к установке Kubernetes-кластера. Подготовим наш инвентарь, шаблон находится в папке sample, мы его скопируем под новым именем и будем использовать при установке:</p>
+<pre><code class="language-plaintext">cp -rfp inventory/sample inventory/k8s
+</code></pre>
+<p>В новых версиях я не нашел возможность сгенерировать inventory автоматические поэтому, решил заполнить его вручную. Вот пример моей конфигурации файла inventory/k8s/inventory.ini:</p>
+<pre><code class="language-plaintext">[all]
+master-1.k8s.rhel ip=172.16.1.101
+master-2.k8s.rhel ip=172.16.1.102
+master-3.k8s.rhel ip=172.16.1.103
+worker-1.k8s.rhel ip=172.16.1.111
+worker-2.k8s.rhel ip=172.16.1.112
+
+[kube_control_plane]
+master-1.k8s.rhel
+master-2.k8s.rhel
+master-3.k8s.rhel
+
+[etcd]
+master-1.k8s.rhel etcd_member_name=etcd1
+master-2.k8s.rhel etcd_member_name=etcd2
+master-3.k8s.rhel etcd_member_name=etcd3
+
+[kube_node]
+worker-1.k8s.rhel
+worker-2.k8s.rhel
+
+[calico_rr]
+
+[k8s_cluster:children]
+kube_control_plane
+kube_node
+
+[all:vars]
+ansible_user=service
+ansible_ssh_private_key_file=~/.ssh/kubespray
+
+# Если все узлы Kubernetes в одной L2 сети, то для повышения производительности можно использовать
+calico_ipv4pool_ipip=Never
+# Для выхода подов в Интернет
+calico_ipv4pool_nat_outgoing=true
+</code></pre>
+<p><strong>Что за что отвечает?</strong></p>
+<figure class="table">
+  <table>
+    <thead>
+      <tr>
+        <th><strong>Группа/Параметр</strong></th>
+        <th><strong>Назначение</strong></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>[all]</code></td>
+        <td>Все ноды кластера (должны быть перечислены здесь в первую очередь!).</td>
+      </tr>
+      <tr>
+        <td><code>ip=</code></td>
+        <td>Обязательный параметр — IP ноды в сети.</td>
+      </tr>
+      <tr>
+        <td><code>[kube_control_plane]</code></td>
+        <td>Ноды с компонентами kube-apiserver, kube-scheduler, kube-controller-manager.</td>
+      </tr>
+      <tr>
+        <td><code>[etcd]</code></td>
+        <td>Ноды с etcd (хранилище состояния кластера). Рекомендуется 3 или 5 нод.</td>
+      </tr>
+      <tr>
+        <td><code>etcd_member_name</code></td>
+        <td>Уникальное имя для etcd (например, <code>etcd1</code>, <code>etcd2</code>).</td>
+      </tr>
+      <tr>
+        <td><code>[kube_node]</code></td>
+        <td>Worker-ноды, где будут запускаться Pod'ы.</td>
+      </tr>
+      <tr>
+        <td><code>[k8s_cluster:children]</code></td>
+        <td>Техническая группа, объединяющая мастеров и воркеров.</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Открываем файл <strong>inventory/k8s/group_vars/all/all.yml</strong> и редактируем следующие значения:</p>
+<pre><code class="language-plaintext"># При использовании нескольких мастеров нужно использовать встроенный LB
+# Если отключить этот параметр, придется разворачивать LB для Master Nodes самостоятельно
+loadbalancer_apiserver_localhost: true
+
+# Если ввести параметр true, то в pod'ах будут использоваться DNS из списка upstream_dns_servers
+# Если ввести параметр false, то в pod'ах будет использоваться тот же DNS что настроен на узле
+disable_host_nameservers: false
+upstream_dns_servers:
+   - 172.16.0.50
+   - 172.16.0.1
+
+# Если у вас уже настроен NTP-client на узлах, то лучше оставить оба значения false
+# В противном же случае нужно установить true и задать желаемые NTP серверы
+ntp_enabled: false
+ntp_manage_config: false
+ntp_servers:
+  - "0.pool.ntp.org iburst"
+  - "1.pool.ntp.org iburst"
+  - "2.pool.ntp.org iburst"
+  - "3.pool.ntp.org iburst"
+
+# Если при инициализации кластера нужна подробный ввод, в т.ч. с секретами, нужно поставить true
+# В production среде лучше использовать false
+unsafe_show_logs: false
+</code></pre>
+<p>В файле <strong>inventory/k8s/group_vars/k8s_cluster/k8s-cluster.yml</strong> так же содержаться важные значения:</p>
+<pre><code class="language-plaintext">kube_network_plugin: calico
+kube_proxy_mode: ipvs
+cluster_name: k8s.rhel
+</code></pre>
+<p>При использовании calico + ipvs нужно зайти в файл <strong>inventory/k8s/group_vars/k8s-cluster/k8s-net-calico.yml</strong> и добавить:</p>
+<pre><code class="language-plaintext">calico_ipvs_strict_arp: true
+
+# Стандартную сеть Calico 192.168.0.0/16 было решено сменить
+calico_ipv4pool_cidr: "10.233.64.0/18"
+</code></pre>
+<p>Зайдите в файл <strong>inventory/k8s/group_vars/k8s_cluster/addons.yml</strong> и включите желаемые дополнения, которые будут установлены в кластер:</p>
+<pre><code class="language-plaintext"># Стандартные дополенения (их лучше включать всегда при bare-metal установке)
+helm_enabled: true
+metrics_server_enabled: true
+ingress_nginx_enabled: true
+metallb_enabled: true
+
+# Сетевые политики Calico
+network_policy_enabled: true
+
+# Стандартный Dashboard
+dashboard_enabled: true
+</code></pre>
+<h2><span class="text-small">Запуск kubespray playbook</span></h2>
+<p>Проверка конфигурации Ansible на ошибки:</p>
+<pre><code class="language-plaintext"># Проверка доступности узлов через Ansible
+ansible -i inventory/k8s/inventory.ini all -m ping
+
+# Проверка прав sudo на узлах
+ansible -i inventory/k8s/inventory.ini all -m ping --become --become-user=root</code></pre>
+<p>Перед запуском основного плейбука нужно совершить проверочный запуск для отлова большинства ошибок</p>
+<pre><code class="language-plaintext">ansible-playbook -i inventory/k8s/inventory.ini \
+                 --become cluster.yml \ 
+                 --tags=preinstall \ 
+                 --check
+</code></pre>
+<p>Мы выполнили необходимые настройки для установки кластера, теперь пробуем запустить ansible с нужными нам параметрами.</p>
+<pre><code class="language-plaintext">ansible-playbook -i inventory/k8s/inventory.ini \ 
+                 --become cluster.yml \ 
+                 --become-user=root
+</code></pre>
+<p>И если все хорошо, после завершения работы Ansible (примерно минут 10 - 15), мы получим готовый кластер.</p>
+<p>После чего с любой из Master Nodes можно управлять кластером выполнив команды:</p>
+<pre><code class="language-plaintext">mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+</code></pre>
+<h2><span class="text-small">Добавление ноды в кластер</span></h2>
+<p>Кластер уже создан, но может возникнуть надобность добавить в него еще парочку узлов, для этого не нужно пересоздавать кластер используя playbook cluster.yml, для этого есть специальный - scale.yml.</p>
+<p>Значит ход действий при добавлении новых узлов в кластер будет следующий:</p>
+<ul>
+  <li>Подготовка узлов (SWAP, Firewall etc.)</li>
+  <li>Отправка ключей ssh с узла kubespray на новые ноды</li>
+  <li>Обновление инвентарного файла inventory.ini</li>
+  <li>Запуск плейбука scale.yml</li>
+</ul>
+<p>Плейбук нужно запустить следующим образом:</p>
+<pre><code class="language-plaintext">ansible-playbook -i inventory/k8s/inventory.ini --become scale.yml --become-user=root
+</code></pre>
+<h2><span class="text-small">Удаление ноды из кластера</span></h2>
+<p>Здесь все еще проще, нужно для начало очистить ноду от подов, а затем выполнить playbook для удаления из кластера:</p>
+<pre><code class="language-plaintext">kubectl drain &lt;node-name&gt; --ignore-daemonsets --delete-emptydir-data
+
+ansible-playbook -i inventory/k8s/inventory.ini --become remove-node.yml \
+                 -e "node=&lt;node-name&gt;" --become-user=root
+</code></pre>
+<h2><span class="text-small">Изменение настроек кластера</span></h2>
+<p>Если нужно изменить параметры (например, CNI с Calico на Cilium, версию Kubernetes, параметры etcd):</p>
+<ul>
+  <li>Обновить конфигурацию в group_vars/</li>
+  <li>Применить изменения</li>
+</ul>
+<p>Примеры изменений:</p>
+<pre><code class="language-plaintext"># Изменить версию Kubernetes
+kube_version: "v1.34.1"
+
+# Сменить CNI (например, с Calico на Cilium)
+kube_network_plugin: "cilium"
+
+# Изменить параметры etcd
+etcd_deployment_type: "host"  # или "docker", "kubeadm"
+</code></pre>
+<p>Применение изменений:</p>
+<pre><code class="language-plaintext">ansible-playbook -i inventory/k8s/inventory.ini cluster.yml --become cluster.yml --become-user=root
+</code></pre>
+<blockquote>
+  <p><strong>Важно:</strong></p>
+  <p>Некоторые изменения (например, смена CNI) могут потребовать <strong>перезапуска кластера</strong> или <strong>миграции</strong>.</p>
+  <p>Изменение <code>kube_version</code> может потребовать <strong>апгрейда через минорные версии</strong> (например, <code>1.27 → 1.28</code>, но не <code>1.25 → 1.28</code> сразу).</p>
+</blockquote>

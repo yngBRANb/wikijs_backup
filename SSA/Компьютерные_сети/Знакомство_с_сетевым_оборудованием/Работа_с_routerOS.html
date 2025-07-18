@@ -1,0 +1,52 @@
+<!--
+title: Знакомство с RouterOS
+description: 
+published: true
+date: 2025-04-23T09:17:35.093Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-04-23T09:17:27.564Z
+-->
+
+<p>Подключение к маршрутизатору</p>
+<ul>
+  <li>Подключитесь к маршрутизатору через Winbox или SSH.</li>
+</ul>
+<p>Создание пользователя</p>
+<ul>
+  <li>Создайте нового пользователя с ограниченными правами (группа "read").</li>
+  <li>Команда: <code>/user add name=student password=student123 group=read comment="Студент"</code></li>
+</ul>
+<p>Настройка IP-адреса</p>
+<ul>
+  <li>Назначьте IP-адрес 192.168.10.1/24 на интерфейс ether1.</li>
+  <li>Команда: <code>/ip address add address=192.168.10.1/24 interface=ether1</code></li>
+</ul>
+<p>Настройка DHCP-сервера</p>
+<ul>
+  <li>Настройте DHCP-сервер на интерфейсе ether1 для выдачи IP-адресов в диапазоне 192.168.10.100-192.168.10.200.</li>
+  <li>Команды:&nbsp;</li>
+</ul>
+<pre><code class="language-plaintext">/ip pool add name=dhcp_pool ranges=192.168.10.100-192.168.10.200 
+/ip dhcp-server add name=dhcp1 interface=ether1 address-pool=dhcp_pool disabled=no 
+/ip dhcp-server network add address=192.168.10.0/24 gateway=192.168.10.1</code></pre>
+<p>Настройка маршрута по умолчанию</p>
+<ul>
+  <li>Создайте статический маршрут по умолчанию через шлюз 192.168.1.1.</li>
+  <li>Команда:<code> /ip route add dst-address=0.0.0.0/0 gateway=192.168.1.1</code></li>
+</ul>
+<p>Настройка NAT (маскарадинг)</p>
+<ul>
+  <li>Настройте NAT для выхода в интернет через интерфейс ether2.</li>
+  <li>Команда: <code>/ip firewall nat add chain=srcnat out-interface=ether2 action=masquerade</code></li>
+</ul>
+<p>Проверка подключения</p>
+<ul>
+  <li>Проверьте доступность внешнего ресурса, например, ping 8.8.8.8.</li>
+  <li>Команда: <code>/ping 8.8.8.8</code></li>
+</ul>
+<p>Сохранение конфигурации</p>
+<ul>
+  <li>Сохраните текущую конфигурацию.</li>
+  <li>Команда: <code>/system backup save name=student_backup</code></li>
+</ul>

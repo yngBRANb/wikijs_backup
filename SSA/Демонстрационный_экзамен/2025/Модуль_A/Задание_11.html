@@ -1,0 +1,155 @@
+<!--
+title: Настройка DNS для офисов HQ и BR
+description: Установка DNS сервера BIND9 в ALT Linux
+published: true
+date: 2025-03-14T02:45:37.667Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-18T11:20:20.940Z
+-->
+
+<h1><span class="text-small"><strong>Основной DNS-сервер реализован на HQ-SRV</strong></span></h1>
+<p>Сервер должен обеспечивать разрешение имён в сетевые адреса устройств и обратно в соответствии с Таблицей 2</p>
+<figure class="table">
+  <table>
+    <tbody>
+      <tr>
+        <td>Устройство</td>
+        <td>Запись</td>
+        <td>Тип записи</td>
+        <td>Адрес для сопоставления</td>
+      </tr>
+      <tr>
+        <td>HQ-RTR</td>
+        <td>hq-rtr.au.team.irpo</td>
+        <td>A, PTR</td>
+        <td>192.168.10.1</td>
+      </tr>
+      <tr>
+        <td>HQ-SRV</td>
+        <td>hq-srv.au.team.irpo</td>
+        <td>A, PTR</td>
+        <td>192.168.10.2</td>
+      </tr>
+      <tr>
+        <td>HQ-CLI</td>
+        <td>hq-cli.au.team.irpo</td>
+        <td>A, PTR</td>
+        <td>192.168.10.66</td>
+      </tr>
+      <tr>
+        <td>BR-RTR</td>
+        <td>br-srv.au.team.irpo</td>
+        <td>A</td>
+        <td>192.168.20.1</td>
+      </tr>
+      <tr>
+        <td>BR-SRV</td>
+        <td>br-srv.au.team.irpo</td>
+        <td>A</td>
+        <td>192.168.20.2</td>
+      </tr>
+      <tr>
+        <td>BR-SRV</td>
+        <td>moodle.au.team.irpo</td>
+        <td>CNAME</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td>BR-SRV</td>
+        <td>wiki.au.team.irpo</td>
+        <td>CNAME</td>
+        <td>&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>В этой таблице указаны записи которые мы должны разместить в нашей DNS зоне au-team.irpo.</p>
+<p>Перейдем к серверу HQ-SRV и <strong>начнем настройку</strong>:</p>
+<pre><code class="language-plaintext">apt-get install bind bind-utils
+systemctl enable --now bind
+
+# В альте папка для мастер зоны по умолчанию отсутствует
+mkdir /etc/bind/zone/master
+
+# Создаем зоны (мы копируем готовые шаблоны, чтобы не писать все с нуля)
+cp /etc/bind/zone/localhost /etc/bind/zone/master/au-team.irpo                      //прямая зона
+cp /etc/bind/zone/127.in-addr.arpa /etc/bind/zone/master/10.168.192.in-addr.arpa    //обратная зона
+
+# Меняем права на папку master и ее содержимое
+chown root:named /etc/bind/zone/master
+chown root:named /etc/bind/zone/master/*</code></pre>
+<h1><span class="text-small">Зоны DNS</span></h1>
+<p>Подготовительные манипуляции позади, теперь нужно заполнить сами файлы зон</p>
+<h2><span class="text-small"><strong>Зона прямого просмотра au-team.irpo</strong></span></h2>
+<p>Откройте файл зоны /etc/bind/zone/master/au-team.irpo и приведите его к виду:</p>
+<pre><code class="language-plaintext">$TTL    1D
+@       IN      SOA     hq-srv.au-team.irpo. root.au-team.irpo. (
+                                2023092600     &nbsp;; serial
+                                12H            &nbsp;; refresh
+                                1H             &nbsp;; retry
+                                1W             &nbsp;; expire
+                                1H             &nbsp;; ncache
+                        )
+@       IN      NS      hq-srv.au-team.irpo.
+hq-rtr  IN      A       192.168.10.1
+hq-srv  IN      A       192.168.10.2
+hq-cli	IN      A       192.168.10.66
+
+br-rtr	IN      A       172.16.5.2
+br-srv  IN      A       192.168.20.2
+
+moodle	IN      CNAME   br-srv
+wiki	  IN      CNAME   br-srv</code></pre>
+<h2><span class="text-small"><strong>Зона обратного просмотра 10.168.192.in-addr.arpa</strong></span></h2>
+<p>Откройте файл зоны /etc/bind/zone/master/10.168.192.in-addr.arpa и приведите его к виду:</p>
+<pre><code class="language-plaintext">$TTL    1D
+@       IN      SOA     hq-srv.au-team.irpo. root.au-team.irpo. (
+                                2023092600     &nbsp;; serial
+                                12H            &nbsp;; refresh
+                                1H             &nbsp;; retry
+                                1W             &nbsp;; expire
+                                1H             &nbsp;; ncache
+                        )
+@       IN      NS      hq-srv.au-team.irpo.
+1       IN      PTR     hq-rtr.au-team.irpo.    
+2       IN      PTR     hq-srv.au-team.irpo.
+66      IN      PTR     hq-cli.au-team.irpo.</code></pre>
+<p>Осталось настроить еще 2 файла:</p>
+<ul>
+  <li>/etc/bind/local.conf — здесь вы должны определить зону, ее тип, и файл в котором он хранится</li>
+  <li>/etc/bind/options.conf — тут определяются параметры самого DNS сервера.</li>
+</ul>
+<p>Настроим local.conf:</p>
+<pre><code class="language-plaintext">zone “au-team.irpo” {
+    type master;
+    file “master/au-team.irpo”;     // указываем расположения файла зоны
+};
+
+zone “10.168.192.in-addr.arpa" {
+    type master;
+    file “master/10.168.192.in-addr.arpa”;
+};</code></pre>
+<p>А теперь перейдем к options.conf:</p>
+<pre><code class="language-plaintext"># Все эти строки уже есть в конфиге, их нужно просто изменить или расскоментировать
+options {
+    listen-on { any; };
+#   listen-on-v6 {&nbsp;::1; }    //Нужно закомментировать
+
+    forward only;
+    forwarders { 8.8.8.8; 8.8.4.4; };
+
+    allow-query { any; };
+    allow-query-cache { any; };
+    allow-recursion { any; };
+};</code></pre>
+<p>После этого можете перезагружать демон DNS:</p>
+<pre><code class="language-plaintext">systemctl restart bind</code></pre>
+<p>Если у вас возникла ошибка проверьте конфиги используя встроенную утилиту:</p>
+<pre><code class="language-plaintext">named-checkconf</code></pre>
+<p>По-хорошему надо бы еще зайти в resolv.conf интерфейса на hq-srv, и указать там свой же адрес (не localhost и не 127.0.0.1), чтобы проверить работу DNS через команду nslookup:</p>
+<pre><code class="language-plaintext">nslookup br-rtr.au-team.irpo
+nslookup hq-cli.au-team.irpo
+nslookup 192.168.20.2
+nslookup ya.ru</code></pre>
+<p>Если все эти команды выполнены без ошибок, вы все сделали правильно</p>

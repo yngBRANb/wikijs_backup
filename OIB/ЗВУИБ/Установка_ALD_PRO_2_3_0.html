@@ -1,0 +1,116 @@
+<!--
+title: Установка ALD PRO 2.4.0
+description: 
+published: true
+date: 2025-03-11T16:19:19.888Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-03-06T14:59:26.188Z
+-->
+
+<h2>Настройка виртуальной машины.</h2>
+<p>1. Параметры виртуальной машины:&nbsp;</p>
+<ul>
+  <li>2 ЦП;</li>
+  <li>4 ОЗУ;</li>
+  <li>Диск от 30 ГБ;</li>
+</ul>
+<p>2. ОС Astra Linux SE 1.7.5 “Смоленск”</p>
+<h2>Предварительная настройка ОС</h2>
+<p>Отключите службу Network Manager если она установлена</p>
+<pre><code class="language-plaintext">sudo systemctl stop NetworkManager
+sudo systemctl disable NetworkManager
+sudo systemctl mask NetworkManager
+sudo systemctl status NetworkManager</code></pre>
+<p>После отключения NetworkManager сетевые настройки нужно задавать вручную в файлах <code>interfaces</code> и <code>resolv.conf</code>. Файл <code>/etc/network/interfaces</code> используется &nbsp;для конфигурирования сетевых интерфейсов. Изменим его в любом тестовом редакторе, например, <code>nano</code>:</p>
+<pre><code class="language-plaintext">sudo nano /etc/network/interfaces</code></pre>
+<pre><code class="language-plaintext">auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+  address 192.168.99.10 
+  netmask 255.255.255.0 
+  gateway 192.168.99.1	</code></pre>
+<ul>
+  <li style="text-align:justify;"><strong>auto eth0</strong> — строка, начинающаяся со слова «<strong>auto</strong>», указывает интерфейс, который будет подниматься автоматически при вызове команды «<strong>ifup -a</strong>». Посмотреть список доступных интерфейсов можно командой «<strong>ip a</strong>», первый сетевой интерфейс обычно имеет идентификатор <strong>eth0</strong>. Выберите нужный сетевой интерфейс из этого списка.</li>
+  <li style="text-align:justify;"><strong>iface eth0 inet static</strong> — строка со словом «<strong>iface</strong>» начинает группу строк, отвечающих за настройку указанного интерфейса. Следующее слово «<strong>inet</strong>/<strong>inet6</strong>» указывает, какой протокол будет использоваться: IPv4 или IPv6 соответственно. Следующее слово «<strong>static</strong> или <strong>dhcp</strong>» указывает способ назначения настроек: вручную или динамически.</li>
+  <li style="text-align:justify;"><strong>address</strong>, <strong>netmask</strong>, <strong>gateway</strong> — задают IP-адрес, маску и шлюз по умолчанию для интерфейса, указанного в предшествующей ей строке «<strong>iface</strong>» (при условии, что для него выбран способ назначения настроек «<strong>static</strong>»).</li>
+</ul>
+<p style="text-align:justify;">Чтобы применить новые настройки, следует перезапустить службу networking командой <code>systemctl restart networking</code></p>
+<pre><code class="language-plaintext">sudo systemctl restart networking</code></pre>
+<p>Для возможности обращения к публичным репозиториям следует настроить функцию разрешения имен.</p>
+<pre><code class="language-plaintext">sudo nano /etc/resolv.conf</code></pre>
+<p>&nbsp;</p>
+<pre><code class="language-plaintext">nameserver 77.88.8.8 #IP адрес DNS сервера</code></pre>
+<p>После настройки службы разрешения имен проверьте подключение к репозиториям Astra Linux:</p>
+<pre><code class="language-plaintext">localadmin@astra:~$ ping -c 4 dl.astralinux.ru
+PING dl.astralinux.ru (51.250.6.116) 56(84) bytes of data.
+64 bytes from 51.250.6.116 (51.250.6.116): icmp_seq=1 ttl=52 time=31.9 ms
+64 bytes from 51.250.6.116 (51.250.6.116): icmp_seq=2 ttl=52 time=27.2 ms
+. . .</code></pre>
+<h2>Настройка имени хоста</h2>
+<p>Имя хоста должно быть задано в формате полного имени <i>FQDN</i> (<i>от англ. Fully Qualified Domain Name</i>), например, “<strong>dc.office.lab”</strong>, где "<strong>office.lab</strong>" — это название домена предприятия.</p>
+<pre><code class="language-plaintext">sudo hostnamectl set-hostname dc.office.lab</code></pre>
+<p>Для того, чтобы имя контроллера всегда могло быть преобразовано в IP-адрес даже при недоступности DNS-сервиса, в файл <code>/etc/hosts</code> требуется добавить строку, соответствующую его FQDN. В эту строку рекомендуется вписать не только полное, но и короткое имя хоста, только первым по списку <strong>обязательно</strong> должно идти полное имя хоста.</p>
+<pre><code class="language-plaintext">sudo nano /etc/hosts</code></pre>
+<pre><code class="language-plaintext">127.0.0.1 localhost.localdomain localhost
+192.168.99.10 dc.office.lab dc</code></pre>
+<p>После изменения имени хоста желательно сделать перезагрузку:</p>
+<pre><code class="language-plaintext">sudo reboot</code></pre>
+<h2>Подключение репозиториев</h2>
+<p>Файлы программ Linux объединяются в пакеты и распространяются через специальные хранилища, называемые репозиториями. Основным файлом для хранения списка доступных репозиториев является <code>/etc/apt/sources.list</code>.</p>
+<pre><code class="language-plaintext">deb http://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.5/repository-base 1.7_x86-64 main non-free contrib
+deb http://dl.astralinux.ru/astra/frozen/1.7_x86-64/1.7.5/repository-extended 1.7_x86-64 main contrib non-free</code></pre>
+<p>Необходимо также создать отдельный список источников программного обеспечения для ALD Pro в файле <code>/etc/apt/sources.list.d/aldpro.list</code> командой:</p>
+<pre><code class="language-plaintext">sudo nano /etc/apt/sources.list.d/aldpro.list</code></pre>
+<p>Вставим в этот файл ссылку на deb-репозиторий продукта:</p>
+<pre><code class="language-plaintext">deb https://dl.astralinux.ru/aldpro/frozen/01/2.4.0 1.7_x86-64 main base</code></pre>
+<h2>Обновление программных пакетов</h2>
+<p>Проверьте, нет ли пакетов, доступных для обновления, и обновите систему, если таковые будут обнаружены. Выполним следующие команды:</p>
+<pre><code class="language-plaintext">sudo apt update
+sudo apt list --upgradable
+sudo apt dist-upgrade -y -o Dpkg::Options::=--force-confnew</code></pre>
+<p>Использовать команду <code>sudo apt upgrade</code> для обновления операционной системы <strong>категорически запрещается</strong>, т. к. она не удаляет устаревшие пакеты, даже если это требуется для обновления приложений, что может нарушить работу операционной системы. Поэтому вместо нее следует использовать утилиту <code>astra-update</code>.</p>
+<p>Похожий результат можно получить командой <code>dist-upgrade</code>, причем при обновлении продукта ALD Pro ее необходимо вызывать с опцией <code>--force-confnew</code>, чтобы пакетный менеджер мог переопределить содержимое конфигурационных файлов, даже если они были изменены из скриптов установки или вручную. При вызове команды без параметров она использует стратегию <code>--force-confold</code>.</p>
+<h2>Установка контроллера домена</h2>
+<p>Установка пакетов ALD Pro на контроллере домена</p>
+<p>Теперь система готова к установке пакетов серверной части ALD Pro. Для этого выполните команду:</p>
+<pre><code class="language-plaintext">sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -q aldpro-mp</code></pre>
+<p>Повышение роли сервера до контролера домена&nbsp;</p>
+<p style="text-align:justify;">Все готово для продвижения контроллера (<i>англ. domain controller promotion</i>) или, как обычно говорят, для повышения роли сервера до контроллера домена. В ходе этой процедуры выполняется установка и настройка всех необходимых компонентов, чтобы сервер начал выполнять функции контроллера домена.</p>
+<p style="text-align:justify;">Далее мы запустим утилиту <code>aldpro-server-install</code>. Она является неинтерактивной, поэтому все параметры обязательны, включая пароль, иначе повышение роли не будет выполнено успешно. Учитывая, что команде требуется указать пароль в открытом виде, перед ее вызовом рекомендуется отключать запись истории команд.</p>
+<p>Отключите историю, чтобы не записать пароль в журнал:</p>
+<pre><code class="language-plaintext">set + o history</code></pre>
+<p>Запустите скрипт повышения роли сервера:</p>
+<pre><code class="language-plaintext">sudo aldpro-server-install -d office.lab -n dc -p 'xxXX1234!' --ip 192.168.99.10 --no-reboot</code></pre>
+<p style="text-align:justify;">Комментарии по использованным ключам:</p>
+<ul>
+  <li style="text-align:justify;"><code>-d</code> (domain) — имя домена.</li>
+  <li style="text-align:justify;"><code>-n</code> (name) — имя сервера.</li>
+  <li style="text-align:justify;"><code>-p</code> (password) — пароль администратора домена.</li>
+  <li style="text-align:justify;"><code>--ip</code> — IP-адрес контроллера домена. Адрес требуется указывать явно, если на контроллере домена есть несколько сетевых интерфейсов.</li>
+  <li style="text-align:justify;"><code>--no-reboot</code> — отменяет перезагрузку после завершения процедуры настройки. Выполнение скрипта занимает некоторое время, поэтому мы рекомендуем выполнить перезагрузку вручную после ознакомления с результатами его работы в терминале.</li>
+</ul>
+<p>Теперь можно включить ведение истории команд:</p>
+<pre><code class="language-plaintext">set -o history``</code></pre>
+<p>Контроллер домена установлен, осталось только перезагрузить сервер и войти из-под учетной записи доменного администратора:</p>
+<pre><code class="language-plaintext">sudo reboot</code></pre>
+<p>Как упоминалось ранее, в качестве DNS-сервера выступает служба bind9. Конфигурационный файл <code>/etc/bind/ipa-options-ext.conf</code> содержит настройки её работы в разрезе службы FreeIPA.&nbsp;</p>
+<h2>Отключение DNSSEC и настройка глобального перенаправления</h2>
+<p>Удалите содержимое и добавьте в файл <code>/etc/bind/ipa-options-ext.conf</code> следующее содержимое:</p>
+<pre><code class="language-plaintext">allow-recursion { any; };
+allow-query-cache { any; };
+dnssec-validation no;</code></pre>
+<p>Для применения изменений необходимо перезапустить DNS-службу на контроллере домена:</p>
+<pre><code class="language-plaintext">sudo systemctl restart bind9-pkcs11.service</code></pre>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>

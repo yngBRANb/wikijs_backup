@@ -1,0 +1,40 @@
+<!--
+title: Установка MetalLB в Kubernetes
+description: 
+published: true
+date: 2025-07-16T05:47:01.534Z
+tags: devops, kubernetes, metallb
+editor: ckeditor
+dateCreated: 2025-07-16T04:40:36.336Z
+-->
+
+<h1>Установка MetalLB</h1>
+<p>Инструкция по установке с <a href="https://metallb.universe.tf/installation/">официального сайта.</a></p>
+<p>Примените манифест для установки (актуальную версию уточните на официальном сайте):</p>
+<pre><code class="language-plaintext">kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.15.2/config/manifests/metallb-native.yaml</code></pre>
+<p>Создайте файл metal-config.yaml:</p>
+<pre><code class="language-plaintext">apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: external-ip-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 172.16.0.200-172.16.0.250   # Это пул адресов который будет выделен балансировщику
+                                # для вывода ресурсов за пределы кластера
+
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: external-ip-advertisement
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - external-ip-pool</code></pre>
+<p>Примените манифест:</p>
+<pre><code class="language-plaintext">kubectl apply -f metal-config.yaml</code></pre>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>

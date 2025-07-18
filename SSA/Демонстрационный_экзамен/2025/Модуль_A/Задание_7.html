@@ -1,0 +1,36 @@
+<!--
+title: Настройка безопасного удаленного доступа на серверах HQ-SRV и BR-SRV
+description: 
+published: true
+date: 2025-03-28T09:34:50.350Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-18T11:13:26.519Z
+-->
+
+<h1 class="toc-header" id="настройка-безопасного-удаленного-доступа-на-серверах-hq-srv-и-br-srv"> <span class="text-small">Настройка безопасного удаленного доступа на серверах HQ-SRV и BR-SRV</span></h1>
+<p>Для настройки безопасного доступа откройте конфиг /etc/openssh/sshd_config и основные настройки производите в нем.</p>
+<p>Чтобы удобно искать в файле ключевые слова при использовании редактора vim, введите в командном режиме символ "/", а после искомое слово.</p>
+<h2 class="toc-header" id="для-подключения-используйте-порт-2024"> <span class="text-small">Для подключения используйте порт 2024:</span></h2>
+<p>В конфиге найдите слово Port, расскоментируйте его и задайте порт 2024:</p>
+<pre class="prismjs line-numbers" v-pre="true"><code class="language-plaintext">Port 2024</code></pre>
+<h2 class="toc-header" id="разрешите-подключения-только-пользователю-sshuser"> <span class="text-small">Разрешите подключения только пользователю sshuser:</span></h2>
+<p>В конфиг добавьте строку:</p>
+<pre class="prismjs line-numbers" v-pre="true"><code class="language-plaintext">AllowUsers sshuser</code></pre>
+<h2 class="toc-header" id="ограничьте-количество-попыток-входа-до-двух"> <span class="text-small">Ограничьте количество попыток входа до двух:</span></h2>
+<p>Найдите параметр MaxAuthTries, раскомментируйте его, и измените значение с 6 до 2:</p>
+<pre class="prismjs line-numbers" v-pre="true"><code class="language-plaintext">MaxAuthTries 2</code></pre>
+<h2 class="toc-header" id="настройте-баннер-authorized-access-only"> <span class="text-small">Настройте баннер «Authorized access only»</span></h2>
+<p>Найдите слово Banner, раскомментируйте его и укажите путь к баннеру:</p>
+<pre class="prismjs line-numbers" v-pre="true"><code class="language-plaintext">Banner /etc/openssh/banner</code></pre>
+<p>Теперь вам нужно создать сам баннер.</p>
+<p>Для этого создайте файл banner и введите в него текст "Authorized access only":</p>
+<pre class="prismjs line-numbers" v-pre="true"><code class="language-plaintext">echo "Authorized access only" &gt; /etc/openssh/banner</code></pre>
+<p>После настройки перезагрузите демон ssh:</p>
+<pre class="prismjs line-numbers" v-pre="true"><code class="language-plaintext">systemctl restart sshd</code></pre>
+<p><strong>Не забудьте что это нужно сделать на двух серверах!</strong></p>
+<p>&nbsp;</p>
+<h2 class="toc-header" id="проверка"> <span class="text-small"><strong>Проверка</strong></span></h2>
+<p>Чтобы проверить корректность выполнения задания подключитесь к одному из серверов по ssh:</p>
+<pre class="prismjs line-numbers" v-pre="true"><code class="language-plaintext">ssh sshuser@&lt;адрес_сервера&gt; -p 2024</code></pre>
+<p>У вас должна появиться строка баннера <code>Authorized access only</code> при входе.</p>

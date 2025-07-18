@@ -1,0 +1,66 @@
+<!--
+title: Kubernetes
+description: 
+published: true
+date: 2025-07-18T10:19:26.694Z
+tags: devops, kubernetes
+editor: ckeditor
+dateCreated: 2025-07-11T20:59:17.796Z
+-->
+
+<p>Этот раздел посвящен созданию отказоустойчивого bare-metal кластера Kubernetes на базе RHEL 10.0.</p>
+<h1><span class="text-small">Основа кластера</span></h1>
+<ul>
+  <li><a href="/DevOps/Kubernetes/Подходы-к-созданию-кластера">Подходы к созданию кластера</a>
+    <ul>
+      <li><a href="/DevOps/Kubernetes/Создание-кластера-kubeadm">Создание кластера с помощью kubeadm</a></li>
+      <li><a href="/DevOps/Kubernetes/Создание-кластера-kubespray">Создание кластера с помощью kubespray</a></li>
+    </ul>
+  </li>
+  <li>Установка CNI</li>
+  <li><a href="/DevOps/Kubernetes/Создание-хранилища-для-Kubernetes">Создание Хранилища</a>
+    <ul>
+      <li><a href="/DevOps/Kubernetes/Подходы-к-созданию-кластера-Ceph">Подходы к созданию кластера Ceph</a>
+        <ul>
+          <li><a href="/DevOps/Kubernetes/Создание-кластера-Cephadm">Сephadm</a></li>
+          <li><a href="/DevOps/Kubernetes/Создание-кластера-Rook-Ceph">Rook Ceph</a></li>
+          <li><a href="/DevOps/Kubernetes/Создание-кластера-Ceph-ansible">Ceph Ansible (устарел)</a></li>
+        </ul>
+      </li>
+      <li><a href="/DevOps/Kubernetes/NFS">Создание NFS хранилища</a></li>
+    </ul>
+  </li>
+</ul>
+<h1><span class="text-small">Важные компоненты и инструменты</span></h1>
+<ul>
+  <li><a href="/DevOps/Kubernetes/Установка-Helm">Helm</a></li>
+  <li><a href="/DevOps/Kubernetes/Установка-MetalLB">MetalLB</a></li>
+  <li><a href="/DevOps/Kubernetes/Установка-Metrics-Server">Metrics Server</a></li>
+  <li><a href="/DevOps/Kubernetes/Установка-Ingress-Controller">Ingress Controller</a></li>
+</ul>
+<h1><span class="text-small">Дополнительные интеграции</span></h1>
+<ul>
+  <li><a href="/DevOps/Kubernetes/Установка-Portainer">Portainer</a></li>
+  <li>Dashboard</li>
+  <li>Мониторинг</li>
+</ul>
+<h1><span class="text-small">CI/CD</span></h1>
+<p><strong>Вариант 1: GitOps-подход (рекомендуется для Kubernetes)</strong></p>
+<p>Для CD будет использоваться Argo CD (можно так же и Flux CD), а для CI требуется выбрать внешнюю систему на свое усмотрение:</p>
+<ul>
+  <li><strong>CI (сборка и тесты)</strong>: <a href="/DevOps/Jenkins">Jenkins</a> / GitHub Actions / GitLab CI</li>
+  <li><strong>CD (деплой)</strong>: <a href="/DevOps/Kubernetes/Установка-ArgoCD">Argo CD</a></li>
+</ul>
+<p><strong>Вариант 2: Классический CI/CD</strong></p>
+<p>Предполагает внедрение агента в K8s:</p>
+<ul>
+  <li>Jenkins</li>
+  <li>GitLab CI</li>
+  <li>GitHub Actions</li>
+  <li>Jenkins X (для облачной среды)</li>
+</ul>
+<p><strong>Вариант 3: Специфичные подходы</strong></p>
+<ul>
+  <li>Werf</li>
+  <li>Werf + Argo CD (имеет преимущества GitOps)<br>&nbsp;</li>
+</ul>

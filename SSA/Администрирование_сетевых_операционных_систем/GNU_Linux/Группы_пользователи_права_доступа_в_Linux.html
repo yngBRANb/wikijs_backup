@@ -1,0 +1,113 @@
+<!--
+title: Группы, пользователи, права доступа в Linux
+description: 
+published: true
+date: 2025-03-16T16:00:32.963Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-03-16T15:59:45.067Z
+-->
+
+<p><strong>Цель работы:</strong>&nbsp;Ознакомиться с процессом создания групп, пользователей и настройкой прав в&nbsp;Linux.&nbsp;</p>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p>Права доступа в операционной системе Linux представляют собой ключевой элемент безопасности, определяющий, какой доступ имеют пользователи и программы к файлам и каталогам.</p>
+<p>Самих пользователей разделяют на три категории: владелец, группа и остальные. Для каждой из них выделяют три основных атрибута доступа:</p>
+<ul>
+  <li>Чтение представляет собой возможность просматривать содержимое файла или каталога. Оно обозначается символом r, обозначающим английское слово «read»;</li>
+  <li>Запись дает возможность вносить изменения в файл или создавать новые файлы в каталоге, и обозначается буквой w, обозначающей английское «write»;</li>
+  <li>Выполнение представляет собой способность выполнять файл, включая запуск исполняемых файлов или вход в каталог, которое обозначается буквой x, обозначающей слово «eXecute».</li>
+</ul>
+<p>Существуют два основных способа записи прав доступа: символьный и числовой формат. Символьный формат использует читаемые буквы и символы для представления прав доступа, в то время как числовой формат использует числа в восьмеричной системе.</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/useralt__(1).png"></figure>
+<h1><span class="text-small"><strong>Задания для лабораторной работы:</strong></span></h1>
+<h2><span class="text-small">1. Чтобы не возникало путаницы, выполняйте эту лабораторную работу из под пользователя&nbsp;<strong><u>user1</u></strong> имеющего права суперпользователя (через команду&nbsp;sudo).</span></h2>
+<h2><span class="text-small">2. Создайте пользователей&nbsp;user2,&nbsp;user3. Создание пользователей возможно с помощью 2-х команд:</span></h2>
+<ol>
+  <li><strong>useradd</strong> — это встроенная команда Linux, которую можно найти в любой системе&nbsp;Linux. Такая команда по умолчанию не предлагает задать пароль пользователя (такого пользователя нельзя использовать для входа в систему) и не создает домашний каталог. В качестве оболочки пользователя назначается /bin/sh. Чаще всего команда useradd используется для создания служебных учётных записей, которые используются для запуска сервисов.</li>
+  <li><strong>adduser</strong>&nbsp;—&nbsp;представляет собой готовый интерактивный сценарий, который создает пользователя с настройками, заданными в конфигурационном файле /etc/adduser.conf. Это самый простой и быстрый способ добавить реального пользователя. Команда <strong>adduser недоступна в некоторых дистрибутивах Linux</strong>, <strong>иногда это мягкая ссылка на useradd (В&nbsp;ALT&nbsp;Linux и РЕД ОС).</strong> В некоторых дистрибутивах это скрипт Perl (Debian, Ubuntu и т.д.).</li>
+</ol>
+<p>Так как в&nbsp;ALT&nbsp;adduser&nbsp;это символическая ссылка на&nbsp;useradd, они абсолютно одинаковы:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/useralt__(2).png"></figure>
+<p>Создаем пользователей:</p>
+<pre><code class="language-plaintext">#Создаем пользователя&nbsp;user2 и задаем ему пароль для входа.
+#Всем пользователям задайте пароль&nbsp;P@ssw0rd.
+sudo&nbsp;useradd&nbsp;user2
+sudo&nbsp;passwd&nbsp;user2
+sudo adduser user3
+sudo passwd user3</code></pre>
+<p>После созданий пользователей убедитесь, что у них имеется домашний каталог. Для этого выполните команду:</p>
+<pre><code class="language-plaintext">sudo&nbsp;tail -n 2 /etc/passwd</code></pre>
+<p>Результат должен быть таким:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/useralt__(3).png"></figure>
+<p>Из этого вывода видно, что домашний каталог пользователя&nbsp;user2 находиться по пути /home/user2, так же видна используемая оболочка /bin/bash (бывают также /bin/sh&nbsp;и /bin/zsh)</p>
+<h2><span class="text-small">3. Вместе с пользователями&nbsp;user2 и&nbsp;user3 создались соответствующие группы. Вы можете из увидеть, выполнив:</span></h2>
+<pre><code class="language-plaintext">sudo tail -n 2 /etc/group</code></pre>
+<p>Вывод:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/useralt__(4).png"></figure>
+<h2><span class="text-small">4. Работа с правами. Выполните команды:</span></h2>
+<pre><code class="language-plaintext">#Меняем права на домашний каталог пользователя&nbsp;user1.
+sudo&nbsp;chmod 750 /home/user1
+ls -l /home</code></pre>
+<p>В выводе обратите на права доступа к домашнему каталогу&nbsp;user1:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/useralt_4-5.jpg"></figure>
+<p>Здесь, мы видим, что первым символом идет d, который обозначает тип файла, в нашем случае — каталог («directory»). После него идут символы, обозначающие права доступа для разных категорий пользователей по порядку.</p>
+<p>В числовом формате, права доступа из примера выше будут следующими:</p>
+<ul>
+  <li>Для владельца: rwx соответствует числу 7 (4 за чтение + 2 за запись + 1 за выполнение).</li>
+  <li>Для группы: r-x соответствует числу 5 (4 за чтение + 0 за запись + 1 за выполнение).</li>
+  <li>Для остальных: --- соответствует числу 0 (0 за чтение, 0 за запись и 0 за выполнение).</li>
+</ul>
+<p>Таким образом, в числовом формате это будет 750.</p>
+<h2><span class="text-small">5. Т.е сам пользователь&nbsp;user1 имеет полные права на свой каталог (чтение, запись, выполнение), пользователи группы&nbsp;user1 имеют право на чтение и выполнение, а пользователям других групп эта директория полностью недоступна. В настоящий момент в группе&nbsp;user1 находится только сам пользователь&nbsp;user1. Давайте добавим в нее пользователя&nbsp;user2:</span></h2>
+<pre><code class="language-plaintext">#Добавляем пользователя&nbsp;user2 в группу&nbsp;user1
+sudo&nbsp;usermod -aG&nbsp;user1&nbsp;user2
+#Добавляем пользователя&nbsp;user2 в группу&nbsp;user3
+sudo&nbsp;usermod -aG&nbsp;user3&nbsp;user2</code></pre>
+<p>Теперь чтобы проверить, выполните:</p>
+<pre><code class="language-plaintext">id&nbsp;user2</code></pre>
+<p>В выводе вы увидите все группы, к которым принадлежит&nbsp;user2:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/useralt__(5).png"></figure>
+<h2><span class="text-small">6. Создайте в директориях пользователей&nbsp;user1 и&nbsp;user3, файлы&nbsp;file.txt:</span></h2>
+<pre><code class="language-plaintext">sudo vim /home/user1/file.txt
+sudo vim /home/user3/file.txt</code></pre>
+<p>Заполните файлы содержимым типа:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/useralt__(6).png"></figure>
+<h2><span class="text-small">7. Перейдите под пользователя&nbsp;user2 выполнив команду:</span></h2>
+<pre><code class="language-plaintext">sudo su – user2</code></pre>
+<h2><span class="text-small">8. Выполните команду&nbsp;ls -l /home/user1:&nbsp;</span></h2>
+<p>Вывод:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/useralt__(7).png"></figure>
+<p>Как видите мы из-под пользователя&nbsp;user2 имеем доступ к домашней директории&nbsp;user1. Давайте теперь попробуем вывести содержимое этого файла:</p>
+<pre><code class="language-plaintext">cat /home/user1/file.txt</code></pre>
+<p>У вас должно было получиться, так как пользователи группы&nbsp;user1 имеют доступ на чтение. Давайте теперь попробуем изменить этот файл:</p>
+<pre><code class="language-plaintext">echo “Change” &gt; /home/user1/file.txt</code></pre>
+<figure class="image"><img src="/ssa/gnu_linux/prac/useralt__(8).png"></figure>
+<p>Мы получаем сообщение отказано в доступе, так как у членов группы&nbsp;user1 нет права на запись для домашней директории пользователя&nbsp;user1.</p>
+<p>Давайте это исправим. Для этого перейдите обратно под пользователя&nbsp;user1:</p>
+<pre><code class="language-plaintext">exit</code></pre>
+<p>Затем измените права для группы&nbsp;user1 (2 число - 7<strong>7</strong>0) на домашний каталог пользователя&nbsp;user1 и все его содержимое:</p>
+<pre><code class="language-plaintext">#7 = 4 за чтение + 2 за запись + 1 за исполнение
+chmod 770 /home/user1
+chmod 770 /home/user1/*</code></pre>
+<p>Заново перейдите под пользователя&nbsp;user2 и попробуйте изменить&nbsp;file.txt:</p>
+<pre><code class="language-plaintext">sudo&nbsp;su –&nbsp;user2
+echo “Change” &gt; /home/user1/file.txt
+#Проверьте файл после изменения (команда&nbsp;cat&nbsp;выводит содержимое файла)
+cat /home/user1/file.txt</code></pre>
+<p>Вывод:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/useralt__(9).png"></figure>
+<h2><span class="text-small">9. Давайте попробуем просмотреть что находиться в директории пользователя&nbsp;user3:</span></h2>
+<pre><code class="language-plaintext">ls -l /home/user3</code></pre>
+<p>Вывод:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/useralt__(10).png"></figure>
+<p>Мы получаем сообщение в доступе отказано. <strong>Попробуйте понять почему (и дайте ответ в контрольном вопросе №1)</strong>. В этом вам поможет следующий вывод:</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/useralt__(11).png"></figure>
+<h1><span class="text-small"><strong>Контрольные вопросы:</strong></span></h1>
+<ol>
+  <li>Почему мы получаем отказ в доступе при попытке выполнить команду “ls -l /home/user3” в пункте 9 лабораторной работы (желательно развернутый ответ)?</li>
+  <li>Что делает команда&nbsp;chmod?</li>
+  <li>Назовите два основных способа записи прав доступа.</li>
+  <li>Какой командой можно посмотреть права на доступ к файлу (или к нескольким файлам в каталоге)?</li>
+  <li>Какой командой можно сменить владельца файла и группу, к которой он принадлежит?</li>
+  <li>Для чего нужна команда&nbsp;usermod? Что с помощью нее можно изменить?</li>
+</ol>

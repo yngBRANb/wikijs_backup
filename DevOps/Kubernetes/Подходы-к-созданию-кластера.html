@@ -1,0 +1,100 @@
+<!--
+title: Подходы к созданию Kubernetes кластера
+description: 
+published: true
+date: 2025-07-11T23:22:25.933Z
+tags: devops, kubernetes
+editor: ckeditor
+dateCreated: 2025-07-11T23:05:12.253Z
+-->
+
+<h1><span class="text-small">Введение</span></h1>
+<p>Развертывание Kubernetes-кластера может осуществляться различными способами, каждый из которых имеет свои преимущества и оптимальные сценарии использования. В этой статье мы детально разберем три основных подхода: официальный инструмент Kubeadm, Ansible-решение Kubespray и managed-решения от облачных провайдеров.</p>
+<h2><span class="text-small">1. Kubeadm: официальный инструмент для bootstrap'а кластера</span></h2>
+<p>Kubeadm — это минималистичный инструмент, разрабатываемый Kubernetes SIG Cluster Lifecycle. Он предоставляет базовые команды для инициализации control plane и присоединения worker-нод.</p>
+<p><strong>Типичный workflow:</strong></p>
+<pre><code class="language-plaintext"># На master-ноде
+kubeadm init --pod-network-cidr=10.244.0.0/16
+
+# На worker-нодах
+kubeadm join &lt;master-ip&gt;:6443 --token &lt;token&gt; --discovery-token-ca-cert-hash &lt;hash&gt;</code></pre>
+<p><strong>Преимущества</strong></p>
+<ul>
+  <li>✅ Включен в официальную документацию Kubernetes</li>
+  <li>✅ Позволяет глубоко понять архитектуру кластера</li>
+  <li>✅ Простая установка для базовых сценариев</li>
+  <li>✅ Поддержка последних версий Kubernetes</li>
+</ul>
+<p><strong>Ограничения</strong></p>
+<ul>
+  <li>❌ Нет встроенной поддержки HA control plane</li>
+  <li>❌ Требует ручной установки CNI, ingress-контроллеров</li>
+  <li>❌ Сложности с обновлениями кластера</li>
+</ul>
+<p><strong>Идеально подходит для</strong>:</p>
+<ul>
+  <li>Тестовых сред</li>
+  <li>Образовательных целей</li>
+  <li>Небольших кластеров (до 10 нод)</li>
+</ul>
+<h2><span class="text-small">2. Kubespray: промышленное решение на базе Ansible</span></h2>
+<p>Kubespray — это решение от Kubernetes SIG, использующее Ansible для полного цикла развертывания кластера.</p>
+<p><strong>Типичный workflow:</strong></p>
+<pre><code class="language-plaintext">git clone https://github.com/kubernetes-sigs/kubespray
+cd kubespray
+pip install -r requirements.txt
+cp -r inventory/sample inventory/mycluster
+declare -a IPS=(node1_ip node2_ip node3_ip)
+CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+ansible-playbook -i inventory/mycluster/hosts.yaml cluster.yml</code></pre>
+<p><strong>Преимущества</strong></p>
+<ul>
+  <li>✅ Полная автоматизация развертывания</li>
+  <li>✅ Встроенная поддержка HA кластера</li>
+  <li>✅ Широкая поддержка CNI (Calico, Flannel, Cilium)</li>
+  <li>✅ Возможность тонкой настройки через Ansible-переменные</li>
+</ul>
+<p><strong>Ограничения</strong></p>
+<ul>
+  <li>❌ Требует знания Ansible</li>
+  <li>❌ Более сложная настройка</li>
+  <li>❌ Длительное время развертывания</li>
+</ul>
+<p><strong>Идеально подходит для</strong>:</p>
+<ul>
+  <li>On-premise инфраструктуры</li>
+  <li>Гибридных сред</li>
+  <li>Крупных кластеров (10+ нод)</li>
+</ul>
+<h2><span class="text-small">3. Managed-решения от облачных провайдеров</span></h2>
+<p><strong>Основные варианты:</strong></p>
+<ul>
+  <li>Amazon EKS (US)</li>
+  <li>Google GKE (US)</li>
+  <li>Microsoft AKS (US)</li>
+  <li>DigitalOcean Kubernetes (US)</li>
+  <li>Yandex Managed Service for Kubernetes (RU)</li>
+  <li>VK Managed Kubernetes (RU)</li>
+  <li>Selectel Managed Kubernetes (RU)</li>
+</ul>
+<p><strong>Преимущества</strong></p>
+<ul>
+  <li>✅ Полностью управляемый сервис</li>
+  <li>✅ Автоматические обновления и patching</li>
+  <li>✅ Встроенная интеграция с облачными сервисами</li>
+  <li>✅ Простота масштабирования</li>
+</ul>
+<p><strong>Ограничения</strong></p>
+<ul>
+  <li>❌ Ограниченные возможности кастомизации</li>
+  <li>❌ Vendor lock-in</li>
+  <li>❌ Дополнительные затраты</li>
+</ul>
+<p><strong>Идеально подходит для</strong>:</p>
+<ul>
+  <li>Производственных workloads</li>
+  <li>Команд без глубоких знаний Kubernetes</li>
+  <li>Быстрого развертывания</li>
+</ul>
+<h2>Сравнительная таблица</h2>
+<figure class="image"><img src="/ssa/devops/снимок_экрана_2025-07-12_041710.png"></figure>

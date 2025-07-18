@@ -1,0 +1,98 @@
+<!--
+title: Создание виртуальной машины в ESXI
+description: 
+published: true
+date: 2025-03-22T09:46:18.389Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-15T12:19:22.517Z
+-->
+
+<p><strong>Цель работы:</strong> установить виртуальную машину в окружении VMware ESXi.</p>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p>VMware ESXi — это гипервизор 1-ого типа, работающий на собственном ядре — без предварительного запуска операционных систем, вроде Windows или Linux. Кстати, старый ESX сначала запускал ядро Linux. В английском языке гипервизоры 1-ого типа называют “Bare Metal”, что буквально переводится как “голый металл”.</p>
+<p>ESXi довольно сложный программный продукт, состоящий из многих компонентов. Он может работать как самостоятельно так и в составе платформы VMware vSphere, которая даёт централизованный контроль и управление над всей вашей виртуальной инфраструктурой.</p>
+<p>Платформа vSphere, помимо ESXi, включает в себя vCenter Server, vSphere Client (интерфейс для управления), vSphere Update Manager, vSphere Management Assistant (vMA) и другие инструменты и функции.</p>
+<p>Малый бизнес или базовые тестовые среды могут обойтись без vSphere, но для более сложных сценариев, для управления большим количеством хостов виртуализации лучше использовать полный стек vSphere.</p>
+<p>Уникальность ESXi заключается в том, что он написан практически с нуля, размер дистрибутива 348 Мб, большая часть из которых составляют драйверы для многочисленных операционных систем (VMware tools). В самом гипервизоре нет ничего лишнего, все что есть направлено на выполнение задач серверной виртуализации. А когда нет ничего лишнего вероятность поломки значительно уменьшается. Простота администрирования продукта, позволяет даже не очень опытным администраторам разобраться и начать использовать виртуализацию в своей компании.</p>
+<h1><span class="text-small"><strong>Задания для практической работы:</strong></span></h1>
+<h2><span class="text-small">1. Знакомство с интерфейсом.</span></h2>
+<p>Перейдите в веб-интерфейс ESXi, который вы установили на прошлой практической работе.</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_1.png"></figure>
+<p>Давайте взглянем на основные вкладки ESXi:</p>
+<ul>
+  <li>Host – содержит всю информацию о конфигурации ESXi хоста, позволяет управлять им (выключить, перезагрузить), его сервисами (SSH, ESXi shell) и состоянием (Режим обслуживания и блокировки).</li>
+  <li>Manage – продвинутые инструменты управления системой (SWAP, Автостарт ВМ и тд.), настройка TLS сертификата, создание пользователей и групп.</li>
+  <li>Monitoring – отслеживание состояния системы посредством графиков и системных событий.</li>
+  <li>Virtual Machines – создание, настройка и управление виртуальными машинами.</li>
+  <li>Storage – создание и управление хранилищами для виртуальных машин.</li>
+  <li>Networking – создание, настройка и управление виртуальными сетями связывающими виртуальные машины между собой.</li>
+</ul>
+<h2><span class="text-small">2. Создание ВМ.</span></h2>
+<p>Чтобы создать ВМ нам нужно первым делом проверить свободное место текущего хранилища и отправить туда ISO образ.</p>
+<p>Для этого переходим на вкладку <strong>Storage</strong> и смотрим на свободное место в хранилище:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_2.png"></figure>
+<p>Здесь видно что на диске свободно 116Gb.</p>
+<p>Теперь осталось закинуть в хранилище ISO образ дистрибутива ALT Linux Server.</p>
+<p>Для этого переходим в <strong>Datastore browser</strong>:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_3.png"></figure>
+<p>И загружаем образ ALT Linux со своего компьютера:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_4.png"></figure>
+<p>За прогрессом вы можете следить на нижней панели, на нее выводятся все пользовательские действия:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_5.png"></figure>
+<p>После того как образ загрузился, начинаем создавать ВМ.</p>
+<p>Для этого переходим на вкладку <strong>Virtual Machines</strong> и нажимаем на пункт <strong>Create / Register VM</strong>:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_6.png"></figure>
+<p>Нам предлагается выбрать тип создания ВМ:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_7.png"></figure>
+<p>На выбор есть следующие типы установки:</p>
+<ul>
+  <li>Create a new virtual machine - создание новой виртуальной машины</li>
+  <li>Deploy a virtual machine from an OVF or OVA file - развертывание уже готовой ВМ из файлов OVF и OVA</li>
+  <li>Register an exiting virtual machine - добавить уже существующую ВМ из datastore</li>
+</ul>
+<p>Нам нужно выбрать <strong>Create a new virtual machine</strong>.</p>
+<p>Далее мы выбираем имя ВМ, ее совместимость в версиями гипервизора ESXi и тип ОС:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_8.png"></figure>
+<p>Указываем datastore в котором будет храниться ВМ:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_9.png"></figure>
+<p>Теперь мы переходим к настройке ресурсов ВМ:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_10.png"></figure>
+<p>И указываем ISO образ:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_11.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_12.png"></figure>
+<p>После этого перейдите к следующему шагу.</p>
+<p>На последнем этапе проверьте все настройки ВМ и если все правильно завершите создание нажатием на Finish:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_13.png"></figure>
+<p>После этого вы можете ее запустить:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_14.png"></figure>
+<p>После этого вы можете управлять ВМ через веб-интерфейс гипервизора, для этого нужно перейти на вкладку самой ВМ и нажать на мини-консоль, чтобы она развернулась:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_15.png"></figure>
+<h2><span class="text-small">3. Управление гипервизором ESXi через VMware Workstation.</span></h2>
+<p>Если вам не нравиться управлять ВМ через веб-интерфейс, для этого можно использовать VMware Workstation.</p>
+<p>Для этого в интерфейсе программы выполните следующие шаги:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_16.png"></figure>
+<p>Укажите адрес своего ESXi и учетные данные от него:</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_17.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_18.png"></figure>
+<p>После этого вы увидите информацию о ESXi сервере и ВМ установленные на нем (соответственно сможете ими управлять):</p>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_19.png"></figure>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_20.png"></figure>
+<p>Закончите установку ALT Server 1, а затем создайте еще ALT Server 2</p>
+<p>Требования к установке:</p>
+<ul>
+  <li>Минимальная установка;</li>
+  <li>Hostname - alt-server1 и alt-server2;</li>
+  <li>Адрес получайте по DHCP;</li>
+  <li>Пароль от root - P@ssw0rd.</li>
+</ul>
+<figure class="image"><img src="/ssa/hypervisors/esxi/esxivm_21.png"></figure>
+<p>Эти виртуальные машины понадобятся вам на следующей практической работе.</p>
+<h1><br><span class="text-small"><strong>Контрольные вопросы</strong></span></h1>
+<ol>
+  <li>Что такое ESXi?</li>
+  <li>Что такое vSphere? Для чего она нужна?</li>
+  <li>Какие вкладки есть в ESXi? Какая вкладка что содержит?</li>
+  <li>Какие есть типы установок ВМ в ESXi?</li>
+  <li>Как можно управлять ESXi и ВМ внутри него?</li>
+</ol>

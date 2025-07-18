@@ -1,0 +1,43 @@
+<!--
+title: Первичная настройка ВМ
+description: 
+published: true
+date: 2025-04-23T17:13:24.714Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-04-23T17:12:47.280Z
+-->
+
+<h1>Первичная настройка ВМ</h1>
+<p>Стоит отметить, что без правильной настройки ВМ ничего не будет работать. Основные настройки всегда одинаковы для всех версий Windows 10</p>
+<h2>Настройка IP адресов на ВМ</h2>
+<p>По мере построения сети ViPNet, необходимо выставлять IP-адреса на сетевых интерфейсах, на Windows 10 это делается через свойства адаптера (можно нажать на <strong>Win+R и ввести ncpa.cpl</strong>). Как настраивать IP-адреса на интерфейсах координаторов мы рассмотрим отдельно.</p>
+<blockquote>
+  <p>Win+R =&gt; ncpa.cpl</p>
+</blockquote>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/3.png" alt="ScreenShot"></figure>
+<blockquote>
+  <p>IP адреса для сетей нужно брать из заданий, все это есть в другом разделе с одноименным названием “ЗАДАНИЯ”, если вы не понимаете что-то в контексте сетей, то обратитесь в раздел ССА → 2 КУРС → Компьютерные сети.</p>
+  <hr>
+  <p style="text-align:center;"><mark class="pen-red">IP адрес у меня это просто ПРИМЕР!!!!!! Я НЕ НЕСУ ОТВЕТСТВЕННОСТЬ ЗА НЕСДАННУЮ ПРАКТИКУ, ДЭ, ПА и ТД.&nbsp;</mark></p>
+</blockquote>
+<h2>Отключение брандмауэра</h2>
+<p>Отключение брандмауэра производится через меню "<strong>Брандмауэр Защитника Windows</strong>" (введите в меню пуск), как показано на скриншоте</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/4.png" alt="ScreenShot"></figure>
+<blockquote>
+  <p>Win+R =&gt; firewall.cpl</p>
+</blockquote>
+<h3>Настройка дисплея и спящего режима</h3>
+<p>Стоит отключить возможность выхода в спящий режим через определенное время, а также возможность отключения дисплея. Делается это с целью недопущения отключения ВМ, иначе можно потерять критические связи, например, между ЦУС клиент и ЦУС сервер при распределенной установке</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/5.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/6.png" alt="ScreenShot"></figure>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/7.png" alt="ScreenShot"></figure>
+<blockquote>
+  <p>Win+R =&gt; control panel</p>
+</blockquote>
+<h3>Часть 7. Активация режима частной сети</h3>
+<p>Переходим в "<strong>Параметры</strong>" → "<strong>Сеть и Интернет</strong>" → "<strong>Состояние</strong>" → <strong>(Выбираем наш сетевой адаптер)</strong> → "<strong>Свойства</strong>" → "<strong>Сетевой профиль</strong>" → "<strong>Частные</strong>"</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/fix-13.png" alt="ScreenShot"></figure>
+<p>Также этот параметр вы можете настроить во всплывающем окне в процессе развертывания стенда (после установки ViPNet Client). Уведомление должно появиться само:</p>
+<figure class="image"><img src="https://github.com/Abends2/ViPNet__Labs/raw/main/ViPNet-Labs/Lab-2/screenshots/fix-15.png" alt="ScreenShot"></figure>
+<p>Стоит отметить, что если вы не понимаете до конца зачем нужны маски, сколько IP Адресов в какой маске, что такое IPv4 и т.д , то лучше обратиться в раздел <strong>ССА → 2 КУРС → Компьютерные сети.</strong></p>

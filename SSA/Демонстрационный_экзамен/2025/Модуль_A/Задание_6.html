@@ -1,0 +1,56 @@
+<!--
+title: Настройка динамической трансляции адресов
+description: 
+published: true
+date: 2025-02-27T20:25:49.226Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-01-18T11:05:55.565Z
+-->
+
+<h1><span class="text-small"><strong>Настройте динамическую трансляцию адресов для обоих офисов</strong></span></h1>
+<p>HQ-RTR:</p>
+<pre><code class="language-plaintext">hq-rtr# config
+hq-rtr(config)# object-group network HQ
+hq-rtr(config-object-group-network)# ip address-range 192.168.10.1-192.168.10.254
+hq-rtr(config-object-group-network)# exit
+
+hq-rtr(config)# nat sourсe
+hq-rtr(config-snat)# pool WAN_POOL
+hq-rtr(config-snat-pool)# ip address-range 172.16.4.2   //Внешний IP
+hq-rtr(config-snat-pool)# exit
+
+hq-rtr(config-snat)# ruleset SNAT
+hq-rtr(config-snat-ruleset)# to interface gi 1/0/1   //Внешний интерфейс
+hq-rtr(config-snat-ruleset)# rule 1
+hq-rtr(config-snat-rule)# match source-address HQ
+hq-rtr(config-snat-rule)# action source-nat pool WAN_POOL
+hq-rtr(config-snat-rule)# enable
+hq-rtr(config-snat-rule)# end
+
+hq-rtr# commit
+hq-rtr# confirm</code></pre>
+<p>BR-RTR:</p>
+<pre><code class="language-plaintext">br-rtr# config
+br-rtr(config)# object-group network BR
+br-rtr(config-object-group-network)# ip address-range 192.168.20.1-192.168.20.254
+br-rtr(config-object-group-network)# exit
+
+br-rtr(config)# nat sourсe
+br-rtr(config-snat)# pool WAN_POOL
+br-rtr(config-snat-pool)# ip address-range 172.16.5.2   //Внешний IP
+br-rtr(config-snat-pool)# exit
+
+br-rtr(config-snat)# ruleset SNAT
+br-rtr(config-snat-ruleset)# to interface gi 1/0/1   //Внешний интерфейс
+br-rtr(config-snat-ruleset)# rule 1
+br-rtr(config-snat-rule)# match source-address BR
+br-rtr(config-snat-rule)# action source-nat pool WAN_POOL
+br-rtr(config-snat-rule)# enable
+br-rtr(config-snat-rule)# end
+
+br-rtr# commit
+br-rtr# confirm</code></pre>
+<h2><span class="text-small"><strong>Все устройства в офисах должны иметь доступ к сети Интернет</strong></span></h2>
+<p>Если вы все правильно сделали, ping будет идти в глобалку с любого устройства:</p>
+<pre><code class="language-plaintext">ping 8.8.8.8</code></pre>

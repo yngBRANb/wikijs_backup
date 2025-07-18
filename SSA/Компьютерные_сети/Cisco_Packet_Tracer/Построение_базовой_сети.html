@@ -1,0 +1,147 @@
+<!--
+title: Построение базовой сети
+description: 
+published: true
+date: 2025-02-26T20:50:29.098Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-02-26T20:49:17.069Z
+-->
+
+<h1>Построение базовой сети</h1>
+<p><strong>Цель работы:</strong> Освоить базовые навыки построения сети в <strong>Cisco Packet Tracer</strong></p>
+<p>Программа Cisco Packet Tracer (далее CPT) позволяет строить сети и настраивать их, она умеет эмулировать терминал сетвых устройств, адаптеры и строить сети различных масштабов, таких как:</p>
+<ul>
+  <li>LAN - Локальная вычислительная сеть. Сеть в пределах офиса, компании, иногда(в случае если ты администрируешь это) района.</li>
+  <li>MAN - Городская вычислительная сеть. Сеть в пределах города, округа, области.</li>
+  <li>WAN - Всемирная вычислительная сеть. Если ты администрируешь офис, то очевидно, что весь трафик который приходит извне будет для тебя <strong>WAN.</strong></li>
+</ul>
+<p>Одной из главных возможностей является симуляция работы сети в реальном времени. Перейдем к практической части, в которой вам нужно будет построить простую рабочую сеть.&nbsp;</p>
+<p>В рабочей сети будут использоваться промежуточные и конечные устройства.</p>
+<ul>
+  <li>Конечные устройства - <strong>это узловые устройства, которые служат точкой отправления или точкой назначения в обмене данными в компьютерной сети</strong>. &nbsp;Они могут выступать в качестве клиента или сервера.</li>
+  <li>Промежуточные устройства - <strong>это аппаратные компоненты в компьютерных сетях, которые находятся между окончательными устройствами и обеспечивают передачу данных между ними. </strong>Это могут быть роутеры, коммутаторы, репитеры, хабы, серверы, модемы.</li>
+</ul>
+<p>Также для корректной работы сети нужно выдать устройствам маску подсети и шлюз:</p>
+<ul>
+  <li><strong>Шлюз - </strong>это <strong>устройство или программное обеспечение, которое действует как посредник между различными компьютерными сетями</strong>, позволяя им взаимодействовать. Если упростить, то это <strong>главное</strong> устройство в сети которое может маршрутизировать трафик, преобразовывать протоколы.</li>
+  <li><strong>Маска подсети</strong> - это способ разделения IP-адресов на сети и узлы. Простыми словами, она помогает определить, какая часть IP-адреса относится к сети, а какая — к конкретному устройству (узлу) в этой сети. Представьте, что IP-адрес — это адрес дома, а маска подсети — это информация о том, в каком районе (сети) находится этот дом. Например, если у вас есть адрес 192.168.1.10 и маска подсети 255.255.255.0, это значит, что все устройства с адресами от 192.168.1.1 до 192.168.1.254 находятся в одной сети, а адрес 192.168.2.1 уже в другой.</li>
+</ul>
+<h2>Задание 1</h2>
+<p>Вам необходимо построить сеть как на картинке и выдать IP адреса и маску согласно таблице. Каждому компьютеру нужно будет задать Gateway(шлюз) и маску подсети.</p>
+<figure class="image image_resized" style="width:543px;"><img src="data:image/png;base64,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">
+  <figcaption>Сеть которую необходимо построить</figcaption>
+</figure>
+<p>&nbsp;</p>
+<figure class="table">
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <p style="text-align:center;">Имя устройства</p>
+        </td>
+        <td>
+          <p style="text-align:center;">IP</p>
+        </td>
+        <td>
+          <p style="text-align:center;">Маска</p>
+        </td>
+        <td>
+          <p style="text-align:center;">Gateway</p>
+        </td>
+        <td>
+          <p style="text-align:center;">DNS Server</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Маршрутизатор0</td>
+        <td>192.168.1.1</td>
+        <td>255.255.255.0</td>
+        <td>
+          <p style="text-align:center;">-</p>
+        </td>
+        <td>
+          <p style="text-align:center;">-</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p style="text-align:center;">Коммутатор1</p>
+        </td>
+        <td>
+          <p style="text-align:center;">-</p>
+        </td>
+        <td>
+          <p style="text-align:center;">-</p>
+        </td>
+        <td>
+          <p style="text-align:center;">-</p>
+        </td>
+        <td>
+          <p style="text-align:center;">-</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p style="text-align:center;">ПК0</p>
+        </td>
+        <td>
+          <p style="text-align:center;">192.168.1.10</p>
+        </td>
+        <td>
+          <p style="text-align:center;">255.255.255.0</p>
+        </td>
+        <td>
+          <p style="text-align:center;">192.168.1.1</p>
+        </td>
+        <td>
+          <p style="text-align:center;">192.168.1.1</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p style="text-align:center;">ПК1</p>
+        </td>
+        <td>
+          <p style="text-align:center;">192.168.1.11</p>
+        </td>
+        <td>
+          <p style="text-align:center;">255.255.255.0</p>
+        </td>
+        <td>
+          <p style="text-align:center;">192.168.1.1</p>
+        </td>
+        <td>
+          <p style="text-align:center;">192.168.1.1</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p style="text-align:center;">ПК2</p>
+        </td>
+        <td>
+          <p style="text-align:center;">192.168.1.12</p>
+        </td>
+        <td>
+          <p style="text-align:center;">255.255.255.0</p>
+        </td>
+        <td>
+          <p style="text-align:center;">192.168.1.1</p>
+        </td>
+        <td>
+          <p style="text-align:center;">192.168.1.1</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Также необходимо проверить работоспособность сети с помощью команды ping с каждого конечного устройства до роутера и приложить скриншоты выполнения проверки.</p>
+<p>Для сдачи практической необходимо сохранить сеть и приложить файл в архив c практической работой.</p>
+<p><strong>Контрольные вопросы&nbsp;</strong></p>
+<ol>
+  <li>Что такое IP?</li>
+  <li>Что такое конечные устройства?</li>
+  <li>Что такое Промежуточные устройства?</li>
+  <li>Что такое Gateway/Шлюз?</li>
+  <li>Для чего нужна маска подсети?</li>
+</ol>
