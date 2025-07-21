@@ -2,7 +2,7 @@
 title: Использование приватных container registry в Kubernetes
 description: 
 published: true
-date: 2025-07-21T05:37:28.508Z
+date: 2025-07-21T23:07:02.536Z
 tags: devops, ghcr, glcr, kubernetes
 editor: markdown
 dateCreated: 2025-07-21T05:35:29.189Z
@@ -22,7 +22,7 @@ dateCreated: 2025-07-21T05:35:29.189Z
 
 ```plaintext
 kubectl create secret docker-registry ghcr-secret \
-  --namespace test
+  --namespace test \
   --docker-server=ghcr.io \
   --docker-username=<your-github-username> \
   --docker-password=<your-personal-access-token> \
