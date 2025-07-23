@@ -1,0 +1,102 @@
+<!--
+title: Установка и работа с AgroCD Image Updater
+description: 
+published: true
+date: 2025-07-23T02:49:37.656Z
+tags: argocd, ci/cd, devops, kubernetes
+editor: ckeditor
+dateCreated: 2025-07-22T08:53:16.172Z
+-->
+
+<h1>Введение&nbsp;</h1>
+<p><strong>ArgoCD Image Updater</strong> — это компонент, который автоматически обновляет образы в Git-репозитории при появлении новых тегов в container registry. Он <strong>не требует использования </strong><code><strong>latest</strong></code> и может работать с семантическим версионированием (<code>v1.2.3</code>), хешами коммитов (<code>main-abc1234</code>) или любыми другими тегами. Для специфичной обработки тегов требуется прописать regex.</p>
+<p>Из&nbsp; основных возможностей хотелось бы отметить :</p>
+<ul>
+  <li>Поддержка большого количества видов container registry (как публичных так и частных);</li>
+  <li>Отслеживание обновлений, используя различные cтратегии версионирования;</li>
+  <li>Параллельное обновление приложений.</li>
+</ul>
+<p>Также важно сказать об ограничениях :</p>
+<ul>
+  <li>Приложение должно обязательно быть под управлением ArgoCD;</li>
+  <li>Поддержка только Helm и Kustomize, причем, при использовании helm - image.tag должен быть обязательно шаблонизирован (вынесен в переменные).</li>
+</ul>
+<p>Позволяет организовать полную автоматизацию процесса развертывания:</p>
+<ol>
+  <li>Разработчик отправляет код на GitHub</li>
+  <li>Jenkins (или любой другой CI) собирает и отправляет образ Docker в registry</li>
+  <li>Argo CD Image Updater обнаруживает новое изображение</li>
+  <li>Обновление манифеста развертывания в Git</li>
+  <li>Argo CD синхронизируется и развертывает новую версию в Kubernetes</li>
+  <li>Ваше приложение автоматически обновляется!</li>
+</ol>
+<h1>Установка</h1>
+<p>ArgoCD Image Updater поставляется как отдельный компонент. Официальная документация по развертыванию - <a href="https://argocd-image-updater.readthedocs.io/en/stable/install/installation/">тут.</a></p>
+<p>Применение установочного манифеста:</p>
+<pre><code class="language-plaintext">kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml</code></pre>
+<h2>Создание секрета для доступа к registry</h2>
+<p>ArgoCD Image Updater официально работает с:</p>
+<ul>
+  <li>Docker Hub (<code>docker.io</code>)</li>
+  <li>Docker Registry v2 reference implementation (on-premise)</li>
+  <li>Red Hat Quay (<code>quay.io</code> and on-premise)</li>
+  <li>JFrog Artifactory (<code>jfrog.io</code> and on-premise)</li>
+  <li>GitHub Container Registry (<code>ghcr.io</code>)</li>
+  <li>GitHub Packages Registry (<code>docker.pkg.github.com</code>)</li>
+  <li>GitLab Container Registry (<code>registry.gitlab.com</code>)</li>
+  <li>Google Container Registry (<code>gcr.io</code>)</li>
+</ul>
+<p>Для начала нужно создать сам секрет (создать нужно в ns argocd):</p>
+<pre><code class="language-plaintext">kubectl create secret docker-registry ghcr-secret \
+  --namespace argocd \
+  --docker-server=ghcr.io \
+  --docker-username=&lt;your-github-username&gt; \
+  --docker-password=&lt;your-personal-access-token&gt; \
+  --docker-email=your-email@example.com</code></pre>
+<p>Потом отредактировать ConfigMap и указать там этот секрет:</p>
+<pre><code class="language-plaintext">kubectl edit cm argocd-image-updater-config -n argocd</code></pre>
+<p>В него нужно ввести:</p>
+<pre><code class="language-plaintext">data:
+  registries.conf: |
+    registries:
+    - name: GitHub
+      prefix: ghcr.io
+      api_url: https://ghcr.io/v2/
+      credentials: pullsecret:argocd/ghcr-secret</code></pre>
+<p>Если вы сначала установили сервис, а затем добавили Secret, то нужно перезапустить Image Updater:</p>
+<pre><code class="language-plaintext">kubectl rollout restart deploy argocd-image-updater -n argocd</code></pre>
+<p>После этого он будет работать с registry.</p>
+<h2>Включение Image Updater в Applications</h2>
+<p>Чтобы он заработал нужно указывать специальные аннотации, вот пример такого манифеста:</p>
+<pre><code class="language-plaintext">apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ct-frontend
+  namespace: argocd
+  annotations:
+    # Автообновление образа frontend
+    argocd-image-updater.argoproj.io/image-list: frontend=ghcr.io/firysksta/crispy-train/frontend
+    argocd-image-updater.argoproj.io/frontend.allow-tags: regexp:^main-v[0-9]+\.[0-9]+\.[0-9]+$   # Формат тегов: main-v1.0.0
+    argocd-image-updater.argoproj.io/frontend.update-strategy: semver
+    argocd-image-updater.argoproj.io/frontend.helm.image-spec: container.image  # Репозиторий
+    argocd-image-updater.argoproj.io/frontend.helm.image-tag: container.tag     # Тег
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: crispy-train
+  source:
+    path: HelmCharts/frontend/
+    targetRevision: HEAD
+    repoURL: git@github.com:firysksta/crispy-train-cd.git
+    helm:
+      valueFiles:
+        - values_prod.yaml
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true</code></pre>
