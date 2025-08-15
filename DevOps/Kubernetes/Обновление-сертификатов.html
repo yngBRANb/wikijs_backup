@@ -1,0 +1,19 @@
+<!--
+title: Обновление сертификатов Kuberntes кластера
+description: 
+published: true
+date: 2025-08-15T10:55:47.233Z
+tags: devops, kubernetes
+editor: ckeditor
+dateCreated: 2025-08-15T10:55:47.233Z
+-->
+
+<h1>Обновление сертификатов кластера</h1>
+<p>При стандартном развертывании сертификаты в кластере устареют через 1 год. После этого срока использование команд kubectl будет вызывать ошибку x509.</p>
+<p>Чтобы посмотреть срок действия сертификатов в кластере:</p>
+<pre><code class="language-plaintext">sudo kubeadm certs check-expiration</code></pre>
+<p>Обновление всех сертификатов:</p>
+<pre><code class="language-plaintext">sudo kubeadm certs renew all</code></pre>
+<p>Перезапуск kubelet и компонентов control plane:</p>
+<pre><code class="language-plaintext">sudo systemctl restart kubelet</code></pre>
+<p>&nbsp;</p>
