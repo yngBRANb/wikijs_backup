@@ -2,7 +2,7 @@
 title: Kubernetes
 description: 
 published: true
-date: 2025-07-21T22:11:08.698Z
+date: 2025-08-15T10:38:52.055Z
 tags: devops, kubernetes
 editor: ckeditor
 dateCreated: 2025-07-11T20:59:17.796Z
@@ -15,6 +15,7 @@ dateCreated: 2025-07-11T20:59:17.796Z
     <ul>
       <li><a href="/DevOps/Kubernetes/Создание-кластера-kubeadm">Создание кластера с помощью kubeadm</a></li>
       <li><a href="/DevOps/Kubernetes/Создание-кластера-kubespray">Создание кластера с помощью kubespray</a></li>
+      <li>Создание кластера с помощью Rancher</li>
     </ul>
   </li>
   <li>Установка CNI</li>
@@ -46,12 +47,16 @@ dateCreated: 2025-07-11T20:59:17.796Z
   <li>Ingress Controller Cert Manager</li>
   <li><a href="/DevOps/Kubernetes/Private-registry">Использование приватных registry</a></li>
 </ul>
+<h1><span class="text-small">Обслуживание кластера</span></h1>
+<ul>
+  <li><a href="/DevOps/Kubernetes/Обновление-сертификатов">Обновление сертификатов</a></li>
+</ul>
 <h1><span class="text-small">CI/CD</span></h1>
 <p><strong>Вариант 1: GitOps-подход (рекомендуется для Kubernetes)</strong></p>
 <p>Для CD будет использоваться Argo CD (можно так же и Flux CD), а для CI требуется выбрать внешнюю систему на свое усмотрение:</p>
 <ul>
   <li><strong>CI (сборка и тесты)</strong>: <a href="/DevOps/Jenkins">Jenkins</a> / GitHub Actions / GitLab CI</li>
-  <li><strong>CD (деплой)</strong>: <a href="/DevOps/Kubernetes/Установка-ArgoCD">Argo CD</a></li>
+  <li><strong>CD (деплой)</strong>: <a href="/DevOps/Kubernetes/Установка-ArgoCD">Argo CD</a> и <a href="/DevOps/Kubernetes/ArgoCD-Image-Updater">Argo CD Image Updater</a></li>
 </ul>
 <p><strong>Вариант 2: Классический CI/CD</strong></p>
 <p>Предполагает внедрение агента в K8s:</p>
