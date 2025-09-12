@@ -1,0 +1,349 @@
+<!--
+title: Untitled Page
+description: 
+published: true
+date: 2025-09-12T05:53:39.518Z
+tags: 
+editor: ckeditor
+dateCreated: 2025-09-12T05:53:39.518Z
+-->
+
+<h1><strong>Задание 2. Защита локально-вычислительной сети предприятия с применением ПО ViPNet</strong></h1>
+<p>Необходимо использовать рабочее место администратора для создания структуры защищенной сети предприятия и настроить необходимые АРМ в соответствии с заданными ролями. В итоге выполнения задания должны быть развернуты и настроены следующие сетевые узлы защищенной сети (см. таблицу).</p>
+<p>Таблица&nbsp;1 Узлы защищенной сети&nbsp;</p>
+<figure class="table" style="width:488.55pt;">
+  <table style="border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;"><strong>Вирт. машина</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;"><strong>Название сетевого узла</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;"><strong>ПО&nbsp;VipNet</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;"><strong>ОС&nbsp;сетевого узла</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;"><strong>Имя пользо-вателя узла</strong></p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;">Net1-AdminCA&nbsp;(ЦО)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;">Главный&nbsp;администратор<br>(VM)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">ViPNet Administrator (ЦУС&nbsp;сервер +&nbsp;УКЦ)<br>ViPNet Client</p>
+          <p style="text-align:center;">ViPNet CA Informing</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;">ОС Windows 10</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;">Admin</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;">Net1-OperCA&nbsp;(ЦО)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;">Оператор УЦ</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">ViPNet Client</p>
+          <p style="text-align:center;">ViPNet Publication Service, ViPNet Registration Point</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;">ОС Windows 10</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;">OperCA</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;">Net1-Open (ЦО)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;">Клиент ЦУС, База данных ЦУС</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">Клиент ЦУС,&nbsp;<br>БД&nbsp;MSSQL</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;">ОС Windows 10</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;">—</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;">Net1-Coord&nbsp; HW (ЦО)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;">Координатор Центр Офис&nbsp;(VM)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">ViPNet Coordinator HW</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;">HW-VA</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;">CoordinatorOffice</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;">Net2-Coord&nbsp; HW (Филиал)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;">Координатор&nbsp;Филиал&nbsp;(VM)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">ViPNet Coordinator HW</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;">HW-VA</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;">CoordinatorSub</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:1.0pt;padding:1.4pt 5.4pt;width:87.3pt;">
+          <p style="text-align:center;">Net2-Client (филиал)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:96.5pt;">
+          <p style="text-align:center;">Пользователь_2 Филиал (VM)</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:4.0cm;">
+          <p style="text-align:center;">ViPNet Client</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:78.0pt;">
+          <p style="text-align:center;">ОС Windows 10</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:1.0pt;padding:1.4pt 5.4pt;width:113.35pt;">
+          <p style="text-align:center;">User2</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p><i>Связи между узлами необходимо настроить самостоятельно.</i></p>
+<p>Таблица 2.&nbsp;Схема&nbsp;связей&nbsp;пользователей</p>
+<figure class="table">
+  <table style="border-bottom:none;border-left:none;border-right:none;border-top:none;">
+    <tbody>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:90.45pt;">
+          <p style="text-align:center;">Схема&nbsp;связей&nbsp;пользователей</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:66.05pt;">
+          <p style="text-align:center;">Coord Office</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">Admin</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">OperCA</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">Coord Sub</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt none windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt solid windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">User2</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:90.45pt;">
+          <p style="text-align:center;">Coord Office</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.05pt;">
+          <p style="text-align:center;">×</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:90.45pt;">
+          <p style="text-align:center;">Admin</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.05pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">×</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:90.45pt;">
+          <p style="text-align:center;">OperCA</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.05pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">×</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:90.45pt;">
+          <p style="text-align:center;">Coord Sub</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.05pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">×</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+      </tr>
+      <tr>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:1.0pt solid windowtext;border-right:1.0pt solid windowtext;border-top:1.0pt none windowtext;height:22.7pt;padding:4.25pt 1.4pt;width:90.45pt;">
+          <p style="text-align:center;">User2</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.05pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">&nbsp;</p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;"><strong>*</strong></p>
+        </td>
+        <td style="border-bottom:1.0pt solid windowtext;border-left:none;border-right:1.0pt solid windowtext;border-top:none;height:22.7pt;padding:4.25pt 1.4pt;width:66.1pt;">
+          <p style="text-align:center;">×</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+<p>Задание 2.1. Создание структуры защищенной сети:</p>
+<ul>
+  <li>ЦУС. Необходимо создать в ЦУС структуру защищенной сети в соответствии с заданной схемой (выгрузить отчет в HTML). Создать пользователей узлов, настроить полномочия пользователей и их связи в соответствии со схемой.</li>
+  <li>УКЦ. Провести инициализацию УКЦ, поменять тип паролей для пользователей («собственный»). Задать пароли пользователей и сохранить в текстовый файл на рабочем столе. Сформировать дистрибутивы ключей для всех сетевых узлов (сохранить на жесткий диск). Создать группы узлов для центрального офиса (удостоверяющего центра) и филиала, настроить пароль администратора группы сетевых узлов для каждой из групп (проверить, что пароль работает).</li>
+  <li>Разнести DST файлы по АРМ, провести первичную инициализацию узлов защищенной сети (координаторов и клиентов), проверить доступность узлов защищенной сети и <strong>сделать скриншоты работоспособности узлов</strong>.</li>
+  <li>Произвести первичную инициализацию&nbsp;HW.</li>
+  <li>Настроить удаленный доступ через веб интерфейс к&nbsp;HW с открытого узла своей сети.</li>
+</ul>
+<p><strong>Необходимо проверить работоспособность сети с помощью отправки текстовых сообщений между Администратором и пользователем филиала.</strong></p>
+<p><strong>Необходимо проверить работоспособность сети с помощью отправки деловой почты между Администратором и пользователем филиала.</strong></p>
+<p><strong>Отправку и получение сообщений зафиксировать скриншотами.</strong></p>
+<h2><strong>Создание клиентов защищенной сети</strong></h2>
+<p>Координатор Центр Офис:</p>
+<p>&nbsp;</p>
+<p>Задаем роль VA100</p>
+<p>&nbsp;</p>
+<p>Во вкладке Адреса во внешних сетях задаем IP адреса которые будут назначены координатору (IP для внешней и внутренней сетей)</p>
+<p>&nbsp;</p>
+<p>Координатор Филиал:</p>
+<p>&nbsp;</p>
+<p>Задаем роль VA100</p>
+<p>&nbsp;</p>
+<p>Создаем межсерверный канал с Координатором ЦО</p>
+<p>&nbsp;</p>
+<p>Во вкладке Адреса во внешних сетях задаем IP адреса которые будут назначены координатору (IP для внешней и внутренней сетей)</p>
+<p>&nbsp;</p>
+<p>Главный Администратор:</p>
+<p>&nbsp;</p>
+<p>Задаем роли</p>
+<p>&nbsp;</p>
+<p>Оператор УЦ:</p>
+<p>(Тут небольшая ошибка, имя должно быть на русском)</p>
+<p>&nbsp;</p>
+<p>Задаем роли</p>
+<p>&nbsp;</p>
+<p>Пользователь 2:</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>Задаем роли</p>
+<p>&nbsp;</p>
+<h2><strong>Создание пользователей</strong></h2>
+<p>Admin:</p>
+<p>&nbsp;</p>
+<p>OperCA:</p>
+<p>&nbsp;</p>
+<p>Создаем связи в соответствие со схемой</p>
+<p>&nbsp;</p>
+<p>CoordOffice:</p>
+<p>&nbsp;</p>
+<p>Создаем связи в соответствие со схемой</p>
+<p>&nbsp;</p>
+<p>CoordSub:</p>
+<p>Создаем связи в соответствие со схемой</p>
+<p>&nbsp;</p>
+<p>User2:</p>
+<p>&nbsp;</p>
+<p>Создаем связи в соответствие со схемой</p>
+<p>&nbsp;</p>
+<p>После создания узлов/пользователей создаем справочники</p>
+<p>&nbsp;</p>
+<p>Оправляем для всего списка</p>
+<p>&nbsp;</p>
+<h2><strong>Создание структуры сети в HTML</strong></h2>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
