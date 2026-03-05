@@ -2,7 +2,7 @@
 title: Удаленное администрирование ALT Linux. SSH
 description: 
 published: true
-date: 2026-03-05T19:21:55.781Z
+date: 2026-03-05T19:24:04.353Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-05T19:17:20.112Z
@@ -103,7 +103,7 @@ systemctl restart sshd</code></pre>
 <p><strong>Вариант 1 (удобный, если есть утилита):</strong></p>
 <pre><code class="language-plaintext">ssh-copy-id user@192.168.1.10 #ip-адрес хоста, на который вы будете подключаться по ssh ключу</code></pre>
 <p>Он сам добавит ваш <code>id_ed25519.pub</code> в <code>~/.ssh/authorized_keys</code> на сервере.</p>
-<p>Вариант 2 (вручную):</p>
+<p><strong>Вариант 2 (вручную):</strong></p>
 <p>Скопировать содержимое файла<code>~/.ssh/id_ed25519.pub</code>:</p>
 <pre><code class="language-plaintext">cat ~/.ssh/id_ed25519.pub</code></pre>
 <p>Подключиться на сервер по паролю:</p>
@@ -124,6 +124,7 @@ PubkeyAuthentication yes</code></pre>
 <p>Перезапустить sshd:</p>
 <pre><code class="language-plaintext">systemctl restart sshd</code></pre>
 <p>Теперь вход только по ключам (убедитесь, что ключи работают, прежде чем отключать пароль).</p>
+<h2>&nbsp;</h2>
 <h2>Копирование открытого ключа на сервер</h2>
 <p><code>scp</code> — копирование через SSH (аналог <code>cp</code> по сети)</p>
 <p>Формат:</p>
