@@ -2,7 +2,7 @@
 title: Создание NFS Share в Linux
 description: 
 published: true
-date: 2026-03-05T20:40:26.563Z
+date: 2026-03-05T20:41:08.231Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-05T20:39:28.007Z
@@ -79,7 +79,6 @@ apt-get install nfs-server -y</code></pre>
 <pre><code class="language-plaintext">mkdir -p /srv/nfs/share</code></pre>
 <p>Назначьте владельца и права доступа (для простоты — доступ всем чтение/запись; в реальных системах делайте более жёсткие настройки):</p>
 <pre><code class="language-plaintext">chmod 777 /srv/nfs/share</code></pre>
-<p>&nbsp;</p>
 <blockquote>
   <p>Важно:<br><code>chmod 777</code> — это максимально открытые права, удобно для учебной лабораторной работы.</p>
 </blockquote>
@@ -104,7 +103,6 @@ apt-get install nfs-server -y</code></pre>
 <pre><code class="language-plaintext">exportfs -v</code></pre>
 <h2>Запуск и добавление в автозагрузку NFS‑сервиса</h2>
 <p>Включите необходимые&nbsp;</p>
-<p>&nbsp;</p>
 <pre><code class="language-plaintext">systemctl enable --now nfs-server</code></pre>
 <p>Убедитесь, что сервисы запущены:</p>
 <pre><code class="language-plaintext">systemctl status nfs-server</code></pre>
