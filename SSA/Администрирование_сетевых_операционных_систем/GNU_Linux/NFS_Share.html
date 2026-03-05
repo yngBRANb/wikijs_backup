@@ -1,0 +1,158 @@
+<!--
+title: Создание NFS Share в Linux
+description: 
+published: true
+date: 2026-03-05T20:39:28.007Z
+tags: 
+editor: ckeditor
+dateCreated: 2026-03-05T20:39:28.007Z
+-->
+
+<p><strong>Цель работы: </strong>познакомиться с базовыми командами Linux, научиться настраивать сетевое файловое хранилище NFS.</p>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p><strong>NFS (Network File System)</strong> — сетевой протокол уровня приложений, который позволяет одному компьютеру (клиенту) получать доступ к файлам на другом компьютере (сервере) так, как будто это локальная файловая система.</p>
+<h2>Основные понятия:</h2>
+<ul>
+  <li><strong>NFS‑сервер</strong> — машина, которая «делится» (экспортирует) каталогом(ами) по сети.</li>
+  <li><strong>NFS‑клиент</strong> — машина, которая подключает (монтирует) этот экспортированный каталог.</li>
+  <li><strong>Экспорт (export)</strong> — расшаривание каталога по сети через конфигурационный файл<code>/etc/exports</code>.</li>
+  <li><strong>Монтирование (mount)</strong> — подключение удалённого каталога к дереву файловой системы (например, к<code>/mnt/nfs_share</code>).</li>
+</ul>
+<h2>Преимущества:</h2>
+<ul>
+  <li>Централизованное хранение пользовательских данных и конфигураций.</li>
+  <li>Упрощённое резервное копирование на стороне сервера.</li>
+  <li>Единое файловое пространство для нескольких машин.</li>
+</ul>
+<h2>Недостатки/особенности:</h2>
+<ul>
+  <li>Зависимость от сети: при потере соединения данные могут стать временно недоступны.</li>
+  <li>В классическом варианте NFS сам по себе не шифрует трафик — часто используется во внутренней, доверенной сети.</li>
+  <li>Требует аккуратной настройки прав доступа (UID/GID, экспортные параметры).</li>
+</ul>
+<h2>Основные компоненты NFS в Linux</h2>
+<p>Обычно используются пакеты:</p>
+<ul>
+  <li><code>nfs-utils</code>(или аналог в дистрибутиве) — сервер и клиентские утилиты NFS.</li>
+  <li>Службы:<ul>
+      <li><code>nfs-server</code>— основной сервис NFS.</li>
+    </ul>
+  </li>
+</ul>
+<p>Основной конфигурационный файл сервера NFS:</p>
+<h2><code><strong>/etc/exports</strong></code></h2>
+<p>Формат записи (упрощённо):</p>
+<pre><code class="language-plaintext">&lt;каталог&gt;  &lt;клиент&gt;(опции)  &lt;клиент2&gt;(опции) ...</code></pre>
+<p>Примеры:</p>
+<pre><code class="language-plaintext">/srv/nfs/share  192.168.1.0/24(rw,sync)
+/srv/nfs/share  *(ro,sync)</code></pre>
+<p>Где:</p>
+<ul>
+  <li><code>rw</code>— разрешение чтения и записи;</li>
+  <li><code>ro</code>— только чтение;</li>
+  <li><code>sync</code>— синхронная запись (безопаснее, но чуть медленнее);</li>
+  <li><code>no_root_squash</code>— не понижать привилегии root‑пользователя с клиента (опасная опция, по умолчанию лучше <strong>не</strong> использовать на учебном этапе без понимания последствий);</li>
+  <li><code>all_squash</code>/<code>anonuid</code>,<code>anongid</code>— сопоставление всех пользователей анонимному (для более жёсткого контроля).</li>
+</ul>
+<h2>Исходные условия для выполнения работы</h2>
+<ul>
+  <li>Две виртуальные машины Linux (например, ALT Linux / любой совместимый дистрибутив):<ul>
+      <li><strong>Server</strong> — NFS‑сервер.</li>
+      <li><strong>Client</strong> — NFS‑клиент.</li>
+    </ul>
+  </li>
+  <li>Машины находятся в одной сети (например,<code>192.168.56.0/24</code>или сеть VirtualBox/VMware NAT/Host‑Only).</li>
+  <li>Доступ к терминалу с возможностью работать от<code>root</code>или через<code>sudo</code>.</li>
+</ul>
+<blockquote>
+  <p>В примерах далее:<br>IP сервера: <code>192.168.56.10</code><br>IP клиента: <code>192.168.56.11</code><br>При необходимости подставьте свои IP‑адреса.</p>
+</blockquote>
+<h1><span class="text-small"><strong>Задания для лабораторной работы:</strong></span></h1>
+<h2>Подготовка NFS‑сервера</h2>
+<p>На серверной машине откройте терминал и получите права суперпользователя:</p>
+<pre><code class="language-plaintext">su -</code></pre>
+<p>Обновите список пакетов и установите необходимые утилиты NFS:</p>
+<pre><code class="language-plaintext">apt-get update
+apt-get install nfs-server -y</code></pre>
+<h2>Создание каталога для общего доступа (share) на сервере</h2>
+<p>Создайте директорию, которую будете экспортировать по NFS, например:</p>
+<pre><code class="language-plaintext">mkdir -p /srv/nfs/share</code></pre>
+<p>Назначьте владельца и права доступа (для простоты — доступ всем чтение/запись; в реальных системах делайте более жёсткие настройки):</p>
+<pre><code class="language-plaintext">chmod 777 /srv/nfs/share</code></pre>
+<blockquote>
+  <p>Важно:<br><code>chmod 777</code> — это максимально открытые права, удобно для учебной лабораторной работы.</p>
+</blockquote>
+<p>Создайте тестовый файл на стороне сервера:</p>
+<pre><code class="language-plaintext">echo "Файл создан на NFS-сервере" &gt; /srv/nfs/share/test_from_server.txt</code></pre>
+<h2>Настройка экспорта NFS на сервере</h2>
+<p>Откройте файл <code>/etc/exports</code> в текстовом редакторе (например, <code>nano</code> или <code>vim</code>):</p>
+<pre><code class="language-plaintext">vim /etc/exports</code></pre>
+<p>Добавьте строку экспорта. Пример для сети <code>192.168.56.0/24</code>:</p>
+<pre><code class="language-plaintext">/srv/nfs/share  192.168.56.0/24(rw,sync)</code></pre>
+<h3>Пояснение:</h3>
+<ul>
+  <li><code>/srv/nfs/share</code>— каталог, который экспортируется.</li>
+  <li><code>192.168.56.0/24</code>— клиенты из этой подсети имеют доступ.</li>
+  <li><code>rw</code>— доступ на чтение и запись.</li>
+  <li><code>sync</code>— синхронная запись.</li>
+</ul>
+<p>Сохраните файл и выйдите из редактора.</p>
+<p>Примените настройки экспорта:</p>
+<pre><code class="language-plaintext">exportfs -ra</code></pre>
+<p>Проверить, что экспорт применился:</p>
+<pre><code class="language-plaintext">exportfs -v</code></pre>
+<h2>Запуск и добавление в автозагрузку NFS‑сервиса</h2>
+<p>Включите необходимые&nbsp;</p>
+<p>
+</p>
+<pre><code class="language-plaintext">systemctl enable --now nfs-server</code></pre>
+<p>Убедитесь, что сервисы запущены:</p>
+<pre><code class="language-plaintext">systemctl status nfs-server</code></pre>
+<p>Состояние должно быть <code>active (running)</code>.</p>
+<h2>Проверка экспорта с сервера</h2>
+<p>С сервера вы можете проверить, какие каталоги экспортируются и кому:</p>
+<pre><code class="language-plaintext">exportfs -v</code></pre>
+<h2>Подготовка NFS‑клиента</h2>
+<p>Перейдите на виртуальную машину‑клиент.</p>
+<p>Получите права суперпользователя:</p>
+<pre><code class="language-plaintext">su -</code></pre>
+<p>Установите клиентские утилиты NFS (обычно тот же пакет <code>nfs-utils</code>):</p>
+<pre><code class="language-plaintext">apt-get update
+apt-get install nfs-clients -y</code></pre>
+<p>Проверьте, какие ресурсы экспортирует сервер (подставьте IP сервера):</p>
+<pre><code class="language-plaintext">showmount -e 192.168.56.10</code></pre>
+<p>Ожидаемый вывод:</p>
+<pre><code class="language-plaintext">Export list for 192.168.56.10:
+/srv/nfs/share  192.168.56.0/24</code></pre>
+<h2>Автоматическое монтирование NFS через /etc/fstab</h2>
+<p>Чтобы NFS‑ресурс подключался автоматически при загрузке системы клиента, используйте <code>/etc/fstab</code>.</p>
+<p>На клиенте откройте <code>/etc/fstab</code>:</p>
+<pre><code class="language-plaintext">vim /etc/fstab</code></pre>
+<p>Добавьте строку (укажите свой IP сервера и путь):</p>
+<pre><code class="language-plaintext">192.168.56.10:/srv/nfs/share  /mnt/nfs_share  nfs  defaults  0  0</code></pre>
+<p>Проверьте корректность записи (без перезагрузки):</p>
+<pre><code class="language-plaintext">umount /mnt/nfs_share
+mount -a</code></pre>
+<p>Если ошибок нет — ресурс снова должен быть смонтирован:</p>
+<pre><code class="language-plaintext">mount | grep /mnt/nfs_share</code></pre>
+<h2>Проверка чтения и записи через NFS</h2>
+<p>Посмотрите содержимое смонтированного каталога:</p>
+<pre><code class="language-plaintext">ls -l /mnt/nfs_share</code></pre>
+<p>Вы должны увидеть файл <code>test_from_server.txt</code>, созданный на сервере.</p>
+<p>Прочитайте его содержимое:</p>
+<pre><code class="language-plaintext">cat /mnt/nfs_share/test_from_server.txt</code></pre>
+<p>Создайте новый файл уже на клиенте (в смонтированном каталоге):</p>
+<pre><code class="language-plaintext">echo "Файл создан на NFS-клиенте" &gt; /mnt/nfs_share/test_from_client.txt</code></pre>
+<p>Перейдите на сервер и убедитесь, что этот файл появился там:</p>
+<pre><code class="language-plaintext">ls -l /srv/nfs/share
+cat /srv/nfs/share/test_from_client.txt</code></pre>
+<p>Если файлы видны с обеих сторон — базовая работа NFS настроена правильно.</p>
+<h2>Контрольные вопросы</h2>
+<ol>
+  <li>Что такое NFS? Для чего он используется в корпоративной/учебной инфраструктуре?</li>
+  <li>Что означает запись в<code>/etc/exports</code>вида:<br><code>/srv/nfs/share 192.168.56.0/24(rw,sync)</code>— объясните каждый элемент.</li>
+  <li>Как сделать так, чтобы NFS‑ресурс монтировался автоматически при загрузке системы?</li>
+  <li>Чем отличается параметр<code>rw</code>от<code>ro</code>в настройке NFS?</li>
+  <li>Какие потенциальные недостатки и риски есть у использования NFS в открытых (недоверенных) сетях?</li>
+</ol>
+<p>&nbsp;</p>
