@@ -1,0 +1,85 @@
+<!--
+title: Удаленное администрирование ALT Linux. RDP
+description: 
+published: true
+date: 2026-03-05T19:57:18.558Z
+tags: 
+editor: ckeditor
+dateCreated: 2026-03-05T19:57:18.558Z
+-->
+
+<p><strong>Цель работы: п</strong>онять, что такое RDP и чем он отличается от SSH.</p>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<h2><strong>RDP (Remote Desktop Protocol)</strong> — протокол удалённого доступа к графическому рабочему столу:</h2>
+<ul>
+  <li>изначально разработан Microsoft (для Windows);</li>
+  <li>позволяет работать с графическим окружением удалённой системы «как локально»;</li>
+  <li>по умолчанию использует <strong>порт 3389/TCP</strong>;</li>
+  <li>передаёт графический интерфейс, мышь, клавиатуру, иногда буфер обмена, принтеры и т.п.</li>
+</ul>
+<h2>В Linux нет «родного» RDP, но есть реализации сервера:</h2>
+<ul>
+  <li><strong>xrdp</strong> — сервер, реализующий RDP‑протокол и подключающийся к X.org или отдельным сессиям.</li>
+</ul>
+<h3>Схема работы RDP с xrdp</h3>
+<ol>
+  <li>На сервере ALT Linux работает служба <strong>xrdp</strong> (демон<code>xrdp</code>+<code>xrdp-sesman</code>).</li>
+  <li>xrdp слушает порт 3389/TCP.</li>
+  <li>На клиенте запускается RDP‑клиент (например, <strong>Remmina</strong>,<code>mstsc</code>в Windows и т.д.).</li>
+  <li>Клиент подключается к IP сервера и вводит логин/пароль пользователя ALT Linux.</li>
+  <li>xrdp создаёт/подключает графическую сессию рабочего стола для этого пользователя.</li>
+</ol>
+<h2>Компоненты, которые нам нужны</h2>
+<h3>На <strong>сервере ALT Linux</strong>:</h3>
+<ul>
+  <li>Графическое окружение (Xfce/MATE/KDE, в учебных целях чаще Xfce или MATE).</li>
+  <li>Пакеты:<ul>
+      <li><code>xrdp</code></li>
+    </ul>
+  </li>
+</ul>
+<h3>На <strong>клиенте</strong> (ALT Linux в роли клиента):</h3>
+<ul>
+  <li>Графическая среда.</li>
+  <li>Пакет<code><strong>remmina</strong></code>(клиент удалённого доступа, поддерживает RDP, VNC, SSH и др.).</li>
+</ul>
+<h1><span class="text-small"><strong>Задания для лабораторной работы:</strong></span></h1>
+<h2>Установка и проверка xrdp в ALT Linux</h2>
+<p>Установка xrdp</p>
+<p>На сервере ALT Linux (от root или через sudo, если настроен):</p>
+<pre><code class="language-plaintext">apt-get update
+apt-get install xrdp</code></pre>
+<p>Включить и добавить в автозапуск сервисы:</p>
+<p>
+</p>
+<pre><code class="language-plaintext">systemctl enable --now xrdp xrdp-sesman</code></pre>
+<p>Права доступа пользователя:</p>
+<ul>
+  <li>Для доступа к терминальному сеансу — включить в группу <strong>tsusers</strong>:</li>
+</ul>
+<pre><code class="language-plaintext">usermod -aG user tsusers #user пользователь, под которого будет происходить подключение по RDP</code></pre>
+<p>Настройки сервера хранятся в файле <code><strong>/etc/xrdp/sesman.ini</strong></code> Некоторые настройки сервера установленные по умолчанию:</p>
+<pre><code class="language-plaintext">AllowRootLogin=true — авторизация Root;
+MaxLoginRetry=4 — максимальное количество попыток подключения;
+TerminalServerUsers=tsusers — группа, в которую необходимо добавить пользователей для организации доступа к серверу;
+MaxSessions=50 — максимальное количество подключений к серверу;
+KillDisconnected=false — разрыв сеанса при отключении пользователя;
+FuseMountName=Mount_FOLDER — название монтируемой папки.</code></pre>
+<h2>Установка и использование Remmina на клиенте</h2>
+<h3>Установка Remmina в ALT Linux</h3>
+<p>На клиентской машине:</p>
+<pre><code class="language-plaintext">apt-get update
+apt-get install remmina</code></pre>
+<p>из терминала:</p>
+<pre><code class="language-plaintext">remmina</code></pre>
+<h2>Создание RDP‑подключения в Remmina</h2>
+<p>Открыть Remmina.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
