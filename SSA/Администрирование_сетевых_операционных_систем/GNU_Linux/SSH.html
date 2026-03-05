@@ -2,7 +2,7 @@
 title: Удаленное администрирование ALT Linux. SSH
 description: 
 published: true
-date: 2026-03-05T19:17:20.112Z
+date: 2026-03-05T19:21:55.781Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-05T19:17:20.112Z
@@ -124,8 +124,7 @@ PubkeyAuthentication yes</code></pre>
 <p>Перезапустить sshd:</p>
 <pre><code class="language-plaintext">systemctl restart sshd</code></pre>
 <p>Теперь вход только по ключам (убедитесь, что ключи работают, прежде чем отключать пароль).</p>
-<h2>Копирование файлов по SSH</h2>
-<hr>
+<h2>Копирование открытого ключа на сервер</h2>
 <p><code>scp</code> — копирование через SSH (аналог <code>cp</code> по сети)</p>
 <p>Формат:</p>
 <pre><code class="language-plaintext">scp [опции] источник назначение</code></pre>
@@ -175,7 +174,7 @@ ssh root@192.168.1.10 "systemctl status sshd"</code></pre>
 <ol>
   <li>Для чего используется протокол SSH, какие задачи он решает?</li>
   <li>Какой порт по умолчанию использует SSH? Как его изменить?</li>
-  <li>Чем отличается ssh-клиент от ssh-сервера?&nbsp;</li>
+  <li>Чем отличается ssh-клиент от ssh-сервера?</li>
   <li>Что такое аутентификация по ключам? Какие файлы при этом используются на клиенте и на сервере?</li>
   <li>Зачем нужен файл<code>~/.ssh/known_hosts</code>?</li>
   <li>Как выполнить одну команду на удалённом сервере по SSH, не входя в интерактивную оболочку?</li>
@@ -183,7 +182,5 @@ ssh root@192.168.1.10 "systemctl status sshd"</code></pre>
 </ol>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
-<p><br>
-
-</p>
+<p><br>&nbsp;</p>
 <p>&nbsp;</p>
