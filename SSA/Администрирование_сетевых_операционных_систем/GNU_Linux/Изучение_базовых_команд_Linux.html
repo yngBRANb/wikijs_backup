@@ -1,0 +1,265 @@
+<!--
+title: Изучение базовых команд Linux
+description: 
+published: true
+date: 2026-03-05T18:24:13.890Z
+tags: 
+editor: ckeditor
+dateCreated: 2026-03-05T18:24:13.890Z
+-->
+
+<p><strong>Цель работы</strong>: познакомиться с базовыми командами Linux и принципами работы терминала.</p>
+<h2>Работа с терминалом</h2>
+<p>Структура командной строки:<br><code>user@hostname:~$</code></p>
+<ul>
+  <li><code>user</code> - имя пользователя</li>
+  <li><code>hostname</code> - имя хоста (компьютера)</li>
+  <li><code>~</code> - текущий каталог (домашний каталог пользователя)</li>
+  <li><code>$</code> - обычный пользователь,<code>#</code> - суперпользователь (root)</li>
+</ul>
+<h2>Навигация по файловой системе</h2>
+<ul>
+  <li><strong>Каталог</strong> - аналог папки.</li>
+  <li><strong>Корневой каталог</strong> - <code>/</code>(root filesystem).</li>
+  <li>Домашний каталог пользователя - <code>/home/имя_пользователя</code>или<code>~</code>.</li>
+</ul>
+<p><code><strong>pwd</strong></code>— показать текущий каталог</p>
+<p><code><strong>ls</strong></code>— показать содержимое каталога</p>
+<pre><code class="language-plaintext">ls          # краткий список
+ls -l       # подробный список (права, владелец, размер, дата)
+ls -a       # показать все, включая скрытые (начинаются с .)
+ls -la      # подробно + скрытые</code></pre>
+<p><code><strong>cd</strong></code>— смена каталога</p>
+<pre><code class="language-plaintext">cd /etc            # перейти в /etc
+cd ~               # в домашний каталог
+cd                 # то же самое, что cd ~
+cd ..              # на уровень выше
+cd ../..           # на два уровня выше
+cd /var/log        # абсолютный путь
+cd Documents       # относительный путь (от текущего каталога)</code></pre>
+<h2>Работа с файлами и каталогами</h2>
+<ul>
+  <li><code><strong>mkdir</strong></code>— создать каталог</li>
+</ul>
+<pre><code class="language-plaintext">mkdir test_dir
+mkdir -p dir1/dir2/dir3   # создать вложенную структуру</code></pre>
+<ul>
+  <li><code><strong>touch</strong></code>— создать пустой файл или обновить время последнего изменения</li>
+</ul>
+<pre><code class="language-plaintext">touch file1.txt</code></pre>
+<ul>
+  <li><code><strong>cp</strong></code>— копирование</li>
+</ul>
+<pre><code class="language-plaintext">cp file1.txt file2.txt         # копия в тот же каталог
+cp file1.txt /tmp/             # копия в другой каталог
+cp -r dir1 dir2                # рекурсивное копирование каталога</code></pre>
+<ul>
+  <li><code><strong>mv</strong></code>— перемещение и переименование</li>
+</ul>
+<pre><code class="language-plaintext">mv file1.txt /tmp/             # переместить
+mv oldname.txt newname.txt     # переименовать</code></pre>
+<ul>
+  <li><code><strong>rm</strong></code>— удаление файлов и каталогов</li>
+</ul>
+<pre><code class="language-plaintext">rm file1.txt            # удалить файл
+rm -i file1.txt         # удаление с подтверждением
+rm -r dir1              # удалить каталог рекурсивно
+rm -rf dir1             # рекурсивно и без подтверждения (ОСТОРОЖНО!)</code></pre>
+<h2>Просмотр и редактирование содержимого файлов</h2>
+<ul>
+  <li><code><strong>cat</strong></code>— вывести содержимое файла целиком</li>
+</ul>
+<pre><code class="language-plaintext">cat file1.txt</code></pre>
+<ul>
+  <li><code><strong>less</strong></code>— постраничный просмотр</li>
+</ul>
+<pre><code class="language-plaintext">less /etc/passwd
+# управление: стрелки, PgUp/PgDn, q - выход</code></pre>
+<ul>
+  <li><code><strong>head</strong></code>и<code><strong>tail</strong></code>— начало и конец файла</li>
+</ul>
+<pre><code class="language-plaintext">head file1.txt        # первые 10 строк
+head -n 5 file1.txt   # первые 5 строк
+tail file1.txt        # последние 10 строк
+tail -n 20 file1.txt  # последние 20 строк
+tail -f /var/log/syslog  # непрерывное отслеживание изменений</code></pre>
+<h2>Поиск файлов и текста</h2>
+<ul>
+  <li><code><strong>find</strong></code>— поиск файлов по критериям</li>
+</ul>
+<pre><code class="language-plaintext">find /home -name "file1.txt"
+find . -name "*.log"      # в текущем каталоге и ниже</code></pre>
+<ul>
+  <li><code><strong>grep</strong></code>— поиск текста в файлах</li>
+</ul>
+<pre><code class="language-plaintext">grep "root" /etc/passwd
+grep -n "error" /var/log/syslog   # показать строки с номерами</code></pre>
+<h2>Права доступа и владельцы</h2>
+<pre><code class="language-plaintext">ls -l
+-rw-r--r-- 1 user user  1234 Mar  5 10:00 file1.txt
+drwxr-xr-x 2 user user  4096 Mar  5 09:30 dir1</code></pre>
+<h3>Структура прав:</h3>
+<ul>
+  <li>Первый символ:<code>-</code>(файл),<code>d</code>(каталог),<code>l</code>(ссылка) и т.д.</li>
+  <li>Далее 9 символов:<ul>
+      <li><code>rwx</code>— для владельца (user)</li>
+      <li><code>r-x</code>— для группы (group)</li>
+      <li><code>r-x</code>— для остальных (others)</li>
+    </ul>
+  </li>
+</ul>
+<p><code>r</code> — чтение (read, 4)<br><code>w</code> — запись (write, 2)<br><code>x</code> — исполнение (execute, 1)</p>
+<h3>Изменение прав: <code>chmod</code></h3>
+<p>Два варианта: символьный и цифровой.</p>
+<p><strong>Символьный:</strong></p>
+<pre><code class="language-plaintext">chmod u+x script.sh       # добавить право x владельцу
+chmod g-w file1.txt       # убрать право w у группы
+chmod o+r file1.txt       # добавить право чтения для остальных
+chmod +r file1.txt       # для всех (u, g, o)</code></pre>
+<p><strong>Цифровой:</strong></p>
+<ul>
+  <li><code>chmod 644 file1.txt</code>→<code>rw-r--r--</code> &nbsp; &nbsp; &nbsp; &nbsp;</li>
+  <li><code>chmod 755 script.sh</code>→<code>rwxr-xr-x</code><br>
+
+  </li>
+</ul>
+<p><strong>Изменение владельца (только от root):</strong></p>
+<h4><code>chown</code></h4>
+<pre><code class="language-plaintext">chown user:group file1.txt</code></pre>
+<h2>Работа с процессами</h2>
+<ul>
+  <li><code><strong>ps</strong></code>— просмотр процессов</li>
+</ul>
+<pre><code class="language-plaintext">ps          # процессы текущего терминала
+ps aux      # все процессы в системе (часто используют с grep)</code></pre>
+<ul>
+  <li><code><strong>top</strong></code>или<code>htop</code>— интерактивный монитор процессов</li>
+</ul>
+<pre><code class="language-plaintext">top
+# q — выход</code></pre>
+<ul>
+  <li><code><strong>kill</strong></code>— завершение процесса по PID</li>
+</ul>
+<pre><code class="language-plaintext">kill 1234          # послать SIGTERM, где 1234 PID процесса
+kill -9 1234       # SIGKILL (форсированно, осторожно)</code></pre>
+<h2>Получение справки</h2>
+<ul>
+  <li><code><strong>man</strong></code>— руководство (manual)</li>
+</ul>
+<pre><code class="language-plaintext">man ls
+man chmod</code></pre>
+<p>Управление: <code>q</code> — выход, <code>/строка</code> — поиск, <code>n</code> — следующее вхождение.</p>
+<ul>
+  <li><code><strong>--help</strong></code>— краткая справка по команде</li>
+</ul>
+<pre><code class="language-plaintext">ls --help
+cp --help</code></pre>
+<h2>Базовые сетевые команды</h2>
+<ul>
+  <li><code>ip a</code>— просмотр сетевых интерфейсов и IP-адресов</li>
+  <li><code>ip -c a</code> - для вывода с подсветкой</li>
+  <li><code><strong>ping</strong></code>— проверка доступности узла</li>
+</ul>
+<pre><code class="language-plaintext">ping 8.8.8.8
+ping ya.ru
+# Ctrl+C - остановить</code></pre>
+<h2>Практика №1: Навигация и работа с каталогами</h2>
+<p>Определите текущий каталог:</p>
+<pre><code class="language-plaintext">pwd</code></pre>
+<p>Посмотрите содержимое домашнего каталога:</p>
+<pre><code class="language-plaintext">ls
+ls -la</code></pre>
+<p>Создайте каталог<code>linux_lab</code>в домашнем каталоге и перейдите в него:</p>
+<pre><code class="language-plaintext">mkdir ~/linux_lab
+cd ~/linux_lab
+pwd</code></pre>
+<p>Внутри<code>linux_lab</code>создайте структуру каталогов:</p>
+<pre><code class="language-plaintext">mkdir -p project1/docs project1/src project2
+ls -R</code></pre>
+<p>Перейдите в<code>project1/docs</code>и вернитесь разными способами:</p>
+<pre><code class="language-plaintext">cd project1/docs
+pwd
+cd ..        # вверх
+pwd
+cd ../..     # снова вверх
+pwd</code></pre>
+<h2>Практика №2: Файлы, копирование и удаление</h2>
+<p>В каталоге<code>linux_lab</code>создайте несколько файлов:</p>
+<pre><code class="language-plaintext">cd ~/linux_lab
+touch file1.txt file2.txt
+touch project1/src/main.c</code></pre>
+<p>Скопируйте<code>file1.txt</code>в<code>project2/</code>:</p>
+<pre><code class="language-plaintext">cp file1.txt project2/
+ls project2/</code></pre>
+<p>Переименуйте<code>file2.txt</code>в<code>notes.txt</code>:</p>
+<pre><code class="language-plaintext">mv file2.txt notes.txt
+ls</code></pre>
+<p>Скопируйте весь каталог<code>project1</code>в<code>project3</code>:</p>
+<pre><code class="language-plaintext">cp -r project1 project3
+ls -R</code></pre>
+<p>Удалите каталог<code>project3</code>:</p>
+<pre><code class="language-plaintext">rm -r project3
+ls</code></pre>
+<h2>Практика №3: Просмотр содержимого и редактирование</h2>
+<p>Откройте файл<code>file1.txt</code>в редакторе<code>nano</code>и запишите в него несколько строк текста (ФИО, группа, дата). Сохраните файл.</p>
+<pre><code class="language-plaintext">vim file1.txt
+#для выхода с сохранения нажмите ESC и введите :wq (должно отобразиться в левой нижней части)
+#для выхода без сохраниения нажмите ESC и введите :w!</code></pre>
+<p>Выведите содержимое файла:</p>
+<pre><code class="language-plaintext">cat file1.txt</code></pre>
+<p>Посмотрите только первые 2 строки файла:</p>
+<pre><code class="language-plaintext">head -n 2 file1.txt</code></pre>
+<p>Посмотрите последние 2 строки:</p>
+<pre><code class="language-plaintext">tail -n 2 file1.txt</code></pre>
+<h2>Практика №4: Права доступа</h2>
+<p>Посмотрите права на файлы в<code>linux_lab</code>:</p>
+<pre><code class="language-plaintext">ls -l</code></pre>
+<p>Измените права файла<code>file1.txt</code>на<code>rw-r-----</code>(640):</p>
+<pre><code class="language-plaintext">chmod 640 file1.txt
+ls -l file1.txt</code></pre>
+<p>Создайте файл<code>notes.txt</code> и сделайте его исполняемым для владельца, оставив остальные права без изменений:</p>
+<pre><code class="language-plaintext">chmod u+x notes.txt
+ls -l notes.txt</code></pre>
+<h2>Практика №5: Поиск и процессы</h2>
+<p>Найдите файл<code>file1.txt</code>, начиная поиск из домашнего каталога:</p>
+<pre><code class="language-plaintext">find ~ -name "file1.txt"</code></pre>
+<p>Найдите в файле<code>file1.txt</code>строку с вашим именем:</p>
+<pre><code class="language-plaintext">grep "Иванов" file1.txt   # замените на свою фамилию/имя</code></pre>
+<p>Посмотрите список процессов текущего пользователя:</p>
+<pre><code class="language-plaintext">ps</code></pre>
+<p>Запустите<code>top</code>, понаблюдайте за процессами и выйдите:</p>
+<pre><code class="language-plaintext">top
+# q - выход</code></pre>
+<h2>Практика №6: Сеть и справка</h2>
+<p>Просмотрите IP-адреса интерфейсов:</p>
+<pre><code class="language-plaintext">ip a</code></pre>
+<p>Проверьте доступность<code>ya.ru</code>:</p>
+<pre><code class="language-plaintext">ping ya.ru
+# через 3-4 пакета остановите Ctrl+C</code></pre>
+<p>Получите справку по команде<code>ls</code>двумя способами:</p>
+<pre><code class="language-plaintext">man ls
+ls --help</code></pre>
+<h2>Закрепление материала&nbsp;</h2>
+<h3>Индивидуальные задания</h3>
+<p>1. В домашнем каталоге создайте структуру:</p>
+<pre><code class="language-plaintext">lab2/
+   config/
+   logs/
+   bin/</code></pre>
+<p>2. В каталоге<code>config</code>создайте файлы<code>app.conf</code>,<code>db.conf</code>,<code>net.conf</code>и заполните их в редакторе nano строками с вашими ФИО и группой.</p>
+<p>3. Скопируйте все<code>.conf</code>файлы в каталог<code>logs</code>с сохранением имен.</p>
+<p>4. Переименуйте файл<code>net.conf</code>в<code>network.conf</code>в каталоге<code>config</code>.</p>
+<p>5. Установите следующие права:</p>
+<ul>
+  <li>Для<code>app.conf</code>—<code>600</code>(только владелец может читать и писать).</li>
+  <li>Для<code>db.conf</code>—<code>640</code>.</li>
+  <li>Для<code>network.conf</code>—<code>644</code>.</li>
+</ul>
+<p>6. Проверьте, что права установлены корректно с помощью<code>ls -l</code>.</p>
+<p>7. Найдите все<code>.conf</code>файлы в каталоге<code>lab2</code>с помощью<code>find</code>.</p>
+<p>8. Найдите во всех<code>.conf</code>файлах строки с вашей фамилией командой<code>grep</code>.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
