@@ -1,0 +1,189 @@
+<!--
+title: Удаленное администрирование ALT Linux. SSH
+description: 
+published: true
+date: 2026-03-05T19:17:20.112Z
+tags: 
+editor: ckeditor
+dateCreated: 2026-03-05T19:17:20.112Z
+-->
+
+<p><strong>Цель работы: </strong>понять принцип работы SSH и его роль в администрировании.</p>
+<h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
+<p><strong>SSH (Secure Shell)</strong> - протокол для защищённого удалённого доступа к системе по сети.</p>
+<ol>
+  <li>Заменяет небезопасные протоколы:<code>telnet</code>,<code>rsh</code>,<code>rlogin</code>.</li>
+  <li>Шифрует весь трафик (пароли, команды, вывод).</li>
+  <li>По умолчанию использует <strong>порт 22/TCP</strong>.</li>
+  <li>Позволяет:<ul>
+      <li>выполнять команды на удалённой машине;</li>
+      <li>администрировать сервер;</li>
+      <li>копировать файлы (через<code>scp</code>,<code>sftp</code>);</li>
+      <li>пробрасывать порты (tunneling).</li>
+    </ul>
+  </li>
+</ol>
+<p>В ALT Linux используется, как правило, пакет <strong>OpenSSH</strong> (ssh-клиент и ssh-сервер).</p>
+<h1><span class="text-small"><strong>Задания для лабораторной работы:</strong></span></h1>
+<h2>Основные компоненты SSH</h2>
+<p><strong>SSH-клиент</strong> - программа, с которой вы подключаетесь к серверу:</p>
+<ul>
+  <li>команда<code>ssh</code>в терминале.</li>
+</ul>
+<p><strong>SSH-сервер</strong> - служба на удалённой машине:</p>
+<ul>
+  <li>демон<code>sshd</code>,</li>
+  <li>конфигурационный файл<code>/etc/openssh/sshd_config</code>.</li>
+</ul>
+<p><strong>Методы аутентификации</strong>:</p>
+<ul>
+  <li>по <strong>паролю</strong> (проще, но менее безопасно);</li>
+  <li>по <strong>ключам</strong> (рекомендуется для администраторов).</li>
+</ul>
+<h2>Проверка и установка SSH в ALT Linux</h2>
+<p><strong>Проверка наличия ssh-клиента</strong></p>
+<p>На клиентской машине:</p>
+<pre><code class="language-plaintext">ssh</code></pre>
+<p>Если показался список опций - клиент установлен</p>
+<h2>Установка OpenSSH-сервера в ALT Linux</h2>
+<p>На сервере ALT Linux (от root или через <code>sudo</code>, если настроен):</p>
+<pre><code class="language-plaintext">apt-get update
+apt-get install openssh-server</code></pre>
+<p>Проверка статуса службы:</p>
+<pre><code class="language-plaintext">service sshd status 
+# или
+systemctl status sshd </code></pre>
+<p>Запуск и включение автозапуска:</p>
+<pre><code class="language-plaintext">service sshd start
+# или
+systemctl start sshd
+systemctl enable sshd</code></pre>
+<h2>Подключение по SSH</h2>
+<p>Формат команды:</p>
+<pre><code class="language-plaintext">ssh пользователь@ip_адрес</code></pre>
+<p>Примеры:</p>
+<pre><code class="language-plaintext">ssh root@192.168.1.10
+ssh student@server.alt</code></pre>
+<p>При первом подключении вы увидите сообщение о «fingerprint» сервера (отпечаток ключа) — его нужно принять (<code>yes</code>), чтобы добавить сервер в <code>~/.ssh/known_hosts</code>.</p>
+<h2>Конфигурация SSH-сервера в ALT Linux</h2>
+<p>Основной файл: <code>/etc/openssh/sshd_config</code></p>
+<blockquote>
+  <p>Изменения должны выполняться с правами root!</p>
+</blockquote>
+<h3>Часто используемые параметры:</h3>
+<pre><code class="language-plaintext">Port 22                  # порт, по умолчанию 22
+PermitRootLogin yes/no   # разрешён ли вход root по SSH
+PasswordAuthentication yes/no   # вход по паролю
+PubkeyAuthentication yes/no     # вход по ключам
+AllowUsers user1 user2          # список разрешённых пользователей (если нужно)</code></pre>
+<p>После изменения конфигурации — перезапустить sshd:</p>
+<pre><code class="language-plaintext">service sshd restart
+# или
+systemctl restart sshd</code></pre>
+<h2>Аутентификация по ключам</h2>
+<p><strong>Зачем ключи?</strong></p>
+<ul>
+  <li>Не нужно вводить пароль при каждом подключении.</li>
+  <li>Сложнее перебрать (взломать) ключ, чем простой пароль.</li>
+  <li>Можно запретить вход по паролю вообще.</li>
+</ul>
+<h3>Генерация SSH-ключей на клиенте</h3>
+<p>На клиентской машине:</p>
+<pre><code class="language-plaintext">ssh-keygen -t ed25519 #ed25519 это тип шифрования и ни на что не влияет, можно ввести команду и без этого параметра</code></pre>
+<ul>
+  <li><code>Enter file in which to save the key</code> - путь к файлу ключа (по умолчанию<code>~/.ssh/id_ed25519</code>) - нажимаем Enter.</li>
+  <li><code>Enter passphrase</code>— можно задать пароль на закрытый ключ, либо оставить пустым (сейчас лучше оставить его пустым).</li>
+</ul>
+<p>Будут созданы файлы:</p>
+<ul>
+  <li>закрытый ключ:<code>~/.ssh/id_ed25519</code></li>
+  <li>открытый ключ:<code>~/.ssh/id_ed25519.pub</code></li>
+</ul>
+<h2>Копирование открытого ключа на сервер</h2>
+<p><strong>Вариант 1 (удобный, если есть утилита):</strong></p>
+<pre><code class="language-plaintext">ssh-copy-id user@192.168.1.10 #ip-адрес хоста, на который вы будете подключаться по ssh ключу</code></pre>
+<p>Он сам добавит ваш <code>id_ed25519.pub</code> в <code>~/.ssh/authorized_keys</code> на сервере.</p>
+<p>Вариант 2 (вручную):</p>
+<p>Скопировать содержимое файла<code>~/.ssh/id_ed25519.pub</code>:</p>
+<pre><code class="language-plaintext">cat ~/.ssh/id_ed25519.pub</code></pre>
+<p>Подключиться на сервер по паролю:</p>
+<pre><code class="language-plaintext">ssh user@192.168.1.10</code></pre>
+<p>На сервере:</p>
+<pre><code class="language-plaintext">mkdir -p ~/.ssh
+nano ~/.ssh/authorized_keys</code></pre>
+<p>Вставить туда содержимое ключа (одной строкой), сохранить.</p>
+<p>Выставить права:</p>
+<pre><code class="language-plaintext">chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys</code></pre>
+<p>После этого можно разлогиниться и проверять вход по ключу:</p>
+<pre><code class="language-plaintext">ssh user@192.168.1.10</code></pre>
+<h2>Отключение входа по паролю&nbsp;</h2>
+<p>На сервере, в <code>/etc/openssh/sshd_config</code>:</p>
+<pre><code class="language-plaintext">PasswordAuthentication no
+PubkeyAuthentication yes</code></pre>
+<p>Перезапустить sshd:</p>
+<pre><code class="language-plaintext">systemctl restart sshd</code></pre>
+<p>Теперь вход только по ключам (убедитесь, что ключи работают, прежде чем отключать пароль).</p>
+<h2>Копирование файлов по SSH</h2>
+<hr>
+<p><code>scp</code> — копирование через SSH (аналог <code>cp</code> по сети)</p>
+<p>Формат:</p>
+<pre><code class="language-plaintext">scp [опции] источник назначение</code></pre>
+<p>Примеры:</p>
+<p>С клиента на сервер:</p>
+<pre><code class="language-plaintext">scp file.txt user@192.168.1.10:/home/user/</code></pre>
+<p>С сервера на клиента:</p>
+<pre><code class="language-plaintext">scp user@192.168.1.10:/home/user/file.txt ~/Downloads/</code></pre>
+<p>Копирование каталогов:</p>
+<pre><code class="language-plaintext">scp -r project/ user@192.168.1.10:/home/user/</code></pre>
+<p><code>sftp</code> — интерактивное FTP-подобное соединение по SSH</p>
+<pre><code class="language-plaintext">sftp user@192.168.1.10</code></pre>
+<p>Команды внутри <code>sftp</code>:</p>
+<ul>
+  <li><code>ls</code>— список файлов на сервере</li>
+  <li><code>lcd</code>— смена локального каталога</li>
+  <li><code>cd</code>— смена удалённого каталога</li>
+  <li><code>get file</code>— скачать файл</li>
+  <li><code>put file</code>— загрузить файл на сервер</li>
+  <li><code>exit</code>— выход</li>
+</ul>
+<h2>Однократное выполнение команды по SSH</h2>
+<p>Можно не открывать интерактивную сессию, а выполнить одну команду на сервере:</p>
+<pre><code class="language-plaintext">ssh user@192.168.1.10 "uname -a"
+ssh root@192.168.1.10 "systemctl status sshd"</code></pre>
+<p>Это удобно для скриптов и автоматизации.</p>
+<h2>Индивидуальное задание&nbsp;</h2>
+<p>Настроить на сервере ALT Linux SSH-сервер (если ещё не настроен).</p>
+<p>Создать на клиенте новую пару ключей <strong>специально для этого сервера</strong> (например,<code>~/.ssh/id_alt_rsa</code>), указав имя файла при генерации:</p>
+<pre><code class="language-plaintext">ssh-keygen -t rsa -f ~/.ssh/id_alt_rsa</code></pre>
+<p>Добавить созданный открытый ключ на сервер в<code>~/.ssh/authorized_keys</code>выбранного пользователя.</p>
+<p>Настроить на клиенте файл<code>~/.ssh/config</code>так, чтобы можно было подключаться командой:</p>
+<pre><code class="language-plaintext">ssh alt-lab</code></pre>
+<p>Пример содержимого<code>~/.ssh/config</code>:</p>
+<pre><code class="language-plaintext">Host alt-lab
+    HostName 192.168.1.10
+    User user
+    IdentityFile ~/.ssh/id_alt_rsa
+    Port 22</code></pre>
+<p>На сервере в<code>sshd_config</code>:</p>
+<ul>
+  <li>оставить вход по паролю включённым;</li>
+  <li><strong>ограничить доступ к SSH только одному пользователю</strong> (тому, с которым вы работаете), с помощью<code>AllowUsers</code>.</li>
+</ul>
+<p>Используя<code>scp</code>, передать на сервер каталог<code>lab_ssh/</code>с минимум двумя файлами, а затем скачать его обратно под другим именем<code>lab_ssh_copy/</code>.</p>
+<h2>Контрольные вопросы</h2>
+<ol>
+  <li>Для чего используется протокол SSH, какие задачи он решает?</li>
+  <li>Какой порт по умолчанию использует SSH? Как его изменить?</li>
+  <li>Чем отличается ssh-клиент от ssh-сервера?&nbsp;</li>
+  <li>Что такое аутентификация по ключам? Какие файлы при этом используются на клиенте и на сервере?</li>
+  <li>Зачем нужен файл<code>~/.ssh/known_hosts</code>?</li>
+  <li>Как выполнить одну команду на удалённом сервере по SSH, не входя в интерактивную оболочку?</li>
+  <li>Какие риски возникают при разрешении входа по SSH пользователю<code>root</code>?</li>
+</ol>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><br>
+
+</p>
+<p>&nbsp;</p>
