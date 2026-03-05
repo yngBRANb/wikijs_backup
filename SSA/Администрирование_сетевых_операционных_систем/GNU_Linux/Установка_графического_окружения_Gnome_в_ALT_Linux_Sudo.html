@@ -2,7 +2,7 @@
 title: Установка среды рабочего стола Gnome в ALT Linux. Знакомство с командой sudo
 description: 
 published: true
-date: 2025-03-16T18:03:55.089Z
+date: 2026-03-05T18:25:41.783Z
 tags: 
 editor: ckeditor
 dateCreated: 2025-03-16T14:57:31.146Z
@@ -57,7 +57,8 @@ dateCreated: 2025-03-16T14:57:31.146Z
 <pre><code class="language-plaintext">su -</code></pre>
 <p>Установите пакет&nbsp;open-vm-tools-desktop&nbsp;и добавьте его в автозагрузку:</p>
 <pre><code class="language-plaintext">apt-get install open-vm-tools-desktop
-chkconfig vmtoolsd onsystemctl enable --now vmtoolsd</code></pre>
+systemctl enable --now vmtoolsd
+chkconfig vmtoolsd on</code></pre>
 <p>Перезагрузитесь:</p>
 <pre><code class="language-plaintext">reboot</code></pre>
 <p>Снова зайдите в режим среды рабочего стола (Используйте это команду всегда когда вам нужна будет графическая оболочка):</p>
