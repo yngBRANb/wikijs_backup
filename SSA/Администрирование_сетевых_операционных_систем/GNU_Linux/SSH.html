@@ -2,7 +2,7 @@
 title: Удаленное администрирование ALT Linux. SSH
 description: 
 published: true
-date: 2026-03-05T19:25:26.098Z
+date: 2026-03-05T19:26:33.374Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-05T19:17:20.112Z
@@ -124,7 +124,7 @@ chmod 600 ~/.ssh/authorized_keys</code></pre>
 PubkeyAuthentication yes</code></pre>
 <p>Перезапустить sshd:</p>
 <pre><code class="language-plaintext">systemctl restart sshd</code></pre>
-<h2>Отключение входа по паролю&nbsp;</h2>
+<h2>Копирование файлов по SSH</h2>
 <p><code>scp</code> — копирование через SSH (аналог <code>cp</code> по сети)</p>
 <p>Формат:</p>
 <pre><code class="language-plaintext">scp [опции] источник назначение</code></pre>
