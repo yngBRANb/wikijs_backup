@@ -2,7 +2,7 @@
 title: Инструменты для работы с сетью ALT Linux
 description: 
 published: true
-date: 2025-03-16T15:32:06.600Z
+date: 2026-03-05T18:28:21.287Z
 tags: 
 editor: ckeditor
 dateCreated: 2025-03-16T15:30:33.900Z
@@ -39,7 +39,7 @@ server-alt-1</code></pre>
 <h2><span class="text-small">4. Перейдем к настройке сети. Выполните команду:</span></h2>
 <pre><code class="language-plaintext">ip&nbsp;a</code></pre>
 <p>Примерный вывод:&nbsp;</p>
-<figure class="image"><img src="/ssa/gnu_linux/prac/networkalt__(4).png"></figure>
+<figure class="image"><img src="/ssa/gnu_linux/prac/networkalt__(5).png"></figure>
 <p>В этом выводе мы может видеть 2 интерфейса:&nbsp;lo (loopback) самозамыкающийся интерфейс, который в этой практической нам не пригодится и&nbsp;ens33 на котором (в моем случае) назначен&nbsp;IP-адрес 192.168.14.129/24. Из вывода так же видно, что этот адрес получен по&nbsp;DHCP (после самого адреса идет слово&nbsp;dynamic).</p>
 <h2><span class="text-small">5. Давайте изменим этот адрес на 192.168.14.200/24, тем самым сделав его статическим. Для этого переходим в директорию&nbsp;<strong>/etc/net/ifaces/&lt;интерфейс&gt;</strong>:</span></h2>
 <pre><code class="language-plaintext">#Переходим под учетную запись суперпользователя для вашего удобства
@@ -81,6 +81,7 @@ nameserver 8.8.8.8</code></pre>
 <figure class="image"><img src="/ssa/gnu_linux/prac/networkalt__(12).png"></figure>
 <p>Установите&nbsp;утилиту <code>nslookup</code>:</p>
 <pre><code class="language-plaintext">sudo apt-get install bind-utils</code></pre>
+<p>&nbsp;</p>
 <figure class="image"><img src="/ssa/gnu_linux/prac/networkalt__(14).png"></figure>
 <h1><span class="text-small">Контрольные вопросы:</span></h1>
 <ol>
