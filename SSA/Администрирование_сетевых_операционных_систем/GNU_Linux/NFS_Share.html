@@ -2,7 +2,7 @@
 title: Создание NFS Share в Linux
 description: 
 published: true
-date: 2026-03-05T20:41:08.231Z
+date: 2026-03-06T00:45:20.895Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-05T20:39:28.007Z
@@ -79,6 +79,7 @@ apt-get install nfs-server -y</code></pre>
 <pre><code class="language-plaintext">mkdir -p /srv/nfs/share</code></pre>
 <p>Назначьте владельца и права доступа (для простоты — доступ всем чтение/запись; в реальных системах делайте более жёсткие настройки):</p>
 <pre><code class="language-plaintext">chmod 777 /srv/nfs/share</code></pre>
+<p>&nbsp;</p>
 <blockquote>
   <p>Важно:<br><code>chmod 777</code> — это максимально открытые права, удобно для учебной лабораторной работы.</p>
 </blockquote>
@@ -145,7 +146,7 @@ mount -a</code></pre>
 <pre><code class="language-plaintext">ls -l /srv/nfs/share
 cat /srv/nfs/share/test_from_client.txt</code></pre>
 <p>Если файлы видны с обеих сторон — базовая работа NFS настроена правильно.</p>
-<h2>Контрольные вопросы</h2>
+<h1>Контрольные вопросы</h1>
 <ol>
   <li>Что такое NFS? Для чего он используется в корпоративной/учебной инфраструктуре?</li>
   <li>Что означает запись в<code>/etc/exports</code>вида:<br><code>/srv/nfs/share 192.168.56.0/24(rw,sync)</code>— объясните каждый элемент.</li>
