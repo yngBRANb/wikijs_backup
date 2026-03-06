@@ -2,7 +2,7 @@
 title: Удаленное администрирование ALT Linux. SSH
 description: 
 published: true
-date: 2026-03-05T19:27:19.753Z
+date: 2026-03-06T00:44:55.786Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-05T19:17:20.112Z
@@ -90,6 +90,7 @@ systemctl restart sshd</code></pre>
 <h3>Генерация SSH-ключей на клиенте</h3>
 <p>На клиентской машине:</p>
 <pre><code class="language-plaintext">ssh-keygen -t ed25519 #ed25519 это тип шифрования и ни на что не влияет, можно ввести команду и без этого параметра</code></pre>
+<p>&nbsp;</p>
 <ul>
   <li><code>Enter file in which to save the key</code> - путь к файлу ключа (по умолчанию<code>~/.ssh/id_ed25519</code>) - нажимаем Enter.</li>
   <li><code>Enter passphrase</code>— можно задать пароль на закрытый ключ, либо оставить пустым (сейчас лучше оставить его пустым).</li>
@@ -169,7 +170,7 @@ ssh root@192.168.1.10 "systemctl status sshd"</code></pre>
   <li><strong>ограничить доступ к SSH только одному пользователю</strong> (тому, с которым вы работаете), с помощью<code>AllowUsers</code>.</li>
 </ul>
 <p>Используя<code>scp</code>, передать на сервер каталог<code>lab_ssh/</code>с минимум двумя файлами, а затем скачать его обратно под другим именем<code>lab_ssh_copy/</code>.</p>
-<h2>Контрольные вопросы</h2>
+<h1>Контрольные вопросы</h1>
 <ol>
   <li>Для чего используется протокол SSH, какие задачи он решает?</li>
   <li>Какой порт по умолчанию использует SSH? Как его изменить?</li>
