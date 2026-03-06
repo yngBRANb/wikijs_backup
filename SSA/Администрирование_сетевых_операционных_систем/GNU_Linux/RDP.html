@@ -2,12 +2,13 @@
 title: Удаленное администрирование ALT Linux. RDP
 description: 
 published: true
-date: 2026-03-05T19:57:18.558Z
+date: 2026-03-06T00:44:02.480Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-05T19:57:18.558Z
 -->
 
+<p>&nbsp;</p>
 <p><strong>Цель работы: п</strong>онять, что такое RDP и чем он отличается от SSH.</p>
 <h1><span class="text-small"><strong>Краткие теоретические и учебно-методические материалы по теме лабораторной работы:</strong></span></h1>
 <h2><strong>RDP (Remote Desktop Protocol)</strong> — протокол удалённого доступа к графическому рабочему столу:</h2>
@@ -50,14 +51,13 @@ dateCreated: 2026-03-05T19:57:18.558Z
 <pre><code class="language-plaintext">apt-get update
 apt-get install xrdp</code></pre>
 <p>Включить и добавить в автозапуск сервисы:</p>
-<p>
-</p>
+<p>&nbsp;</p>
 <pre><code class="language-plaintext">systemctl enable --now xrdp xrdp-sesman</code></pre>
 <p>Права доступа пользователя:</p>
 <ul>
   <li>Для доступа к терминальному сеансу — включить в группу <strong>tsusers</strong>:</li>
 </ul>
-<pre><code class="language-plaintext">usermod -aG user tsusers #user пользователь, под которого будет происходить подключение по RDP</code></pre>
+<pre><code class="language-plaintext">usermod -aG tsusers user #user пользователь, под которого будет происходить подключение по RDP</code></pre>
 <p>Настройки сервера хранятся в файле <code><strong>/etc/xrdp/sesman.ini</strong></code> Некоторые настройки сервера установленные по умолчанию:</p>
 <pre><code class="language-plaintext">AllowRootLogin=true — авторизация Root;
 MaxLoginRetry=4 — максимальное количество попыток подключения;
@@ -69,17 +69,23 @@ FuseMountName=Mount_FOLDER — название монтируемой папк�
 <h3>Установка Remmina в ALT Linux</h3>
 <p>На клиентской машине:</p>
 <pre><code class="language-plaintext">apt-get update
-apt-get install remmina</code></pre>
+apt-get install remmina &amp;&amp; apt-get install remmina-plugins-rdp</code></pre>
 <p>из терминала:</p>
 <pre><code class="language-plaintext">remmina</code></pre>
 <h2>Создание RDP‑подключения в Remmina</h2>
 <p>Открыть Remmina.</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/remmina1.png"></figure>
+<p>Введите данные сервера, к которому хотите подключиться.</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/remmina2.png"></figure>
+<p>Введите имя и пароль пользователя.</p>
+<figure class="image"><img src="/ssa/gnu_linux/prac/remmina3_.png"></figure>
+<p>Если все сделано правильно будет доступен рабочий стол вашей вм.</p>
+<h1>Контрольные вопросы</h1>
+<ol>
+  <li>Чем протокол RDP отличается от SSH по принципу работы и назначению?</li>
+  <li>Какие риски безопасности есть при открытии порта 3389 наружу в Интернет? Как их можно уменьшить?</li>
+  <li>Для чего нужен клиент Remmina? Какие протоколы, кроме RDP, он поддерживает?</li>
+  <li>Что будет, если подключиться по RDP под тем же пользователем, который сейчас уже работает локально на сервере? (Обратите внимание на возможные параллельные/отдельные сессии.)</li>
+  <li>Почему для серверов часто рекомендуют использовать лёгкие окружения (Xfce, MATE) вместо тяжёлых (KDE, GNOME)?</li>
+  <li>Какие инструменты можно использовать, чтобы ограничить доступ к порту RDP только с определённых IP‑адресов?</li>
+</ol>
