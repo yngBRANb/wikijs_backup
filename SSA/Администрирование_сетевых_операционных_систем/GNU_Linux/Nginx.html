@@ -2,7 +2,7 @@
 title: Настройка веб-сервера Nginx
 description: 
 published: true
-date: 2026-03-09T19:58:39.037Z
+date: 2026-03-09T20:06:04.977Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-09T19:58:39.037Z
@@ -161,6 +161,12 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful</code></pre>
 <pre><code class="language-plaintext">curl http://example.local/</code></pre>
 <p>или (на самой ВМ):</p>
 <pre><code class="language-plaintext">curl -H "Host: example.local" http://127.0.0.1/</code></pre>
+<h2>Добавление upstream и обратного прокси</h2>
+<p>Теперь добавим ещё один виртуальный хост, который будет работать как обратный прокси к backend‑приложению.</p>
+<p>Предположим, у вас есть приложение, работающее на <code>127.0.0.1:3000</code><br>(например, Node.js, Flask, Django, любой HTTP‑сервер).</p>
+<h3>Определяем upstream</h3>
+<p>Откройте новый конфиг:</p>
+<pre><code class="language-plaintext">vim /etc/nginx/sites-available/app</code></pre>
 <h1>Контрольные вопросы</h1>
 <ol>
   <li>Что такое Nginx и для каких задач он обычно используется?</li>
@@ -175,4 +181,3 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful</code></pre>
   <li>Зачем нужна команда<code>nginx -t</code>перед перезапуском службы?</li>
   <li>Как можно сделать так, чтобы к сайту обращались по имени (example.local), а не по IP‑адресу?</li>
 </ol>
-<p>&nbsp;</p>
