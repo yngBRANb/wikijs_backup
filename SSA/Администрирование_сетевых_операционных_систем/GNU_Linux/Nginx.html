@@ -1,0 +1,178 @@
+<!--
+title: Настройка веб-сервера Nginx
+description: 
+published: true
+date: 2026-03-09T19:58:39.037Z
+tags: 
+editor: ckeditor
+dateCreated: 2026-03-09T19:58:39.037Z
+-->
+
+<p><strong>Цель работы: </strong>научиться настраивать простой сайт (виртуальный хост).</p>
+<h1>Краткие теоретические и учебно‑методические материалы</h1>
+<h2>Что такое Nginx</h2>
+<p><strong>Nginx</strong> — высокопроизводительный веб‑сервер и обратный прокси‑сервер. Основные режимы работы:</p>
+<ul>
+  <li>как <strong>статический веб‑сервер</strong> (отдача HTML, CSS, JS, изображений);</li>
+  <li>как <strong>обратный прокси</strong> перед backend‑приложением (PHP‑FPM, Python, Node.js и т.д.);</li>
+  <li>как <strong>балансировщик нагрузки</strong> между несколькими backend‑серверами.</li>
+</ul>
+<h3>Особенности:</h3>
+<ul>
+  <li>низкое потребление ресурсов;</li>
+  <li>асинхронная, событийная модель обработки запросов;</li>
+  <li>удобная система виртуальных хостов (множество сайтов на одном сервере).</li>
+</ul>
+<h3>Основные директории и файлы конфигурации (типичная схема)</h3>
+<p>В зависимости от дистрибутива пути могут немного отличаться, но чаще всего:</p>
+<ul>
+  <li>Основной файл конфигурации:<br><code>/etc/nginx/nginx.conf</code></li>
+  <li>Каталог для отдельных конфигураций сайтов (виртуальных хостов):<br><code>/etc/nginx/sites-available/</code>и<code>/etc/nginx/sites-enabled/</code></li>
+  <li>Каталог с веб‑файлами (по умолчанию):<br><code>/var/www/html</code></li>
+</ul>
+<h1>Задания для лабораторной работы</h1>
+<h2>Установка Nginx:</h2>
+<pre><code class="language-plaintext">apt-get install nginx -y</code></pre>
+<h3>Проверьте статус службы:</h3>
+<pre><code class="language-plaintext">systemctl status nginx</code></pre>
+<p>Состояние должно быть <code>active (running)</code>.</p>
+<p>Если не запущен — запустите:</p>
+<pre><code class="language-plaintext">systemctl enable --now nginx</code></pre>
+<h2>Проверка работы Nginx по умолчанию</h2>
+<p>Узнайте IP‑адрес вашей виртуальной машины:</p>
+<pre><code class="language-plaintext">ip a</code></pre>
+<p>Запомните адрес интерфейса (например, <code>192.168.56.10</code>).</p>
+<p>На хост‑машине (или в браузере внутри ВМ) откройте:</p>
+<pre><code class="language-plaintext">http://&lt;IP_СЕРВЕРА&gt;/</code></pre>
+<p>Например:</p>
+<pre><code class="language-plaintext">http://192.168.56.10/</code></pre>
+<p>Должна открыться стандартная стартовая страница Nginx (Welcome to nginx…).</p>
+<p>То же можно проверить из терминала сервера:</p>
+<pre><code class="language-plaintext">curl http://127.0.0.1/</code></pre>
+<p>Если в ответ пришёл HTML‑код приветственной страницы — веб‑сервер работает.</p>
+<p>Основные коды состояния:</p>
+<h3>1xx — Информационные</h3>
+<ul>
+  <li><strong>100 Continue</strong> — сервер принял начальную часть запроса, можно продолжать отправку.</li>
+</ul>
+<h3>2xx — Успешно</h3>
+<ul>
+  <li><strong>200 OK</strong> — запрос успешно выполнен, страница/данные отданы.</li>
+  <li><strong>201 Created</strong> — ресурс успешно создан (часто в API при<code>POST</code>).</li>
+  <li><strong>204 No Content</strong> — запрос выполнен, но ответа в теле нет (например, удаление ресурса).</li>
+</ul>
+<h3>3xx — Перенаправление</h3>
+<ul>
+  <li><strong>301 Moved Permanently</strong> — ресурс навсегда переехал на другой URL (постоянный редирект).</li>
+  <li><strong>302 Found</strong> — временный редирект (ресурс временно по другому адресу).</li>
+  <li><strong>304 Not Modified</strong> — содержимое не изменилось, можно использовать кешированную версию.</li>
+</ul>
+<h3>4xx — Ошибка на стороне клиента</h3>
+<ul>
+  <li><strong>400 Bad Request</strong> — неверный запрос (ошибка в синтаксисе, параметрах и т.п.).</li>
+  <li><strong>401 Unauthorized</strong> — требуется авторизация (нет или неверный токен/логин).</li>
+  <li><strong>403 Forbidden</strong> — доступ запрещён, даже если вы авторизованы.</li>
+  <li><strong>404 Not Found</strong> — ресурс не найден (часто “страница не существует”).</li>
+  <li><strong>405 Method Not Allowed</strong> — метод (GET/POST/PUT и т.п.) не поддерживается для этого URL.</li>
+  <li><strong>429 Too Many Requests</strong> — слишком много запросов за короткое время (ограничение по частоте).</li>
+</ul>
+<h3>5xx — Ошибка на стороне сервера</h3>
+<ul>
+  <li><strong>500 Internal Server Error</strong> — внутренняя ошибка сервера (что-то сломалось в коде/настройках).</li>
+  <li><strong>502 Bad Gateway</strong> — некорректный ответ от другого сервера/сервиса (часто у прокси/балансировщиков).</li>
+  <li><strong>503 Service Unavailable</strong> — сервер временно недоступен (перегружен, на обслуживании).</li>
+  <li><strong>504 Gateway Timeout</strong> — вышло время ожидания ответа от следующего сервера.</li>
+</ul>
+<h2>Структура конфигурации Nginx</h2>
+<h3>Откройте основной файл конфигурации:</h3>
+<pre><code class="language-plaintext">vim /etc/nginx/nginx.conf</code></pre>
+<p>Обратите внимание на:</p>
+<ul>
+  <li>директиву<code>http { ... }</code>— основные HTTP‑настройки;</li>
+  <li>директиву<code>include</code>— подключение конфигураций из других файлов, например:</li>
+</ul>
+<pre><code class="language-plaintext">include /etc/nginx/sites-enabled/*;</code></pre>
+<p>Не меняя основной файл, найдите каталог, где хранятся конфигурации сайтов.</p>
+<pre><code class="language-plaintext">ls /etc/nginx/sites-available/</code></pre>
+<h2>Создание собственного простого сайта</h2>
+<p>Создадим отдельный каталог и простую HTML‑страницу.</p>
+<p>Создайте каталог для сайта:</p>
+<pre><code class="language-plaintext">mkdir -p /var/www/example</code></pre>
+<p>Создайте файл <code>index.html</code>:</p>
+<pre><code class="language-plaintext">vim /var/www/example/index.html</code></pre>
+<p>Пример содержимого:</p>
+<pre><code class="language-plaintext">&lt;!DOCTYPE html&gt;
+&lt;html lang="ru"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Мой первый сайт на Nginx&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Работает!&lt;/h1&gt;
+    &lt;p&gt;Этот сайт отдан сервером Nginx с моего собственного виртуального хоста.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p>Установите корректные права:</p>
+<pre><code class="language-plaintext">chmod -R 755 /var/www/example</code></pre>
+<h2>Настройка виртуального хоста (server block)</h2>
+<p>Создайте новый файл конфигурации, например:</p>
+<pre><code class="language-plaintext">vim /etc/nginx/sites-available/example</code></pre>
+<p>Вставьте в него:</p>
+<pre><code class="language-plaintext">server {
+    listen 80;
+    server_name example.local;
+
+    access_log /var/log/nginx/example_access.log;
+    error_log  /var/log/nginx/example_error.log;
+
+  location / {
+    root /var/www/example/;
+    autoindex on;
+   }
+}</code></pre>
+<p>Здесь указано:</p>
+<ul>
+  <li><strong>Listen 80</strong> - порт веб сервера - 80;</li>
+  <li><strong>server_name </strong><code>example.local</code> - адрес сервера на локальной машине и из локальной сети</li>
+  <li><strong>access_log</strong> и <strong>error_log</strong> - путь к логам</li>
+  <li><strong>root /var/www/example/</strong> - путь к каталогу с сайтом на сервере</li>
+</ul>
+<p>Создайте символическую ссылку в <code>sites-enabled</code>:</p>
+<pre><code class="language-plaintext">ln -s /etc/nginx/sites-available/example /etc/nginx/sites-enabled/example</code></pre>
+<h2>Проверка конфигурации и перезапуск Nginx</h2>
+<p>Проверьте файл конфигурации на наличие ошибок:</p>
+<pre><code class="language-plaintext">nginx -t</code></pre>
+<p>Ожидаемый результат:</p>
+<pre><code class="language-plaintext">nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful</code></pre>
+<p>Примените новую конфигурацию, выполнив перезапуск (или перезагрузку):</p>
+<pre><code class="language-plaintext">systemctl restart nginx</code></pre>
+<h2>Настройка hosts на клиентской машине</h2>
+<p>Чтобы по имени <code>example.local</code> открывался ваш сайт, нужно добавить локальное имя в файл <code>hosts</code> на <strong>клиентской машине</strong> (хост‑ОС или самой ВМ, если используете браузер внутри неё).</p>
+<pre><code class="language-plaintext">vim /etc/hosts</code></pre>
+<p>Добавьте строку:</p>
+<pre><code class="language-plaintext">192.168.56.10    example.local</code></pre>
+<p>(подставьте IP сервера)</p>
+<h2>Проверка работы виртуального хоста</h2>
+<p>Откройте в браузере:</p>
+<pre><code class="language-plaintext">http://example.local/</code></pre>
+<p>Вы должны увидеть страницу, созданную в <code>/var/www/example/index.html</code><br>(«Мой первый сайт на Nginx»).</p>
+<p>Можете проверить и через <code>curl</code>:</p>
+<pre><code class="language-plaintext">curl http://example.local/</code></pre>
+<p>или (на самой ВМ):</p>
+<pre><code class="language-plaintext">curl -H "Host: example.local" http://127.0.0.1/</code></pre>
+<h1>Контрольные вопросы</h1>
+<ol>
+  <li>Что такое Nginx и для каких задач он обычно используется?</li>
+  <li>Что такое «виртуальный хост» (server block) в Nginx?</li>
+  <li>За что отвечают директивы:<ul>
+      <li><code>listen</code></li>
+      <li><code>server_name</code></li>
+      <li><code>root</code></li>
+      <li><code>index</code></li>
+    </ul>
+  </li>
+  <li>Зачем нужна команда<code>nginx -t</code>перед перезапуском службы?</li>
+  <li>Как можно сделать так, чтобы к сайту обращались по имени (example.local), а не по IP‑адресу?</li>
+</ol>
+<p>&nbsp;</p>
