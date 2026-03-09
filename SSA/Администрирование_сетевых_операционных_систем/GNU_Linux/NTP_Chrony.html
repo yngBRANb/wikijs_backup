@@ -2,7 +2,7 @@
 title: Настройка NTP сервера Chrony
 description: 
 published: true
-date: 2026-03-09T19:28:58.522Z
+date: 2026-03-09T19:29:33.864Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-09T19:27:56.595Z
@@ -55,12 +55,11 @@ dateCreated: 2026-03-09T19:27:56.595Z
 <pre><code class="language-plaintext">vim /etc/chrony.conf</code></pre>
 <h3>Настройка внешних NTP‑серверов</h3>
 <p>Найдите строку вида:</p>
-<p>&nbsp;</p>
 <pre><code class="language-plaintext">pool...</code></pre>
 <p>Обычно по умолчанию уже прописан <code>pool.ntp.org iburst</code>.&nbsp;</p>
 <p>Параметр <code>iburst</code> ускоряет начальную синхронизацию.</p>
 <h3>Разрешение клиентам в локальной сети использовать наш сервер</h3>
-<h2>Измените существующую, чтобы разрешить доступ клиентам из вашей сети, например <code>192.168.56.0/24</code>:</h2>
+<p>Измените существующую, чтобы разрешить доступ клиентам из вашей сети, например <code>192.168.56.0/24</code>:</p>
 <pre><code class="language-plaintext">allow 192.168.56.0/24</code></pre>
 <p>Если строки <code>allow</code> не было — добавьте её в конец файла.</p>
 <blockquote>
@@ -84,7 +83,7 @@ dateCreated: 2026-03-09T19:27:56.595Z
 <p>Символ <code>*</code> слева означает, что этот источник сейчас выбран основным.</p>
 <p>Посмотрите сводную информацию по синхронизации:</p>
 <pre><code class="language-plaintext">chronyc tracking</code></pre>
-<h2>Обратите внимание на строки:</h2>
+<h3>Обратите внимание на строки:</h3>
 <ul>
   <li><code>Reference ID</code>/<code>Reference time</code>— с кем и когда синхронизировались;</li>
   <li><code>System time</code>/<code>Last offset</code>— насколько система отстаёт/спешит;</li>
