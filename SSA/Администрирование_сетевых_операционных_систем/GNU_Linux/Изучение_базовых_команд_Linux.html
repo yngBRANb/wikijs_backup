@@ -2,7 +2,7 @@
 title: Изучение базовых команд Linux
 description: 
 published: true
-date: 2026-03-05T18:35:51.507Z
+date: 2026-03-09T19:03:11.053Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-05T18:24:13.890Z
@@ -45,25 +45,21 @@ cd Documents       # относительный путь (от текущего 
 </ul>
 <pre><code class="language-plaintext">mkdir test_dir
 mkdir -p dir1/dir2/dir3   # создать вложенную структуру</code></pre>
-<p>&nbsp;</p>
 <ul>
   <li><code><strong>touch</strong></code>— создать пустой файл или обновить время последнего изменения</li>
 </ul>
 <pre><code class="language-plaintext">touch file1.txt</code></pre>
-<p>&nbsp;</p>
 <ul>
   <li><code><strong>cp</strong></code>— копирование</li>
 </ul>
 <pre><code class="language-plaintext">cp file1.txt file2.txt         # копия в тот же каталог
 cp file1.txt /tmp/             # копия в другой каталог
 cp -r dir1 dir2                # рекурсивное копирование каталога</code></pre>
-<p>&nbsp;</p>
 <ul>
   <li><code><strong>mv</strong></code>— перемещение и переименование</li>
 </ul>
 <pre><code class="language-plaintext">mv file1.txt /tmp/             # переместить
 mv oldname.txt newname.txt     # переименовать</code></pre>
-<p>&nbsp;</p>
 <ul>
   <li><code><strong>rm</strong></code>— удаление файлов и каталогов</li>
 </ul>
@@ -76,13 +72,11 @@ rm -rf dir1             # рекурсивно и без подтвержден�
   <li><code><strong>cat</strong></code>— вывести содержимое файла целиком</li>
 </ul>
 <pre><code class="language-plaintext">cat file1.txt</code></pre>
-<p>&nbsp;</p>
 <ul>
   <li><code><strong>less</strong></code>— постраничный просмотр</li>
 </ul>
 <pre><code class="language-plaintext">less /etc/passwd
 # управление: стрелки, PgUp/PgDn, q - выход</code></pre>
-<p>&nbsp;</p>
 <ul>
   <li><code><strong>head</strong></code>и<code><strong>tail</strong></code>— начало и конец файла</li>
 </ul>
@@ -97,7 +91,6 @@ tail -f /var/log/syslog  # непрерывное отслеживание из�
 </ul>
 <pre><code class="language-plaintext">find /home -name "file1.txt"
 find . -name "*.log"      # в текущем каталоге и ниже</code></pre>
-<p>&nbsp;</p>
 <ul>
   <li><code><strong>grep</strong></code>— поиск текста в файлах</li>
 </ul>
@@ -128,7 +121,7 @@ chmod +r file1.txt       # для всех (u, g, o)</code></pre>
 <p><strong>Цифровой:</strong></p>
 <ul>
   <li><code>chmod 644 file1.txt</code>→<code>rw-r--r--</code></li>
-  <li><code>chmod 755 script.sh</code>→<code>rwxr-xr-x</code><br>&nbsp;</li>
+  <li><code>chmod 755 script.sh</code>→<code>rwxr-xr-x</code></li>
 </ul>
 <p><strong>Изменение владельца (только от root):</strong></p>
 <h4><code>chown</code></h4>
@@ -139,13 +132,11 @@ chmod +r file1.txt       # для всех (u, g, o)</code></pre>
 </ul>
 <pre><code class="language-plaintext">ps          # процессы текущего терминала
 ps aux      # все процессы в системе (часто используют с grep)</code></pre>
-<p>&nbsp;</p>
 <ul>
   <li><code><strong>top</strong></code>или<code>htop</code>— интерактивный монитор процессов</li>
 </ul>
 <pre><code class="language-plaintext">top
 # q — выход</code></pre>
-<p>&nbsp;</p>
 <ul>
   <li><code><strong>kill</strong></code>— завершение процесса по PID</li>
 </ul>
@@ -267,8 +258,3 @@ ls --help</code></pre>
 <p>6. Проверьте, что права установлены корректно с помощью<code>ls -l</code>.</p>
 <p>7. Найдите все<code>.conf</code>файлы в каталоге<code>lab2</code>с помощью<code>find</code>.</p>
 <p>8. Найдите во всех<code>.conf</code>файлах строки с вашей фамилией командой<code>grep</code>.</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
