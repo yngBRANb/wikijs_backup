@@ -2,7 +2,7 @@
 title: Настройка проксирование через Nginx
 description: 
 published: true
-date: 2026-03-15T15:17:17.281Z
+date: 2026-03-15T15:27:07.642Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-15T15:17:17.281Z
@@ -76,7 +76,7 @@ python3 -m http.server 8080</code></pre>
 <h3>&nbsp;Перейдите в каталог с конфигурацией Nginx:</h3>
 <pre><code class="language-plaintext">cd /etc/nginx</code></pre>
 <h3>Создайте новый конфигурационный файл сайта, например `proxy.conf`:</h3>
-<pre><code class="language-plaintext">/etc/nginx/sites-available.d/proxy.conf</code></pre>
+<pre><code class="language-plaintext">vim /etc/nginx/sites-available.d/proxy.conf</code></pre>
 <p>Вставьте в него следующую конфигурацию:</p>
 <pre><code class="language-plaintext">server {
    listen 80;                 # Слушаем порт 80
@@ -88,162 +88,79 @@ python3 -m http.server 8080</code></pre>
        proxy_set_header X-Real-IP $remote_addr;  # Пробрасываем IP клиента
    }
 }</code></pre>
-<p>Важно: удостоверьтесь, что в `conf.d` нет другого файла, который также слушает `listen 80;` с таким же `server_name`, иначе может быть конфликт. При необходимости временно переименуйте лишние конфиги (добавьте расширение `.bak`).</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>```bash</p>
-<p>sudo nginx -t</p>
-<p>```</p>
-<p>&nbsp;</p>
+<p>Создайте символическую ссылку&nbsp;</p>
+<pre><code class="language-plaintext">ln -s /etc/nginx/sites-available.d/proxy.conf /etc/nginx/sites-enabled.d/proxy.conf</code></pre>
+<blockquote>
+  <p>Важно: удостоверьтесь, что в `conf.d` нет другого файла, который также слушает `listen 80;` с таким же `server_name`, иначе может быть конфликт. При необходимости временно переименуйте лишние конфиги (добавьте расширение `.bak`).</p>
+</blockquote>
+<h3>Проверка конфигурации</h3>
+<pre><code class="language-plaintext">nginx -t</code></pre>
 <p>При корректной конфигурации вы увидите сообщение вида:</p>
-<p>&nbsp;</p>
-<p>```text</p>
-<p>nginx: the configuration file /etc/nginx/nginx.conf syntax is ok</p>
-<p>nginx: configuration file /etc/nginx/nginx.conf test is successful</p>
-<p>```</p>
-<p>&nbsp;</p>
+<pre><code class="language-plaintext">nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful</code></pre>
 <p>Если есть ошибки — внимательно прочитайте сообщение об ошибке, исправьте конфигурацию и повторите проверку.</p>
-<p>&nbsp;</p>
-<p>5. Перезапустите Nginx, чтобы применить настройки:</p>
-<p>&nbsp;</p>
-<p>```bash</p>
-<p>sudo systemctl restart nginx</p>
-<p>```</p>
-<p>&nbsp;</p>
-<p>---</p>
-<p>&nbsp;</p>
-<p>### 6. Проверка работы reverse‑proxy</p>
-<p>&nbsp;</p>
-<p>1. Убедитесь, что backend‑сервер на порту 8080 всё ещё запущен &nbsp;</p>
+<h3>Перезапустите Nginx, чтобы применить настройки:</h3>
+<pre><code class="language-plaintext"> systemctl restart nginx</code></pre>
+<h2>Проверка работы reverse‑proxy</h2>
+<h3>Убедитесь, что backend‑сервер на порту 8080 всё ещё запущен &nbsp;</h3>
 <p>&nbsp; (в первом окне терминала должны быть видны логи Python‑сервера).</p>
-<p>&nbsp;</p>
-<p>2. В другом терминале выполните:</p>
-<p>&nbsp;</p>
-<p>```bash</p>
-<p>curl http://127.0.0.1</p>
-<p>```</p>
-<p>&nbsp;</p>
+<h3>В другом терминале выполните:</h3>
+<pre><code class="language-plaintext">curl http://127.0.0.1</code></pre>
 <p>Теперь ответ должен приходить от Nginx, который в свою очередь пересылает запрос на `127.0.0.1:8080`.</p>
-<p>&nbsp;</p>
-<p>3. Обратите внимание:</p>
-<p>&nbsp; - В терминале с Python‑сервером вы увидите лог запросов, пришедших от Nginx (обычно с адреса `127.0.0.1`). &nbsp;</p>
-<p>&nbsp; - В браузере при открытии `http://127.0.0.1` будет страница «Привет! Это backend-сервер на порту 8080», но реально она приходит «через» Nginx.</p>
-<p>&nbsp;</p>
-<p>---</p>
-<p>&nbsp;</p>
-<p>### 7. Настройка проксирования по подпути (location)</p>
-<p>&nbsp;</p>
+<blockquote>
+  <p>Обратите внимание:</p>
+  <p>&nbsp; - В терминале с Python‑сервером вы увидите лог запросов, пришедших от Nginx (обычно с адреса `127.0.0.1`). &nbsp;</p>
+  <p>&nbsp; - В браузере при открытии `http://127.0.0.1` будет страница «Привет! Это backend-сервер на порту 8080», но реально она приходит «через» Nginx.<br>&nbsp;</p>
+</blockquote>
+<h2>Настройка проксирования по подпути (location)</h2>
 <p>Добавим пример, когда только часть запросов проксируется, а остальное обслуживает сам Nginx.</p>
-<p>&nbsp;</p>
-<p>1. Откройте файл `proxy.conf` на редактирование:</p>
-<p>&nbsp;</p>
-<p>```bash</p>
-<p>sudo nano /etc/nginx/conf.d/proxy.conf</p>
-<p>```</p>
-<p>&nbsp;</p>
-<p>2. Замените содержимое на следующее:</p>
-<p>&nbsp;</p>
-<p>```nginx</p>
-<p>server {</p>
-<p>&nbsp; &nbsp;listen 80;</p>
-<p>&nbsp; &nbsp;server_name localhost;</p>
-<p>&nbsp;</p>
-<p>&nbsp; &nbsp;# Корень сайта для статических файлов</p>
-<p>&nbsp; &nbsp;root /usr/share/nginx/html;</p>
-<p>&nbsp; &nbsp;index index.html;</p>
-<p>&nbsp;</p>
-<p>&nbsp; &nbsp;# Все запросы к /api/ отправляем на backend</p>
-<p>&nbsp; &nbsp;location /api/ {</p>
-<p>&nbsp; &nbsp; &nbsp; &nbsp;proxy_pass http://127.0.0.1:8080/;</p>
-<p>&nbsp; &nbsp; &nbsp; &nbsp;proxy_set_header Host $host;</p>
-<p>&nbsp; &nbsp; &nbsp; &nbsp;proxy_set_header X-Real-IP $remote_addr;</p>
-<p>&nbsp; &nbsp;}</p>
-<p>&nbsp;</p>
-<p>&nbsp; &nbsp;# Остальные запросы – обычная статика</p>
-<p>&nbsp; &nbsp;location / {</p>
-<p>&nbsp; &nbsp; &nbsp; &nbsp;try_files $uri $uri/ =404;</p>
-<p>&nbsp; &nbsp;}</p>
-<p>}</p>
-<p>```</p>
-<p>&nbsp;</p>
-<p>Сохраните файл.</p>
-<p>&nbsp;</p>
-<p>3. Проверьте конфигурацию:</p>
-<p>&nbsp;</p>
-<p>```bash</p>
-<p>sudo nginx -t</p>
-<p>```</p>
-<p>&nbsp;</p>
-<p>4. Перезапустите Nginx:</p>
-<p>&nbsp;</p>
-<p>```bash</p>
-<p>sudo systemctl restart nginx</p>
-<p>```</p>
-<p>&nbsp;</p>
-<p>5. Теперь протестируйте:</p>
-<p>&nbsp;</p>
+<h3>Откройте файл `proxy.conf` на редактирование:</h3>
+<pre><code class="language-plaintext">vim /etc/nginx/sites-available.d/proxy.conf</code></pre>
+<h3>&nbsp;Замените содержимое на следующее:</h3>
+<pre><code class="language-plaintext">server {
+   listen 80;
+   server_name localhost;
+
+   # Корень сайта для статических файлов
+   root /usr/share/nginx/html;
+   index index.html;
+
+   # Все запросы к /api/ отправляем на backend
+   location /api/ {
+       proxy_pass http://127.0.0.1:8080/;
+       proxy_set_header Host $host;
+       proxy_set_header X-Real-IP $remote_addr;
+   }
+
+   # Остальные запросы – обычная статика
+   location / {
+       try_files $uri $uri/ =404;
+   }
+}</code></pre>
+<p>Удалите прошлую символическую ссылку и создайте новую</p>
+<pre><code class="language-plaintext">rm -rf /etc/nginx/sites-enabled.d/proxy.conf
+ln -s /etc/nginx/sites-available.d/proxy.conf /etc/nginx/sites-enabled.d/proxy.conf</code></pre>
+<h3>Проверьте конфигурацию:</h3>
+<pre><code class="language-plaintext"> nginx -t</code></pre>
+<h3>Перезапустите Nginx:</h3>
+<pre><code class="language-plaintext"> systemctl restart nginx</code></pre>
+<h2>Теперь протестируйте:</h2>
+<p>Предварительно создайте в директории /var/www/html, файл index.html</p>
+<pre><code class="language-plaintext">vim /var/www/html/index.html</code></pre>
+<p>Вставьте в файл</p>
+<pre><code class="language-plaintext">&lt;html&gt;&lt;body&gt;&lt;h1&gt;It works! Nginx&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;</code></pre>
 <p>- Стандартная страница Nginx:</p>
-<p>&nbsp;</p>
-<p>```bash</p>
-<p>curl http://127.0.0.1/</p>
-<p>```</p>
-<p>&nbsp;</p>
+<pre><code class="language-plaintext">curl http://127.0.0.1/</code></pre>
 <p>Ожидается стандартная «Welcome to nginx» (если index.html по умолчанию).</p>
-<p>&nbsp;</p>
 <p>- Запрос к `/api/`:</p>
-<p>&nbsp;</p>
-<p>```bash</p>
-<p>curl http://127.0.0.1/api/</p>
-<p>```</p>
-<p>&nbsp;</p>
+<pre><code class="language-plaintext">curl http://127.0.0.1/api/</code></pre>
 <p>Ожидается HTML, который выдаёт Python‑сервер (`Привет! Это backend-сервер...`).</p>
-<p>&nbsp;</p>
-<p>6. В терминале с Python‑сервером проверьте, что запросы к `/api/` действительно доходят до backend‑сервера (в логах должны появиться соответствующие строки).</p>
-<p>&nbsp;</p>
-<p>---</p>
-<p>&nbsp;</p>
-<p>### 8. Просмотр логов Nginx</p>
-<p>&nbsp;</p>
-<p>Важная часть администрирования — умение читать журналы (логи).</p>
-<p>&nbsp;</p>
-<p>1. Стандартные пути логов Nginx:</p>
-<p>&nbsp;</p>
-<p>- `/var/log/nginx/access.log` — журнал доступа (какие запросы приходили).</p>
-<p>- `/var/log/nginx/error.log` — журнал ошибок.</p>
-<p>&nbsp;</p>
-<p>2. Посмотрите последние строки access‑лога:</p>
-<p>&nbsp;</p>
-<p>```bash</p>
-<p>sudo tail -n 20 /var/log/nginx/access.log</p>
-<p>```</p>
-<p>&nbsp;</p>
-<p>3. Посмотрите ошибки (если есть):</p>
-<p>&nbsp;</p>
-<p>```bash</p>
-<p>sudo tail -n 20 /var/log/nginx/error.log</p>
-<p>```</p>
-<p>&nbsp;</p>
-<p>4. Попробуйте выполнить несколько запросов (через `curl` или браузер) и снова посмотрите access‑лог, чтобы увидеть, как новые запросы добавляются в файл.</p>
-<p>&nbsp;</p>
-<p>---</p>
-<p>&nbsp;</p>
-<p>## Дополнительные задания (по возможности)</p>
-<p>&nbsp;</p>
-<p>1. Измените порт, на котором слушает backend‑сервер (например, на 9090) и скорректируйте `proxy_pass` в конфигурации Nginx. &nbsp;</p>
-<p>2. Настройте второй `location`, например `/backend/`, который проксирует на другой порт. &nbsp;</p>
-<p>3. Попробуйте временно остановить Python‑сервер и посмотрите, какую ошибку вернёт Nginx, а также, что появится в `error.log`.</p>
-<p>&nbsp;</p>
-<p>---</p>
-<p>&nbsp;</p>
-<p>## Контрольные вопросы</p>
-<p>&nbsp;</p>
-<p>1. Что такое Nginx и для каких задач он обычно используется? &nbsp;</p>
-<p>2. Чем forward proxy отличается от reverse proxy? &nbsp;</p>
-<p>3. Какую команду вы использовали для установки Nginx? &nbsp;</p>
-<p>4. Как проверить корректность конфигурации Nginx перед перезапуском? &nbsp;</p>
-<p>5. Что означает директива `proxy_pass` в конфигурации Nginx? &nbsp;</p>
-<p>6. Для чего используются директивы `proxy_set_header`? &nbsp;</p>
-<p>7. В каком каталоге обычно находятся дополнительные конфигурационные файлы сайтов Nginx? &nbsp;</p>
-<p>8. В какой файл Nginx записывает журнал доступа (access log)? &nbsp;</p>
-<p>9. Какой командой вы запускали простой HTTP‑сервер на Python? &nbsp;</p>
-<p>10. Объясните, что происходит при обращении к `http://127.0.0.1/api/` после настройки reverse‑proxy (опишите путь запроса от клиента до backend‑сервера).</p>
+<p>В терминале с Python‑сервером проверьте, что запросы к `/api/` действительно доходят до backend‑сервера (в логах должны появиться соответствующие строки).</p>
+<h1>Контрольные вопросы</h1>
+<ol>
+  <li>Чем forward proxy отличается от reverse proxy? &nbsp;</li>
+  <li>Как проверить корректность конфигурации Nginx перед перезапуском? &nbsp;</li>
+  <li>Что означает директива `proxy_pass` в конфигурации Nginx? &nbsp;</li>
+  <li>Для чего используются директивы `proxy_set_header`? &nbsp;</li>
+  <li>В каком каталоге обычно находятся дополнительные конфигурационные файлы сайтов Nginx? &nbsp;</li>
+</ol>
