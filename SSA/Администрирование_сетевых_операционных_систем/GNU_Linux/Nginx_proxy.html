@@ -2,7 +2,7 @@
 title: Настройка проксирование через Nginx
 description: 
 published: true
-date: 2026-03-15T15:27:07.642Z
+date: 2026-03-16T02:00:22.240Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-15T15:17:17.281Z
@@ -21,18 +21,6 @@ dateCreated: 2026-03-15T15:17:17.281Z
 <p>Ключевые понятия в конфигурации Nginx</p>
 <p>Основной конфигурационный файл: &nbsp;</p>
 <p><code>/etc/nginx/nginx.conf</code></p>
-<p>Базовая структура:</p>
-<pre><code class="language-plaintext">http {
-   # Глобальные настройки HTTP
-   server {
-       listen 80;              # Порт, который слушает сервер
-       server_name localhost;  # Имя сайта (домен)
-
-       location / {
-           proxy_pass http://127.0.0.1:8080;  # Куда проксировать запросы
-       }
-   }
-}</code></pre>
 <p>Основные директивы, которые мы будем использовать:</p>
 <p>- listen — на каком порту/адресе слушать (обычно 80 для HTTP).</p>
 <p>- server_name — имя сайта/виртуального хоста.</p>
@@ -90,6 +78,7 @@ python3 -m http.server 8080</code></pre>
 }</code></pre>
 <p>Создайте символическую ссылку&nbsp;</p>
 <pre><code class="language-plaintext">ln -s /etc/nginx/sites-available.d/proxy.conf /etc/nginx/sites-enabled.d/proxy.conf</code></pre>
+<p>&nbsp;</p>
 <blockquote>
   <p>Важно: удостоверьтесь, что в `conf.d` нет другого файла, который также слушает `listen 80;` с таким же `server_name`, иначе может быть конфликт. При необходимости временно переименуйте лишние конфиги (добавьте расширение `.bak`).</p>
 </blockquote>
@@ -122,7 +111,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful</code></pre>
    server_name localhost;
 
    # Корень сайта для статических файлов
-   root /usr/share/nginx/html;
+   root /var/www/html/;
    index index.html;
 
    # Все запросы к /api/ отправляем на backend
@@ -158,9 +147,9 @@ ln -s /etc/nginx/sites-available.d/proxy.conf /etc/nginx/sites-enabled.d/proxy.c
 <p>В терминале с Python‑сервером проверьте, что запросы к `/api/` действительно доходят до backend‑сервера (в логах должны появиться соответствующие строки).</p>
 <h1>Контрольные вопросы</h1>
 <ol>
-  <li>Чем forward proxy отличается от reverse proxy? &nbsp;</li>
-  <li>Как проверить корректность конфигурации Nginx перед перезапуском? &nbsp;</li>
-  <li>Что означает директива `proxy_pass` в конфигурации Nginx? &nbsp;</li>
-  <li>Для чего используются директивы `proxy_set_header`? &nbsp;</li>
-  <li>В каком каталоге обычно находятся дополнительные конфигурационные файлы сайтов Nginx? &nbsp;</li>
+  <li>Чем forward proxy отличается от reverse proxy?</li>
+  <li>Как проверить корректность конфигурации Nginx перед перезапуском?</li>
+  <li>Что означает директива `proxy_pass` в конфигурации Nginx?</li>
+  <li>Для чего используются директивы `proxy_set_header`?</li>
+  <li>В каком каталоге обычно находятся дополнительные конфигурационные файлы сайтов Nginx?</li>
 </ol>
