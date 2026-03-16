@@ -2,7 +2,7 @@
 title: Настройка проксирование через Nginx
 description: 
 published: true
-date: 2026-03-16T15:06:52.962Z
+date: 2026-03-16T15:07:40.224Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-15T15:17:17.281Z
@@ -145,7 +145,8 @@ ln -s /etc/nginx/sites-available.d/proxy.conf /etc/nginx/sites-enabled.d/proxy.c
 <pre><code class="language-plaintext">curl http://127.0.0.1/api/</code></pre>
 <p>Ожидается HTML, который выдаёт Python‑сервер (`Привет! Это backend-сервер...`).</p>
 <p>В терминале с Python‑сервером проверьте, что запросы к `/api/` действительно доходят до backend‑сервера (в логах должны появиться соответствующие строки).</p>
-<pre><code class="language-plaintext">Пример прокисрования zabbix:
+<h2>Пример прокисрования zabbix:</h2>
+<pre><code class="language-plaintext">
 #Postgresql
 apt-get install postgresql16-server zabbix-server-pgsql fping
 /etc/init.d/postgresql initdb
