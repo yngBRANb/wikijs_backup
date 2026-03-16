@@ -2,7 +2,7 @@
 title: Настройка проксирование через Nginx
 description: 
 published: true
-date: 2026-03-16T02:00:22.240Z
+date: 2026-03-16T15:06:52.962Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-15T15:17:17.281Z
@@ -145,6 +145,125 @@ ln -s /etc/nginx/sites-available.d/proxy.conf /etc/nginx/sites-enabled.d/proxy.c
 <pre><code class="language-plaintext">curl http://127.0.0.1/api/</code></pre>
 <p>Ожидается HTML, который выдаёт Python‑сервер (`Привет! Это backend-сервер...`).</p>
 <p>В терминале с Python‑сервером проверьте, что запросы к `/api/` действительно доходят до backend‑сервера (в логах должны появиться соответствующие строки).</p>
+<pre><code class="language-plaintext">Пример прокисрования zabbix:
+#Postgresql
+apt-get install postgresql16-server zabbix-server-pgsql fping
+/etc/init.d/postgresql initdb
+systemctl enable --now postgresql
+
+su - postgres -s /bin/bash
+
+# создание пользователя Zabbix (нужно установить пароль zabbixpwd)
+createuser --no-superuser --no-createdb --no-createrole --encrypted --pwprompt zabbix
+
+# создание БД zabbix
+createdb -O zabbix zabbix
+
+# добавить в базу данные для веб-интерфейса (займет минут 5)
+psql -U zabbix -f /usr/share/doc/zabbix-common-database-pgsql-*/schema.sql zabbix
+
+psql -U zabbix -f /usr/share/doc/zabbix-common-database-pgsql-*/images.sql zabbix
+
+psql -U zabbix -f /usr/share/doc/zabbix-common-database-pgsql-*/data.sql zabbix
+
+exit
+
+#Apache
+apt-get install apache2 apache2-mod_php8.2
+systemctl enable --now httpd2
+
+#PHP
+apt-get install php8.2 php8.2-mbstring php8.2-sockets php8.2-gd php8.2-xmlreader php8.2-pgsql php8.2-ldap php8.2-openssl
+
+vim /etc/php/8.2/apache2_mod_php/php.ini
+memory_limit = 256M
+post_max_size = 32M
+max_execution_time = 600
+max_input_time = 600
+date.timezone = Europe/Moscow
+always_populate_raw_post_data = -1
+
+systemctl restart httpd2
+
+vim /etc/zabbix/zabbix_server.conf
+DBHost=localhost
+DBName=zabbix
+DBUser=zabbix
+DBPassword=zabbixpwd
+
+systemctl enable --now zabbix_pgsql
+systemctl enable –now zabbix_agentd
+
+#Установка веб-морды
+apt-get install zabbix-phpfrontend-apache2 zabbix-phpfrontend-php8.2
+ln -s /etc/httpd2/conf/addon.d/A.zabbix.conf /etc/httpd2/conf/extra-enabled/
+systemctl restart httpd2
+chown apache2:apache2 /var/www/webapps/zabbix/ui/conf
+
+vim /etc/php/8.2/apache2_mod_php/php.ini
+memory_limit = 256M
+post_max_size = 32M
+max_execution_time = 600
+max_input_time = 600
+date.timezone = Europe/Moscow
+always_populate_raw_post_data = -1
+
+systemctl restart httpd2
+
+vim /etc/zabbix/zabbix_server.conf
+DBHost=localhost
+DBName=zabbix
+DBUser=zabbix
+DBPassword=zabbixpwd
+
+systemctl enable --now zabbix_pgsql
+systemctl enable –now zabbix_agentd
+
+#Установка веб-морды
+apt-get install zabbix-phpfrontend-apache2 zabbix-phpfrontend-php8.2
+ln -s /etc/httpd2/conf/addon.d/A.zabbix.conf /etc/httpd2/conf/extra-enabled/
+systemctl restart httpd2
+chown apache2:apache2 /var/www/webapps/zabbix/ui/conf
+
+Если нужен клиент:
+apt-get install zabbix-agent
+vim /etc/zabbix/zabbix-agentd.conf
+# Изменить
+Server=192.168.11.68
+ServerActive=192.168.11.68
+Hostname=hostname
+
+systemctl enable --now zabbix_agentd
+
+На сервере nginx:
+/etc/nginx/sites-available.d/default.conf
+
+# Стандартный конфиг в этом файле нужно стереть
+
+upstream zabbix {
+  server srv3-dt.au.team; #здесь должен быть ip
+}
+
+
+
+server {
+  listen 80; 
+  server_name zabbix.au.team; #здесь должен быть ip
+
+  location / {
+    return 301 http://$host/zabbix/$request_uri;
+  }
+
+  location /zabbix {
+    proxy_pass http://zabbix;
+  }
+}
+
+cd /etc/nginx/sites-enabled.d/
+
+ln -s ../sites-available/default.conf default.conf
+
+systemctl enable --now nginx</code></pre>
 <h1>Контрольные вопросы</h1>
 <ol>
   <li>Чем forward proxy отличается от reverse proxy?</li>
