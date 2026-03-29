@@ -2,7 +2,7 @@
 title: Настройка веб-сервера Nginx
 description: 
 published: true
-date: 2026-03-09T20:06:04.977Z
+date: 2026-03-29T15:53:39.039Z
 tags: 
 editor: ckeditor
 dateCreated: 2026-03-09T19:58:39.037Z
@@ -93,7 +93,7 @@ dateCreated: 2026-03-09T19:58:39.037Z
 </ul>
 <pre><code class="language-plaintext">include /etc/nginx/sites-enabled/*;</code></pre>
 <p>Не меняя основной файл, найдите каталог, где хранятся конфигурации сайтов.</p>
-<pre><code class="language-plaintext">ls /etc/nginx/sites-available/</code></pre>
+<pre><code class="language-plaintext">ls /etc/nginx/sites-available.d/</code></pre>
 <h2>Создание собственного простого сайта</h2>
 <p>Создадим отдельный каталог и простую HTML‑страницу.</p>
 <p>Создайте каталог для сайта:</p>
@@ -116,7 +116,7 @@ dateCreated: 2026-03-09T19:58:39.037Z
 <pre><code class="language-plaintext">chmod -R 755 /var/www/example</code></pre>
 <h2>Настройка виртуального хоста (server block)</h2>
 <p>Создайте новый файл конфигурации, например:</p>
-<pre><code class="language-plaintext">vim /etc/nginx/sites-available/example</code></pre>
+<pre><code class="language-plaintext">vim /etc/nginx/sites-available.d/example</code></pre>
 <p>Вставьте в него:</p>
 <pre><code class="language-plaintext">server {
     listen 80;
@@ -138,7 +138,7 @@ dateCreated: 2026-03-09T19:58:39.037Z
   <li><strong>root /var/www/example/</strong> - путь к каталогу с сайтом на сервере</li>
 </ul>
 <p>Создайте символическую ссылку в <code>sites-enabled</code>:</p>
-<pre><code class="language-plaintext">ln -s /etc/nginx/sites-available/example /etc/nginx/sites-enabled/example</code></pre>
+<pre><code class="language-plaintext">ln -s /etc/nginx/sites-available.d/example /etc/nginx/sites-enabled.d/example</code></pre>
 <h2>Проверка конфигурации и перезапуск Nginx</h2>
 <p>Проверьте файл конфигурации на наличие ошибок:</p>
 <pre><code class="language-plaintext">nginx -t</code></pre>
@@ -161,12 +161,6 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful</code></pre>
 <pre><code class="language-plaintext">curl http://example.local/</code></pre>
 <p>или (на самой ВМ):</p>
 <pre><code class="language-plaintext">curl -H "Host: example.local" http://127.0.0.1/</code></pre>
-<h2>Добавление upstream и обратного прокси</h2>
-<p>Теперь добавим ещё один виртуальный хост, который будет работать как обратный прокси к backend‑приложению.</p>
-<p>Предположим, у вас есть приложение, работающее на <code>127.0.0.1:3000</code><br>(например, Node.js, Flask, Django, любой HTTP‑сервер).</p>
-<h3>Определяем upstream</h3>
-<p>Откройте новый конфиг:</p>
-<pre><code class="language-plaintext">vim /etc/nginx/sites-available/app</code></pre>
 <h1>Контрольные вопросы</h1>
 <ol>
   <li>Что такое Nginx и для каких задач он обычно используется?</li>
