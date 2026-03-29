@@ -1,0 +1,202 @@
+<!--
+title: Установка и базовая работа с Docker в ALT Linux.
+description: 
+published: true
+date: 2026-03-29T16:25:42.316Z
+tags: 
+editor: ckeditor
+dateCreated: 2026-03-29T16:25:42.316Z
+-->
+
+<p><strong>Цель работы: </strong>Познакомиться с контейнеризацией на примере Docker в ALT Linux.</p>
+<h1>Краткие теоретические материалы</h1>
+<h2>Контейнеризация и Docker</h2>
+<p>Контейнеризация — способ запуска приложений в изолированной среде (контейнере), где уже есть все нужные библиотеки и конфигурация. Контейнеры используют ядро хостовой ОС и изолируются средствами ядра Linux (namespaces, cgroups).</p>
+<p>Docker — платформа для работы с контейнерами, включающая:</p>
+<p>- демон (службу) `dockerd`;</p>
+<p>- клиент `docker` (CLI);</p>
+<p>- форматы образов и контейнеров;</p>
+<p>- реестры образов (Docker Hub и др.).</p>
+<p>Образ (image) — «шаблон» файловой системы и настроек (как ISO-образ, но для контейнера). &nbsp;</p>
+<p>Контейнер (container) — запущенный экземпляр образа.</p>
+<h1>Задания для лабораторной работы</h1>
+<h2>Установка Docker&nbsp;</h2>
+<p>1. Установите Docker:</p>
+<pre><code class="language-plaintext">  apt-get install docker -y</code></pre>
+<p>2. Включите службу Docker и запустите ее:</p>
+<pre><code class="language-plaintext">  systemctl enable --now docker</code></pre>
+<p>3. Проверьте статус:</p>
+<pre><code class="language-plaintext">  systemctl status docker</code></pre>
+<p>4. Проверьте версию Docker:</p>
+<pre><code class="language-plaintext">  docker version</code></pre>
+<h2>Первый запуск контейнера: hello-world</h2>
+<p>1. Загрузите тестовый образ:</p>
+<pre><code class="language-plaintext">  docker pull hello-world</code></pre>
+<p>2. Проверьте, что образ появился:</p>
+<pre><code class="language-plaintext">  docker images</code></pre>
+<p>&nbsp; В списке должен быть `hello-world`.</p>
+<p>3. Запустите контейнер:</p>
+<pre><code class="language-plaintext">  docker run hello-world</code></pre>
+<p>&nbsp; Docker:</p>
+<p>&nbsp; - при необходимости подкачает образ;</p>
+<p>&nbsp; - создаст контейнер;</p>
+<p>&nbsp; - выполнит в нём тестовый скрипт;</p>
+<p>&nbsp; - выведет поясняющее сообщение.</p>
+<p>4. Посмотрите список контейнеров:</p>
+<pre><code class="language-plaintext">  docker ps -a</code></pre>
+<p>Обратите внимание:</p>
+<p>- контейнер на основе `hello-world` будет иметь статус `Exited` (он завершился после вывода текста).</p>
+<p>Запишите в отчет:</p>
+<p>- текст, который вывел `docker run hello-world` (кратко, главное);</p>
+<p>- строку о контейнере из `docker ps -a` (IMAGE, STATUS, NAMES).</p>
+<h2>&nbsp;Немного сложнее: интерактивный контейнер с Ubuntu</h2>
+<p>1. Загрузите образ Ubuntu:</p>
+<pre><code class="language-plaintext">  docker pull ubuntu:latest</code></pre>
+<p>2. Проверьте наличие образа:</p>
+<pre><code class="language-plaintext">  docker images</code></pre>
+<p>3. Запустите интерактивный контейнер:</p>
+<pre><code class="language-plaintext">  docker run -it --name test-ubuntu ubuntu:latest bash</code></pre>
+<p>&nbsp; Пояснения:</p>
+<p>&nbsp; - <code>-it</code> — интерактивный режим;</p>
+<p>&nbsp; - <code>--name test-ubuntu</code> — задаем имя контейнеру;</p>
+<p>&nbsp; - <code>bash</code> — запустить оболочку bash внутри контейнера.</p>
+<p>4. Внутри контейнера выполните:</p>
+<pre><code class="language-plaintext">  whoami
+  hostname
+  ls /</code></pre>
+<p>&nbsp; Обратите внимание:</p>
+<p>&nbsp; - пользователь внутри обычно `root` (это не root вашей хост-системы, а внутри контейнера);</p>
+<p>&nbsp; - `hostname` внутри контейнера отличается от хоста.</p>
+<p>5. Создайте файл внутри контейнера:</p>
+<pre><code class="language-plaintext">  touch /from_container
+  ls /</code></pre>
+<p>6. Выйдите из контейнера:</p>
+<pre><code class="language-plaintext">  exit</code></pre>
+<p>7. Снаружи посмотрите состояние:</p>
+<pre><code class="language-plaintext">  docker ps -a</code></pre>
+<p>&nbsp; Контейнер `test-ubuntu` будет в статусе `Exited`.</p>
+<h2>&nbsp;Запуск веб-сервера nginx в контейнере (фон + проброс порта)</h2>
+<p>1. Загрузите образ nginx:</p>
+<pre><code class="language-plaintext">  docker pull nginx:latest</code></pre>
+<p>2. Запустите контейнер nginx в фоновом режиме с пробросом порта:</p>
+<pre><code class="language-plaintext">  docker run -d -p 8080:80 --name webserver nginx:latest</code></pre>
+<p>&nbsp; Пояснения:</p>
+<p>&nbsp; - <code>-d</code> — запуск в фоне (daemon mode);</p>
+<p>&nbsp; - <code>-p 8080:80</code> — порт 8080 хоста будет перенаправлен на порт 80 контейнера;</p>
+<p>&nbsp; - <code>--name webserver</code> — имя контейнера.</p>
+<p>3. Проверьте, что контейнер запущен:</p>
+<pre><code class="language-plaintext">  docker ps</code></pre>
+<p>4. Для открытия страницы:</p>
+<pre><code class="language-plaintext">  http://IP_ВАШЕЙ_ВМ:8080</code></pre>
+<p>&nbsp; Должна открыться стартовая страница nginx.</p>
+<p>5. Посмотрите логи контейнера:</p>
+<pre><code class="language-plaintext">  docker logs webserver</code></pre>
+<p>&nbsp;Запишите в отчет:</p>
+<p>- вывод `docker ps` с контейнером `webserver`;</p>
+<p>- удалось ли открыть страницу nginx в браузере.</p>
+<h2>Введение в Dockerfile: создание собственного образа</h2>
+<p>Теперь усложним: создадим свой образ на основе ubuntu через Dockerfile.</p>
+<h3>Что такое Dockerfile (кратко)</h3>
+<p>Dockerfile — текстовый файл с инструкциями, как собрать образ. &nbsp;</p>
+<p>Типичные инструкции:</p>
+<p>- <code>FROM</code> — базовый образ (обязателен, первый);</p>
+<p>- <code>RUN</code> — выполнить команду при сборке (например, установить пакеты);</p>
+<p>- <code>COPY</code> — скопировать файлы в образ;</p>
+<p>- <code>WORKDIR</code> — рабочая директория по умолчанию;</p>
+<p>- <code>CMD</code> — команда по умолчанию при запуске контейнера;</p>
+<p>- <code>EXPOSE</code> — документируемые открытые порты.</p>
+<p>По Dockerfile образ собирается командой <code>docker build</code>.</p>
+<h2>Создание простого Dockerfile</h2>
+<p>Создадим образ на основе Ubuntu, который:</p>
+<p>- установит пакет `curl`;</p>
+<p>- при запуске покажет сообщение и версию `curl`.</p>
+<p>1. Создайте файл `Dockerfile` (через `nano`, `vim` или `mcedit`). Пример с `nano`:</p>
+<pre><code class="language-plaintext">  nano Dockerfile</code></pre>
+<p>2. Вставьте в него содержимое:</p>
+<pre><code class="language-plaintext">  # Базовый образ
+  FROM ubuntu:latest
+  # Обновляем список пакетов и устанавливаем curl
+  RUN apt-get update &amp;&amp; apt-get install -y curl &amp;&amp; apt-get clean &amp;&amp; rm -rf /var/lib/apt/lists/*
+  # Рабочая директория (не обязательно, но удобно)
+  WORKDIR /app
+  # Команда по умолчанию при запуске контейнера
+  CMD echo "Мой первый образ Docker на базе Ubuntu"; curl --version</code></pre>
+<p>3. Сохраните файл и выйдите из редактора.</p>
+<h3>Сборка образа из Dockerfile</h3>
+<p>1. Находясь в каталоге с `Dockerfile`, выполните:</p>
+<pre><code class="language-plaintext">  docker build -t my-ubuntu-curl:1.0 .</code></pre>
+<p>&nbsp; Пояснения:</p>
+<p>&nbsp; - <code>-t my-ubuntu-curl:1.0</code> — тег нового образа (имя:версия);</p>
+<p>&nbsp; -<code> .</code> — контекст сборки (текущий каталог).</p>
+<p>2. Дождитесь окончания сборки. &nbsp;</p>
+<p>&nbsp; Если нет ошибок, проверьте список образов:</p>
+<pre><code class="language-plaintext">  docker images</code></pre>
+<p>&nbsp; В списке появится `my-ubuntu-curl` с тегом `1.0`.</p>
+<p>Запишите в отчет:</p>
+<p>- команду сборки;</p>
+<p>- появилась ли запись `my-ubuntu-curl` в `docker images`.</p>
+<h3>Запуск контейнера из собственного образа</h3>
+<p>1. Запустите контейнер:</p>
+<pre><code class="language-plaintext">  docker run --rm my-ubuntu-curl:1.0</code></pre>
+<p>&nbsp; Пояснения:</p>
+<p>&nbsp; - <code>--rm</code> — удалить контейнер после завершения;</p>
+<p>&nbsp; - будет выполнена команда из `CMD` в Dockerfile.</p>
+<p>2. Обратите внимание на вывод:</p>
+<p>&nbsp; - строка `"Мой первый образ Docker на базе Ubuntu"`;</p>
+<p>&nbsp; - версия `curl`.</p>
+<p>3. Проверьте, что контейнер не остался «висячим»:</p>
+<pre><code class="language-plaintext">  docker ps -a</code></pre>
+<p>&nbsp; Контейнер, который запускал `my-ubuntu-curl:1.0` с `--rm`, должен отсутствовать.</p>
+<h2>Усложнение: простой Dockerfile для web-сервера&nbsp;</h2>
+<p>1. создайте файл `index.html`:</p>
+<pre><code class="language-plaintext">  echo "Hello from my Dockerfile on ALT Linux" &gt; index.html</code></pre>
+<p>2. Создайте второй Dockerfile, например `Dockerfile.nginx`:</p>
+<pre><code class="language-plaintext">  nano Dockerfile.nginx</code></pre>
+<p>3. Впишите в него (очень простой вариант на основе nginx):</p>
+<pre><code class="language-plaintext">  FROM nginx:latest
+  # Копируем наш файл в стандартную директорию nginx
+  COPY index.html /usr/share/nginx/html/index.html</code></pre>
+<p>4. Соберите образ:</p>
+<pre><code class="language-plaintext">  docker build -f Dockerfile.nginx -t my-nginx:1.0 .</code></pre>
+<p>5. Запустите контейнер:</p>
+<pre><code class="language-plaintext">  docker run -d -p 8081:80 --name my-nginx my-nginx:1.0</code></pre>
+<p>6. Откройте в браузере:</p>
+<pre><code class="language-plaintext">  http://IP_ВАШЕЙ_ВМ:8081</code></pre>
+<p>&nbsp; Должен отобразиться текст `"Hello from my Dockerfile on ALT Linux"`.</p>
+<h2>Остановка и очистка</h2>
+<p>1. Остановите и удалите контейнеры:</p>
+<pre><code class="language-plaintext">  docker stop webserver
+  docker rm webserver
+  docker stop my-nginx 
+  docker rm my-nginx</code></pre>
+<p>2. Для удаления образов:</p>
+<pre><code class="language-plaintext">  docker rmi my-ubuntu-curl:1.0
+  docker rmi my-nginx:1.0
+  docker rmi nginx:latest
+  docker rmi ubuntu:latest
+  docker rmi hello-world</code></pre>
+<p>3. Проверьте:</p>
+<pre><code class="language-plaintext">  docker ps -a
+  docker images</code></pre>
+<h1>Контрольные вопросы</h1>
+<p>1. Что такое контейнер и чем он отличается от образа?</p>
+<p>2. Какие преимущества имеет контейнеризация по сравнению с виртуализацией?</p>
+<p>3. Какие команды вы использовали, чтобы:</p>
+<p>&nbsp; - загрузить образ с Docker Hub;</p>
+<p>&nbsp; - запустить тестовый контейнер `hello-world`;</p>
+<p>&nbsp; - посмотреть список контейнеров и образов?</p>
+<p>4. Что делают команды:</p>
+<p>&nbsp; - `docker run hello-world`;</p>
+<p>&nbsp; - `docker run -it ubuntu:latest bash`;</p>
+<p>&nbsp; - `docker run -d -p 8080:80 nginx:latest`?</p>
+<p>5. Что такое Dockerfile? Для чего он используется?</p>
+<p>6. Какие инструкции вы использовали в Dockerfile и что они означают:</p>
+<p>&nbsp; - `FROM`;</p>
+<p>&nbsp; - `RUN`;</p>
+<p>&nbsp; - `WORKDIR`;</p>
+<p>&nbsp; - `CMD`;</p>
+<p>&nbsp; - `COPY`?</p>
+<p>7. Какой командой собирается образ из Dockerfile? Что означает флаг `-t` и точка (`.`) в конце команды `docker build`?</p>
+<p>8. Что делает флаг `--rm` при запуске `docker run`?</p>
+<p>9. Как можно опубликовать (пробросить) порт контейнера на хост? Приведите пример синтаксиса.</p>
+<p>10. В чем разница между запуском `docker run` в интерактивном режиме (`-it`) и в фоновом (`-d`)?</p>
